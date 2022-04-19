@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="bind">
+      <UniqueIdentifier>{3e854b4f-782e-474f-8457-c53b1d0189b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bind\include">
+      <UniqueIdentifier>{c7abf8ce-e2bf-4f7c-aab1-f492df7f016e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bind\src">
+      <UniqueIdentifier>{042ccb0a-b41f-4df2-97db-f93ec22164b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{6300ab6b-1b80-4501-b4a3-a9238ee218ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bind\include\_selected">
+      <UniqueIdentifier>{e420acc7-3d88-4a77-8d78-23d413b6a8ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bind\include\_each">
+      <UniqueIdentifier>{eface94d-6bee-4f74-959c-37a88d15882a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\config.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\display.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\event.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\user_event.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\event_queue.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\file.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\filesystem.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\display_mode.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\color.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\locked_region.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitmap.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\joystick.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\keyboard.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\monitor_info.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mouse.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\path.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\shader.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\state.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\thread.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\timer.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\touch.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\transform.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\utfstring.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio_stream.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio_sample.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio_voice.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio_mixer.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\font.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\native_dialog.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\menu.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vertex.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\video.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics.h">
+      <Filter>bind\include\_selected</Filter>
+    </ClInclude>
+    <ClInclude Include="include\blender.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\display.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="test\test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bitmap.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
