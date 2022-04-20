@@ -79,5 +79,9 @@ namespace AllegroCPP {
 		bool set_clip_rectangle(std::pair<int, int> clipcut, std::pair<int, int> clipsize);
 		bool get_clip_rectangle(int& posx, int& posy, int& width, int& height) const;
 		bool reset_clip_rectangle();
+
+		const ALLEGRO_TRANSFORM* get_current_transform() const;
+		const ALLEGRO_TRANSFORM* get_current_inverse_transform() const;
+		const ALLEGRO_TRANSFORM* get_current_projection_transform() const;
 	};
 }

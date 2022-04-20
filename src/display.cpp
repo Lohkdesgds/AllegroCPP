@@ -291,4 +291,31 @@ namespace AllegroCPP {
 		return true;
 	}
 
+	const ALLEGRO_TRANSFORM* Display::get_current_transform() const
+	{
+		if (!m_disp) return nullptr;
+		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		const ALLEGRO_TRANSFORM* currt = al_get_current_transform();
+		al_set_target_bitmap(oldtarg);
+		return currt;
+	}
+
+	const ALLEGRO_TRANSFORM* Display::get_current_inverse_transform() const
+	{
+		if (!m_disp) return nullptr;
+		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		const ALLEGRO_TRANSFORM* currt = al_get_current_inverse_transform();
+		al_set_target_bitmap(oldtarg);
+		return currt;
+	}
+
+	const ALLEGRO_TRANSFORM* Display::get_current_projection_transform() const
+	{
+		if (!m_disp) return nullptr;
+		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		const ALLEGRO_TRANSFORM* currt = al_get_current_projection_transform();
+		al_set_target_bitmap(oldtarg);
+		return currt;
+	}
+
 }

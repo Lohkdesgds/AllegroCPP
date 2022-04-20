@@ -240,6 +240,8 @@
   <ItemGroup>
     <ClCompile Include="src\bitmap.cpp" />
     <ClCompile Include="src\display.cpp" />
+    <ClCompile Include="src\locked_region.cpp" />
+    <ClCompile Include="src\transform.cpp" />
     <ClCompile Include="test\test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

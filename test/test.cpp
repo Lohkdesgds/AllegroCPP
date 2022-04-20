@@ -11,11 +11,10 @@ int main()
 {
 	Display disp({ 1600,900 }, "Funny window", ALLEGRO_OPENGL);
 	Bitmap bmp(imgtest);
-
-	ALLEGRO_TRANSFORM t;
-	al_identity_transform(&t);
-	al_scale_transform(&t, disp.get_width() * 1.0f / bmp.get_width(), disp.get_height() * 1.0f / bmp.get_height());
-	al_use_transform(&t);
+	Transform trans;
+		
+	trans.scale({ disp.get_width() * 1.0f / bmp.get_width(), disp.get_height() * 1.0f / bmp.get_height() });
+	trans.use();
 
 	bmp.draw({ 0,0 });
 	disp.flip();

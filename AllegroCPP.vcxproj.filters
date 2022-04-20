@@ -137,5 +137,11 @@
     <ClCompile Include="src\bitmap.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\locked_region.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\transform.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
