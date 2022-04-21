@@ -480,76 +480,6 @@ namespace AllegroCPP {
 			}
 
 			return res > 0 ? static_cast<size_t>(res) : 0;
-
-			//switch (sud->mode) {
-			//case socket_type::INVALID:
-			//	sud->badflag |= static_cast<int32_t>(socket_errors::SOCKET_INVALID);
-			//	break; // returns 0
-			//case socket_type::TCP_CLIENT:
-			//	res = ::recv(sud->m_socks[0].first, (char*)ptr, static_cast<int>(size), 0);
-			//	if (res < 0) { sud->badflag |= static_cast<int32_t>(socket_errors::RECV_FAILED); }
-			//	else if (res == 0) { sud->badflag |= static_cast<int32_t>(socket_errors::CLOSED); }
-			//	break;
-			//case socket_type::TCP_HOST:
-			//{
-			//	if (size != sizeof(socket_user_data)) { sud->badflag |= static_cast<int32_t>(socket_errors::HOST_PTR_RECV_FAIL); return 0; }
-			//	
-			//	SocketType trigg = sock_listen(sud->m_socks, 1);
-			//	socklen_t _temp_len = sizeof(SocketStorage);
-			//	SocketAddrInfo trigginfo{};
-			//
-			//	if (!SocketGood(trigg)) { sud->badflag |= static_cast<int32_t>(socket_errors::RECV_FAILED); return 0; }
-			//	socket_user_data& oths = *(socket_user_data*)ptr;
-			//
-			//	SocketType accep = ::accept(trigg, (sockaddr*)&trigginfo, &_temp_len);
-			//	if (!SocketGood(accep)) { sud->badflag |= static_cast<int32_t>(socket_errors::RECV_FAILED); return 0; }
-			//
-			//	oths.mode = socket_type::TCP_CLIENT;
-			//	oths.m_socks.push_back({ accep, trigginfo });
-			//	oths.badflag = 0;
-			//	res = sizeof(socket_user_data);
-			//}
-			//case socket_type::UDP_HOST:
-			//{
-			//	if (size != sizeof(socket_user_data)) { sud->badflag |= static_cast<int32_t>(socket_errors::HOST_PTR_RECV_FAIL); return 0; }
-			//	
-			//	SocketType trigg = sock_listen(sud->m_socks, 1);
-			//	socklen_t _temp_len = sizeof(SocketStorage);
-			//	SocketAddrInfo trigginfo{};
-			//
-			//	if (!SocketGood(trigg)) { sud->badflag |= static_cast<int32_t>(socket_errors::RECV_FAILED); return 0; }
-			//	socket_user_data& oths = *(socket_user_data*)ptr;
-			//
-			//	char byte{};
-			//	// sock_listen triggers on 1 or bigger, so no lock expected here lmao
-			//	res = ::recvfrom(trigg, &byte, 1, MSG_PEEK, (sockaddr*)&trigginfo, &_temp_len);
-			//
-			//	if (res < 0 && theSocketError != SocketBUFFERSMALL) {
-			//		sud->badflag |= static_cast<int32_t>(socket_errors::RECV_FAILED);
-			//		oths.badflag |= static_cast<int32_t>(socket_errors::RECV_FAILED);
-			//		res = 0;
-			//	}
-			//	else if (res == 0) { return 0; } // empty packet?
-			//	else { // res > 0 or not SocketBUFFERSMALL (expected if package is > 1 because hackz)
-			//		oths.mode = socket_type::UDP_HOST_CLIENT;
-			//		oths.m_socks.push_back({ trigg, trigginfo });
-			//		oths.badflag = 0;
-			//		res = sizeof(socket_user_data);
-			//	}
-			//	break;
-			//}
-			//case socket_type::UDP_CLIENT:
-			//case socket_type::UDP_HOST_CLIENT:
-			//{
-			//	socklen_t _temp_len = sizeof(SocketStorage);
-			//	res = ::recvfrom(sud->m_socks[0].first, (char*)ptr, size, 0, (sockaddr*)&sud->m_socks[0].second, &_temp_len);
-			//	if (res < 0) { sud->badflag |= static_cast<int32_t>(socket_errors::RECV_FAILED); }
-			//	else if (res == 0) { sud->badflag |= static_cast<int32_t>(socket_errors::CLOSED); }
-			//}
-			//	break;
-			//}
-			//
-			//return res > 0 ? static_cast<size_t>(res) : 0;
 		}
 
 		size_t sock_write(ALLEGRO_FILE* fp, const void* ptr, size_t size)
@@ -743,12 +673,12 @@ namespace AllegroCPP {
 			m_fp = nullptr; // no file, nothing, empty
 		}
 
-		_FileSocket::_FileSocket(_FileSocket&& oth)
+		_FileSocket::_FileSocket(_FileSocket&& oth) noexcept
 			: File(std::move(oth))
 		{
 		}
 
-		void _FileSocket::operator=(_FileSocket&& oth)
+		void _FileSocket::operator=(_FileSocket&& oth) noexcept
 		{
 			this->File::operator=(std::move(oth));
 		}
@@ -769,91 +699,6 @@ namespace AllegroCPP {
 			return !empty() && !has_error();
 		}
 
-		//bool _FileSocket::_listen(long timeout, SocketType* sok, _socketmap::socket_user_data** sodnd) const
-		//{
-		//	if (!m_fp) return false;
-		//	_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp);
-		//	if (!sod || sod->m_socks.empty()) return false;
-		//	if (sodnd) *sodnd = sod; // copy
-		//	return SocketGood(sok ? (*sok = _socketmap::sock_listen(sod->m_socks, timeout)) : _socketmap::sock_listen(sod->m_socks, timeout));
-		//}
-		//
-		//_FileSocket::_FileSocket(const std::string& addr, uint16_t port, int protocol, int family)
-		//{
-		//	_socketmap::socket_config conf;
-		//	uint64_t len = sizeof(conf);
-		//
-		//	conf.prealloc = nullptr;
-		//	conf.addr = addr;
-		//	conf.protocol = protocol;
-		//	conf.family = family;
-		//	conf.port = port;
-		//	conf.host = false;
-		//
-		//	m_fp = al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len);
-		//
-		//	if (!m_fp) throw std::runtime_error("Could not create FileSocket");
-		//}
-		//
-		//_FileSocket::_FileSocket(uint16_t port, int protocol, int family)
-		//{
-		//	_socketmap::socket_config conf;
-		//	uint64_t len = sizeof(conf);
-		//
-		//	conf.prealloc = nullptr;
-		//	conf.protocol = protocol;
-		//	conf.family = family;
-		//	conf.port = port;
-		//	conf.host = true;
-		//
-		//	m_fp = al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len);
-		//
-		//	if (!m_fp) throw std::runtime_error("Could not create FileSocket");
-		//}
-		//
-		//bool _FileSocket::combine(_FileSocket&& oth)
-		//{
-		//	if (!m_fp || !oth.m_fp) return false;
-		//	_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp);
-		//	_socketmap::socket_user_data* sod_them = (_socketmap::socket_user_data*)al_get_file_userdata(oth.m_fp);
-		//	if (!sod || !sod_them) return false;
-		//	if (!sod->is_host || !sod_them->is_host) return false;
-		//
-		//	sod->m_socks.insert(sod->m_socks.end(), std::move_iterator(sod_them->m_socks.begin()), std::move_iterator(sod_them->m_socks.end()));
-		//	sod_them->m_socks.clear();
-		//	al_fclose(oth.m_fp);
-		//	oth.m_fp = nullptr;
-		//	return true;
-		//
-		//}
-		//
-		//bool _FileSocket::has_listen() const
-		//{
-		//	return _listen(1);
-		//}
-		//
-		//_FileSocket _FileSocket::listen(long timeout) const
-		//{
-		//	SocketType sock = SocketInvalid;
-		//	_socketmap::socket_user_data* sod = nullptr;
-		//
-		//	if (!_listen(timeout, &sock, &sod)) return _FileSocket(nullptr);
-		//
-		//	SocketStorage From{};
-		//	socklen_t FromLen = sizeof(SocketStorage);
-		//
-		//	_socketmap::socket_user_data* new_sod = new _socketmap::socket_user_data();
-		//	new_sod->is_udp_shared = (sod->lastprot & SOCK_DGRAM);
-		//	new_sod->is_host = false;
-		//	new_sod->badflag = 0;
-		//	new_sod->lastprot = sod->lastprot;
-		//	new_sod->m_socks.push_back((sod->lastprot & SOCK_DGRAM) ? sock : accept(sock, (SocketSockAddrPtr)&From, &FromLen));
-		//	if (!SocketGood(new_sod->m_socks[0].first)) { // pain
-		//		delete new_sod;
-		//		return _FileSocket(nullptr);
-		//	}
-		//	return _FileSocket(new_sod);
-		//}
 	}
 
 	FileClient::FileClient(_socketmap::socket_user_data* absorb)
@@ -983,14 +828,6 @@ namespace AllegroCPP {
 		oth.m_fp = nullptr;
 		return true;
 	}
-
-	//bool FileHost::has_listen(long timeout) const
-	//{
-	//	if (!m_fp) return false;
-	//	_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp);
-	//	if (!sod) return false;
-	//	return (_socketmap::sock_listen(sod->m_socks, timeout < 0 ? 0 : timeout) != sod->m_socks.end());
-	//}
 
 	FileClient FileHost::listen(long timeout)
 	{

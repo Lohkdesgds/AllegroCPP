@@ -258,25 +258,11 @@ namespace AllegroCPP {
 			void set(_socketmap::socket_user_data* absorb);
 
 			_FileSocket();
-			//bool _listen(long timeout, SocketType* sok = nullptr, _socketmap::socket_user_data** = nullptr) const;
 		public:
-			_FileSocket(_FileSocket&&);
-			void operator=(_FileSocket&&);
+			_FileSocket(_FileSocket&&) noexcept;
+			void operator=(_FileSocket&&) noexcept;
 			_FileSocket(const _FileSocket&) = delete;
 			void operator=(const _FileSocket&) = delete;
-
-			// client
-			//_FileSocket(const std::string& addr, uint16_t port, int protocol = SOCK_STREAM, int family = PF_UNSPEC);
-			// host
-			//_FileSocket(uint16_t port, int protocol = SOCK_STREAM, int family = PF_UNSPEC);
-			// ~_FileSocket: destructor is the same.
-
-
-			// only hosts are combinable (move managed sockets from that to this)
-			//bool combine(_FileSocket&&);
-
-			//bool has_listen() const;
-			//_FileSocket listen(long timeout) const;
 
 			bool empty() const;
 			bool valid() const;
@@ -336,7 +322,6 @@ namespace AllegroCPP {
 
 		bool combine(FileHost&&);
 
-		//bool has_listen(long timeout = 1) const;
 		FileClient listen(long timeout = 500);
 	};
 
