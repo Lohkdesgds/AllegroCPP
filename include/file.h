@@ -25,6 +25,7 @@ constexpr int SocketTimeout = 0;
 #define ioctlSocket(...) ::ioctlsocket(__VA_ARGS__)
 #define pollSocket(...) ::WSAPoll(__VA_ARGS__)
 #define theSocketError WSAGetLastError()
+#define SocketBUFFERSMALL WSAEMSGSIZE
 #define SocketWOULDBLOCK WSAEWOULDBLOCK
 #define SocketNETRESET WSAENETRESET
 #define SocketCONNRESET WSAECONNRESET
@@ -52,11 +53,13 @@ constexpr int SocketTimeout = 0;
 #define ioctlSocket(...) ::ioctl(__VA_ARGS__)
 #define pollSocket(...) ::poll(__VA_ARGS__)
 #define theSocketError errno
+#define SocketBUFFERSMALL EMSGSIZE
 #define SocketWOULDBLOCK EWOULDBLOCK
 #define SocketNETRESET ENETRESET
 #define SocketCONNRESET ECONNRESET
 #define SocketPOLLIN POLLIN
 #endif
+#define SocketGood(X) [&]{ const auto xg = (X); return (xg != SocketInvalid && xg != SocketError);}()
 
 #endif // ALLEGROCPP_DISABLE_FILESOCKET
 
@@ -160,7 +163,7 @@ namespace AllegroCPP {
 	};
 
 #ifndef ALLEGROCPP_DISABLE_FILESOCKET
-	namespace AllegroCPP_socketmap {
+	namespace _socketmap {
 
 		enum class socket_errors : int32_t {
 			SOCKET_INVALID				= 1 << 0,
@@ -168,15 +171,35 @@ namespace AllegroCPP {
 			SEND_FAILED					= 1 << 2,
 			GETADDR_FAILED				= 1 << 3,
 			ADDR_CANT_FIND				= 1 << 4,
-			MODE_WAS_INVALID			= 1 << 5
+			MODE_WAS_INVALID			= 1 << 5,
+			HOST_PTR_RECV_FAIL			= 1 << 6,
+			CLOSED						= 1 << 7
+		};
+		enum class socket_type : uint8_t {
+			INVALID,
+			TCP_HOST,
+			TCP_CLIENT,
+			UDP_HOST,
+			UDP_HOST_CLIENT,
+			UDP_CLIENT
 		};
 
 		struct socket_user_data {
-			std::vector<SocketType> m_socks;
+			struct _eachsock {
+				SocketType sock = SocketInvalid;
+				SocketAddrInfo info{};
+				socket_type type = socket_type::INVALID; // UDP_HOST_CLIENT is the only one that DOES NOT CLOSE SOCKET!
+				_eachsock(SocketType, SocketAddrInfo, socket_type);
+			};
+			std::vector<_eachsock> m_socks; // SocketAddrInfo for UDP has last recv all the time.
 			int32_t badflag = 0;
-			int lastprot = 0;
-			bool is_host = false;
-			bool is_udp_shared = false;
+			bool has_host() const;
+			void close_auto();
+		};
+
+		struct new_socket_user_data {
+			socket_user_data* ptr = nullptr;
+			long timeout = 0; // used on hosts only
 		};
 
 		struct socket_config {
@@ -191,6 +214,7 @@ namespace AllegroCPP {
 		// socket_config* and &(sizeof(socket_config)) (as uint64_t)
 		void* sock_open(const char* addr, const char* intptr);
 		bool sock_close(ALLEGRO_FILE* fp);
+		// tcp client and udp client return like recv. host expects void* to be socket_user_data and size == sizeof that (gets final value there)
 		size_t sock_read(ALLEGRO_FILE* fp, void* ptr, size_t size);
 		size_t sock_write(ALLEGRO_FILE* fp, const void* ptr, size_t size);
 		bool sock_flush(ALLEGRO_FILE* fp);
@@ -203,7 +227,9 @@ namespace AllegroCPP {
 		int sock_ungetc(ALLEGRO_FILE* fp, int c);
 		off_t sock_size(ALLEGRO_FILE*);
 
-		SocketType sock_listen(std::vector<SocketType>& servers, const long timeout);
+		std::vector<socket_user_data::_eachsock>::const_iterator sock_listen(const std::vector<socket_user_data::_eachsock>& servers, const long timeout);
+		SocketType sock_listen(const std::vector<SocketType>& servers, const long timeout);
+		void setsocktimeout_auto(SocketType, unsigned long ms);
 		
 		static ALLEGRO_FILE_INTERFACE socket_interface =
 		{
@@ -221,64 +247,97 @@ namespace AllegroCPP {
 		   sock_ungetc,
 		   sock_size
 		};
+
+		class _FileSocket : protected File {
+#ifdef _WIN32 
+			struct _winsock_start { WSADATA wsaData = WSADATA(); _winsock_start(); ~_winsock_start(); };
+			static _winsock_start __winsock;
+#endif
+		protected:
+			// used in host type, when host listen() or something and them boom, child.
+			void set(_socketmap::socket_user_data* absorb);
+
+			_FileSocket();
+			//bool _listen(long timeout, SocketType* sok = nullptr, _socketmap::socket_user_data** = nullptr) const;
+		public:
+			_FileSocket(_FileSocket&&);
+			void operator=(_FileSocket&&);
+			_FileSocket(const _FileSocket&) = delete;
+			void operator=(const _FileSocket&) = delete;
+
+			// client
+			//_FileSocket(const std::string& addr, uint16_t port, int protocol = SOCK_STREAM, int family = PF_UNSPEC);
+			// host
+			//_FileSocket(uint16_t port, int protocol = SOCK_STREAM, int family = PF_UNSPEC);
+			// ~_FileSocket: destructor is the same.
+
+
+			// only hosts are combinable (move managed sockets from that to this)
+			//bool combine(_FileSocket&&);
+
+			//bool has_listen() const;
+			//_FileSocket listen(long timeout) const;
+
+			bool empty() const;
+			bool valid() const;
+			operator bool() const;
+
+			using File::operator=;
+
+			using File::operator ALLEGRO_FILE*;
+
+			using File::read;
+			using File::write;
+			using File::eof;
+			using File::has_error;
+			using File::get_error;
+			using File::getc;
+			using File::putc;
+			using File::printformat;
+			using File::vprintformat;
+
+			using File::gets;
+			using File::puts;
+		};
 	}
 
-	class FileSocket : protected File {
-#ifdef _WIN32 
-		struct _winsock_start { WSADATA wsaData = WSADATA(); _winsock_start(); ~_winsock_start(); };
-		static _winsock_start __winsock;
-#endif
-		// used in host type, when host listen() or something and them boom, child.
-		FileSocket(AllegroCPP_socketmap::socket_user_data* absorb);
+	class FileHost;
 
-		bool _listen(long timeout, SocketType* sok = nullptr, AllegroCPP_socketmap::socket_user_data** = nullptr) const;
+	enum class file_protocol{TCP = SOCK_STREAM, UDP = SOCK_DGRAM};
+	enum class file_family{ANY = PF_UNSPEC, IPV4 = PF_INET, IPV6 = PF_INET6};
+
+	class FileClient : public _socketmap::_FileSocket {
+		friend class FileHost; // so host can gen FileClient
+
+		FileClient(_socketmap::socket_user_data* absorb);
 	public:
-		// client
-		FileSocket(const std::string& addr, uint16_t port, int protocol = SOCK_STREAM, int family = PF_UNSPEC);
-		// host
-		FileSocket(uint16_t port, int protocol = SOCK_STREAM, int family = PF_UNSPEC);
-		// ~FileSocket: destructor is the same.
+		FileClient(const std::string& addr, uint16_t port, int protocol, int family = PF_UNSPEC);
+		FileClient(const std::string& addr, uint16_t port, file_protocol protocol = file_protocol::TCP, file_family family = file_family::ANY);
 
-		FileSocket(FileSocket&&) = default;
+		FileClient(const FileClient&) = delete;
+		FileClient(FileClient&&) noexcept;
+		void operator=(const FileClient&) = delete;
+		void operator=(FileClient&&) noexcept;
 
-		FileSocket(const FileSocket&) = delete;
-		void operator=(const FileSocket&) = delete;
+		bool set_timeout_read(unsigned long ms);
+	};
 
-		// only hosts are combinable (move managed sockets from that to this)
-		bool combine(FileSocket&&);
+	class FileHost : public _socketmap::_FileSocket {
+		using _FileSocket::write; // hide
+		using _FileSocket::read; // hide
+	public:
+		FileHost(uint16_t port, int protocol, int family = PF_UNSPEC);
+		FileHost(uint16_t port, file_protocol protocol = file_protocol::TCP, file_family family = file_family::ANY);
 
-		bool has_listen() const;
-		FileSocket listen(long timeout) const;
+		FileHost(const FileHost&) = delete;
+		FileHost(FileHost&&) noexcept;
+		void operator=(const FileHost&) = delete;
+		void operator=(FileHost&&) noexcept;
 
-		using File::operator=;
+		bool combine(FileHost&&);
 
-		using File::empty;
-		using File::valid;
-		using File::operator bool;
-		using File::operator ALLEGRO_FILE*;
-
-		using File::read;
-		using File::write;
-		using File::eof;
-		using File::has_error;
-		using File::get_error;
-		using File::getc;
-		using File::putc;
-		using File::printformat;
-		using File::vprintformat;
-
-		using File::read16le;
-		using File::read16be;
-		using File::write16le;
-		using File::write16be;
-		using File::read32le;
-		using File::read32be;
-		using File::write32le;
-		using File::write32be;
-
-		using File::gets;
-		using File::get_ustr;
-		using File::puts;
+		//bool has_listen(long timeout = 1) const;
+		FileClient listen(long timeout = 500);
 	};
 
 #endif // ALLEGROCPP_DISABLE_FILESOCKET
