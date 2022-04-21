@@ -55,6 +55,11 @@ namespace AllegroCPP {
 		return m_disp;
 	}
 
+	Display::operator ALLEGRO_EVENT_SOURCE* ()
+	{
+		return m_disp ? al_get_display_event_source(m_disp) : nullptr;
+	}
+
 	ALLEGRO_EVENT_SOURCE* Display::get_event_source() const
 	{
 		return m_disp ? al_get_display_event_source(m_disp) : nullptr;

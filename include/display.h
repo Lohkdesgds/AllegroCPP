@@ -34,6 +34,7 @@ namespace AllegroCPP {
 		bool valid() const;
 		operator bool() const;
 		operator ALLEGRO_DISPLAY*();
+		operator ALLEGRO_EVENT_SOURCE*();
 
 		ALLEGRO_EVENT_SOURCE* get_event_source() const;
 		ALLEGRO_BITMAP* get_backbuffer();

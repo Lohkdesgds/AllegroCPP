@@ -5,9 +5,9 @@
 #include "bitmap.h"
 #include "display.h"
 #include "display_mode.h"
-#include "event.h"
+#include "events.h"
 #include "event_queue.h"
-#include "filesystem.h"
+//#include "filesystem.h"
 #include "font.h" // depends on file.h
 #include "locked_region.h"
 #include "menu.h"

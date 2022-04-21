@@ -212,10 +212,9 @@
     <ClInclude Include="include\config.h" />
     <ClInclude Include="include\display.h" />
     <ClInclude Include="include\display_mode.h" />
-    <ClInclude Include="include\event.h" />
+    <ClInclude Include="include\events.h" />
     <ClInclude Include="include\event_queue.h" />
     <ClInclude Include="include\file.h" />
-    <ClInclude Include="include\filesystem.h" />
     <ClInclude Include="include\font.h" />
     <ClInclude Include="include\Graphics.h" />
     <ClInclude Include="include\joystick.h" />
@@ -240,9 +239,11 @@
   <ItemGroup>
     <ClCompile Include="src\bitmap.cpp" />
     <ClCompile Include="src\display.cpp" />
+    <ClCompile Include="src\event_queue.cpp" />
     <ClCompile Include="src\file.cpp" />
     <ClCompile Include="src\font.cpp" />
     <ClCompile Include="src\locked_region.cpp" />
+    <ClCompile Include="src\monitor_info.cpp" />
     <ClCompile Include="src\transform.cpp" />
     <ClCompile Include="test\test.cpp" />
   </ItemGroup>

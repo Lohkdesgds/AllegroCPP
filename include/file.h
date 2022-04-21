@@ -136,30 +136,30 @@ namespace AllegroCPP {
 		ALLEGRO_FILE* drop();
 	};
 
-	class FileTmp : public File {
+	class File_tmp : public File {
 		using File::drop; // remove access
 	public:
-		FileTmp(const std::string& tmppath = "XXXXXXXX.tmp");
-		~FileTmp();
+		File_tmp(const std::string& tmppath = "XXXXXXXX.tmp");
+		~File_tmp();
 
-		FileTmp(const FileTmp&) = delete;
-		FileTmp(FileTmp&&) noexcept;
-		void operator=(const FileTmp&) = delete;
-		void operator=(FileTmp&&) noexcept;
+		File_tmp(const File_tmp&) = delete;
+		File_tmp(File_tmp&&) noexcept;
+		void operator=(const File_tmp&) = delete;
+		void operator=(File_tmp&&) noexcept;
 	};
 
-	class FileMem : public File {
+	class File_memory : public File {
 		char* m_mem = nullptr;
 
 		using File::drop; // remove access
 	public:
-		FileMem(size_t memlen);
-		~FileMem();
+		File_memory(size_t memlen);
+		~File_memory();
 
-		FileMem(const FileMem&) = delete;
-		FileMem(FileMem&&) noexcept;
-		void operator=(const FileMem&) = delete;
-		void operator=(FileMem&&) noexcept;
+		File_memory(const File_memory&) = delete;
+		File_memory(File_memory&&) noexcept;
+		void operator=(const File_memory&) = delete;
+		void operator=(File_memory&&) noexcept;
 	};
 
 #ifndef ALLEGROCPP_DISABLE_FILESOCKET
@@ -287,42 +287,42 @@ namespace AllegroCPP {
 		};
 	}
 
-	class FileHost;
+	class File_host;
 
 	enum class file_protocol{TCP = SOCK_STREAM, UDP = SOCK_DGRAM};
 	enum class file_family{ANY = PF_UNSPEC, IPV4 = PF_INET, IPV6 = PF_INET6};
 
-	class FileClient : public _socketmap::_FileSocket {
-		friend class FileHost; // so host can gen FileClient
+	class File_client : public _socketmap::_FileSocket {
+		friend class File_host; // so host can gen File_client
 
-		FileClient(_socketmap::socket_user_data* absorb);
+		File_client(_socketmap::socket_user_data* absorb);
 	public:
-		FileClient(const std::string& addr, uint16_t port, int protocol, int family = PF_UNSPEC);
-		FileClient(const std::string& addr, uint16_t port, file_protocol protocol = file_protocol::TCP, file_family family = file_family::ANY);
+		File_client(const std::string& addr, uint16_t port, int protocol, int family = PF_UNSPEC);
+		File_client(const std::string& addr, uint16_t port, file_protocol protocol = file_protocol::TCP, file_family family = file_family::ANY);
 
-		FileClient(const FileClient&) = delete;
-		FileClient(FileClient&&) noexcept;
-		void operator=(const FileClient&) = delete;
-		void operator=(FileClient&&) noexcept;
+		File_client(const File_client&) = delete;
+		File_client(File_client&&) noexcept;
+		void operator=(const File_client&) = delete;
+		void operator=(File_client&&) noexcept;
 
 		bool set_timeout_read(unsigned long ms);
 	};
 
-	class FileHost : public _socketmap::_FileSocket {
+	class File_host : public _socketmap::_FileSocket {
 		using _FileSocket::write; // hide
 		using _FileSocket::read; // hide
 	public:
-		FileHost(uint16_t port, int protocol, int family = PF_UNSPEC);
-		FileHost(uint16_t port, file_protocol protocol = file_protocol::TCP, file_family family = file_family::ANY);
+		File_host(uint16_t port, int protocol, int family = PF_UNSPEC);
+		File_host(uint16_t port, file_protocol protocol = file_protocol::TCP, file_family family = file_family::ANY);
 
-		FileHost(const FileHost&) = delete;
-		FileHost(FileHost&&) noexcept;
-		void operator=(const FileHost&) = delete;
-		void operator=(FileHost&&) noexcept;
+		File_host(const File_host&) = delete;
+		File_host(File_host&&) noexcept;
+		void operator=(const File_host&) = delete;
+		void operator=(File_host&&) noexcept;
 
-		bool combine(FileHost&&);
+		bool combine(File_host&&);
 
-		FileClient listen(long timeout = 500);
+		File_client listen(long timeout = 500);
 	};
 
 #endif // ALLEGROCPP_DISABLE_FILESOCKET

@@ -30,7 +30,7 @@
     <ClInclude Include="include\display.h">
       <Filter>bind\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\event.h">
+    <ClInclude Include="include\events.h">
       <Filter>bind\include</Filter>
     </ClInclude>
     <ClInclude Include="include\user_event.h">
@@ -40,9 +40,6 @@
       <Filter>bind\include</Filter>
     </ClInclude>
     <ClInclude Include="include\file.h">
-      <Filter>bind\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\filesystem.h">
       <Filter>bind\include</Filter>
     </ClInclude>
     <ClInclude Include="include\display_mode.h">
@@ -147,6 +144,12 @@
       <Filter>bind\src</Filter>
     </ClCompile>
     <ClCompile Include="src\file.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\monitor_info.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\event_queue.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
   </ItemGroup>
