@@ -14,8 +14,6 @@
 
 namespace AllegroCPP {
 
-	const ALLEGRO_COLOR solid_white = al_map_rgb(255, 255, 255);
-
 	struct bitmap_cut {
 		int posx, posy, width, height;
 	};

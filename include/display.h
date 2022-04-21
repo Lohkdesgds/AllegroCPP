@@ -6,6 +6,9 @@
 #include <stdexcept>
 #include <string>
 
+#undef max
+#undef min
+
 namespace AllegroCPP {
 
 	constexpr std::pair<int, int> display_invalid_position = { std::numeric_limits<int>::min(), std::numeric_limits<int>::min() };
@@ -83,5 +86,7 @@ namespace AllegroCPP {
 		const ALLEGRO_TRANSFORM* get_current_transform() const;
 		const ALLEGRO_TRANSFORM* get_current_inverse_transform() const;
 		const ALLEGRO_TRANSFORM* get_current_projection_transform() const;
+
+		bool clear_to_color(ALLEGRO_COLOR = al_map_rgb(0,0,0));
 	};
 }

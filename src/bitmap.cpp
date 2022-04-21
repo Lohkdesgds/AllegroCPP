@@ -173,6 +173,7 @@ namespace AllegroCPP {
 
 	ALLEGRO_COLOR Bitmap::get_pixel(std::pair<int, int> pos) const
 	{
+		static const ALLEGRO_COLOR solid_white = al_map_rgb(255, 255, 255);
 		return m_bmp ? al_get_pixel(m_bmp.get(), pos.first, pos.second) : solid_white;
 	}
 
@@ -231,6 +232,7 @@ namespace AllegroCPP {
 
 	bool Bitmap::draw(std::pair<float, float> target, std::vector<bitmap_prop> props, int flags)
 	{
+		static const ALLEGRO_COLOR solid_white = al_map_rgb(255, 255, 255);
 		if (!m_bmp) return false;
 
 		bitmap_cut _cut = bitmap_cut{ 0, 0, get_width(), get_height() };
@@ -282,6 +284,7 @@ namespace AllegroCPP {
 	{
 		if (!m_bmp) return false;
 		al_set_target_bitmap(m_bmp.get());
+		return true;
 	}
 
 	bool Bitmap::set_clip_rectangle(std::pair<int, int> clipcut, std::pair<int, int> clipsize)

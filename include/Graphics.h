@@ -1,14 +1,14 @@
 #pragma once
 
+#include "file.h" // priority
 #include "color.h"
 #include "bitmap.h"
 #include "display.h"
 #include "display_mode.h"
 #include "event.h"
 #include "event_queue.h"
-#include "file.h"
 #include "filesystem.h"
-#include "font.h"
+#include "font.h" // depends on file.h
 #include "locked_region.h"
 #include "menu.h"
 #include "monitor_info.h"

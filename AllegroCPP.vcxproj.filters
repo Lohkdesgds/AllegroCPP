@@ -143,5 +143,11 @@
     <ClCompile Include="src\transform.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\font.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\file.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

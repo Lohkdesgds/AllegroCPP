@@ -295,6 +295,7 @@ namespace AllegroCPP {
 	{
 		if (!m_disp) return nullptr;
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		al_set_target_backbuffer(m_disp);
 		const ALLEGRO_TRANSFORM* currt = al_get_current_transform();
 		al_set_target_bitmap(oldtarg);
 		return currt;
@@ -304,6 +305,7 @@ namespace AllegroCPP {
 	{
 		if (!m_disp) return nullptr;
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		al_set_target_backbuffer(m_disp);
 		const ALLEGRO_TRANSFORM* currt = al_get_current_inverse_transform();
 		al_set_target_bitmap(oldtarg);
 		return currt;
@@ -313,9 +315,20 @@ namespace AllegroCPP {
 	{
 		if (!m_disp) return nullptr;
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		al_set_target_backbuffer(m_disp);
 		const ALLEGRO_TRANSFORM* currt = al_get_current_projection_transform();
 		al_set_target_bitmap(oldtarg);
 		return currt;
+	}
+
+	bool Display::clear_to_color(ALLEGRO_COLOR color)
+	{
+		if (!m_disp) return false;
+		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		al_set_target_backbuffer(m_disp);
+		al_clear_to_color(color);
+		al_set_target_bitmap(oldtarg);
+		return true;
 	}
 
 }
