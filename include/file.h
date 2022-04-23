@@ -70,6 +70,8 @@ constexpr int SocketTimeout = 0;
 #include <stdexcept>
 #include <memory>
 #include <vector>
+#include <iostream>
+#include <sstream>
 
 namespace AllegroCPP {
 
@@ -84,8 +86,8 @@ namespace AllegroCPP {
 		std::string m_curr_path;
 		File() = default;
 	public:
-		File(const std::string& path, const std::string& mode = "rwb");
-		File(const std::string& path, const ALLEGRO_FILE_INTERFACE* interfac, const std::string& mode = "rwb");
+		File(const std::string& path, const std::string& mode = "wb+");
+		File(const std::string& path, const ALLEGRO_FILE_INTERFACE* interfac, const std::string& mode = "wb+");
 		File(int fd, const std::string& mode = "wb+");
 		File(File& fp, size_t slice_initial_size, const std::string& mode);
 		virtual ~File();
@@ -123,6 +125,41 @@ namespace AllegroCPP {
 		int32_t read32be();
 		size_t write32le(int32_t);
 		size_t write32be(int32_t);
+
+		File& operator<<(const char* val);
+		File& operator<<(const std::string& val);
+		File& operator<<(const std::vector<char>& val);
+		File& operator<<(bool val);
+		File& operator<<(short val);
+		File& operator<<(unsigned short val);
+		File& operator<<(int val);
+		File& operator<<(unsigned int val);
+		File& operator<<(long val);
+		File& operator<<(unsigned long val);
+		File& operator<<(long long val);
+		File& operator<<(unsigned long long val);
+		File& operator<<(float val);
+		File& operator<<(double val);
+		File& operator<<(long double val);
+		File& operator<<(std::streambuf* sb);
+		File& operator<<(std::ostream& (*pf)(std::ostream&));
+		File& operator<<(std::ios& (*pf)(std::ios&));
+		File& operator<<(std::ios_base& (*pf)(std::ios_base&));
+
+		File& operator>>(std::string& val);
+		File& operator>>(std::vector<char>& val);
+		File& operator>>(bool& val);
+		File& operator>>(short& val);
+		File& operator>>(unsigned short& val);
+		File& operator>>(int& val);
+		File& operator>>(unsigned int& val);
+		File& operator>>(long& val);
+		File& operator>>(unsigned long& val);
+		File& operator>>(long long& val);
+		File& operator>>(unsigned long long& val);
+		File& operator>>(float& val);
+		File& operator>>(double& val);
+		File& operator>>(long double& val);
 
 		std::string gets(size_t);
 		char* gets(char* const buf, size_t max);
@@ -281,6 +318,9 @@ namespace AllegroCPP {
 			using File::putc;
 			using File::printformat;
 			using File::vprintformat;
+
+			using File::operator<<;
+			using File::operator>>;
 
 			using File::gets;
 			using File::puts;

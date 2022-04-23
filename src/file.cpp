@@ -194,6 +194,348 @@ namespace AllegroCPP {
 		return m_fp ? al_fwrite32le(m_fp, c) : -1;
 	}
 
+	File& File::operator<<(const char* val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		this->write(val, strlen(val));
+		return *this;
+	}
+
+	File& File::operator<<(const std::string& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		this->write(val.data(), val.size());
+		return *this;
+	}
+
+	File& File::operator<<(const std::vector<char>& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		this->write(val.data(), val.size());
+		return *this;
+	}
+
+	File& File::operator<<(bool val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		const std::string str = (val ? "1" : "0");
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(short val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss(val);
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(unsigned short val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss(val);
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(int val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss(val);
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(unsigned int val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss(val);
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(long val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss(val);
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(unsigned long val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss(val);
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(long long val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss(val);
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(unsigned long long val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss(val);
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(float val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss(val);
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(double val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss(val);
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(long double val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss(val);
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(std::streambuf* sb)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");		
+		std::stringstream ss;
+		ss << sb;
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(std::ostream& (*pf)(std::ostream&))
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss;
+		ss << pf;
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(std::ios& (*pf)(std::ios&))
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss;
+		ss << pf;
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator<<(std::ios_base& (*pf)(std::ios_base&))
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::stringstream ss;
+		ss << pf;
+		const auto str = ss.str();
+		this->write(str.data(), str.size());
+		return *this;
+	}
+
+	File& File::operator>>(std::string& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		val = this->gets(static_cast<size_t>(1) << 12);
+		return *this;
+	}
+
+	File& File::operator>>(std::vector<char>& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		const std::string _tmp = this->gets(static_cast<size_t>(1) << 12);
+		val.assign(std::move_iterator(_tmp.begin()), std::move_iterator(_tmp.end()));
+		return *this;
+	}
+
+	File& File::operator>>(bool& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		char _tmp{};
+		val = (this->read(&_tmp, sizeof(_tmp)) == 0) ? false : (_tmp == '1');
+		return *this;
+	}
+
+	File& File::operator>>(short& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::string _buf;
+		for (char _tmp; this->read(&_tmp, sizeof(_tmp)) != 0 && (std::isdigit(_tmp) || _tmp == '-') && !this->eof();) _buf += _tmp;
+		if (_buf.empty()) val = 0;
+		else {
+#ifdef _WIN32
+			if (sscanf_s(_buf.data(), "%hd", &val) == 1) return *this;
+			val = 0;
+#else
+			if (sscanf(_buf.data(), "%hd", &val) == 1) return *this;
+			val = 0;
+#endif
+		}
+		return *this;
+	}
+
+	File& File::operator>>(unsigned short& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::string _buf;
+		for (char _tmp; this->read(&_tmp, sizeof(_tmp)) != 0 && std::isdigit(_tmp) && !this->eof();) _buf += _tmp;
+		if (_buf.empty()) val = 0;
+		else {
+#ifdef _WIN32
+			if (sscanf_s(_buf.data(), "%hu", &val) == 1) return *this;
+			val = 0;
+#else
+			if (sscanf(_buf.data(), "%hu", &val) == 1) return *this;
+			val = 0;
+#endif
+		}
+		return *this;
+	}
+
+	File& File::operator>>(int& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::string _buf;
+		for (char _tmp; this->read(&_tmp, sizeof(_tmp)) != 0 && std::isdigit(_tmp) && !this->eof();) _buf += _tmp;
+		if (_buf.empty()) val = 0;
+		else {
+			val = std::stoi(_buf);
+		}
+		return *this;
+	}
+
+	File& File::operator>>(unsigned int& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::string _buf;
+		for (char _tmp; this->read(&_tmp, sizeof(_tmp)) != 0 && std::isdigit(_tmp) && !this->eof();) _buf += _tmp;
+		if (_buf.empty()) val = 0;
+		else {
+#ifdef _WIN32
+			if (sscanf_s(_buf.data(), "%u", &val) == 1) return *this;
+			val = 0;
+#else
+			if (sscanf(_buf.data(), "%u", &val) == 1) return *this;
+			val = 0;
+#endif
+		}
+		return *this;
+	}
+
+	File& File::operator>>(long& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::string _buf;
+		for (char _tmp; this->read(&_tmp, sizeof(_tmp)) != 0 && std::isdigit(_tmp) && !this->eof();) _buf += _tmp;
+		if (_buf.empty()) val = 0;
+		else {
+			val = std::stol(_buf);
+		}
+		return *this;
+	}
+
+	File& File::operator>>(unsigned long& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::string _buf;
+		for (char _tmp; this->read(&_tmp, sizeof(_tmp)) != 0 && std::isdigit(_tmp) && !this->eof();) _buf += _tmp;
+		if (_buf.empty()) val = 0;
+		else {
+			val = std::stoul(_buf);
+		}
+		return *this;
+	}
+
+	File& File::operator>>(long long& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::string _buf;
+		for (char _tmp; this->read(&_tmp, sizeof(_tmp)) != 0 && std::isdigit(_tmp) && !this->eof();) _buf += _tmp;
+		if (_buf.empty()) val = 0;
+		else {
+			val = std::stoll(_buf);
+		}
+		return *this;
+	}
+
+	File& File::operator>>(unsigned long long& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::string _buf;
+		for (char _tmp; this->read(&_tmp, sizeof(_tmp)) != 0 && std::isdigit(_tmp) && !this->eof();) _buf += _tmp;
+		if (_buf.empty()) val = 0;
+		else {
+			val = std::stoull(_buf);
+		}
+		return *this;
+	}
+
+	File& File::operator>>(float& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::string _buf;
+		for (char _tmp; this->read(&_tmp, sizeof(_tmp)) != 0 && std::isdigit(_tmp) && !this->eof();) _buf += _tmp;
+		if (_buf.empty()) val = 0;
+		else {
+			val = std::stof(_buf);
+		}
+		return *this;
+	}
+
+	File& File::operator>>(double& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::string _buf;
+		for (char _tmp; this->read(&_tmp, sizeof(_tmp)) != 0 && std::isdigit(_tmp) && !this->eof();) _buf += _tmp;
+		if (_buf.empty()) val = 0;
+		else {
+			val = std::stod(_buf);
+		}
+		return *this;
+	}
+
+	File& File::operator>>(long double& val)
+	{
+		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
+		std::string _buf;
+		for (char _tmp; this->read(&_tmp, sizeof(_tmp)) != 0 && std::isdigit(_tmp) && !this->eof();) _buf += _tmp;
+		if (_buf.empty()) val = 0;
+		else {
+			val = std::stold(_buf);
+		}
+		return *this;
+	}
+
+
 	std::string File::gets(size_t max)
 	{
 		if (!m_fp) return {};

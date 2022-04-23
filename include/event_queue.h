@@ -3,14 +3,30 @@
 #include <allegro5/allegro.h>
 
 #include <stdexcept>
+#include <any>
 
 namespace AllegroCPP {
 
-	struct Event {
+	class Event {
+		bool valid_event = false;
 		ALLEGRO_EVENT ev;
-		const bool valid_event;
+	public:
+		Event(Event&&) noexcept;
+		Event(const ALLEGRO_EVENT&, const bool);
+		~Event();
 
 		operator bool() const;
+		void operator=(const Event&) = delete;
+		void operator=(Event&&) noexcept;
+
+		bool empty() const;
+		bool valid() const;
+
+		ALLEGRO_EVENT get() const;
+
+		const std::any* get_data();
+		bool replace_data(std::any);
+		bool clear_data();
 	};
 
 	class Event_queue {
@@ -25,6 +41,7 @@ namespace AllegroCPP {
 		void operator=(Event_queue&&) noexcept;
 
 		bool valid() const;
+
 		operator bool() const;
 
 		bool register_source(ALLEGRO_EVENT_SOURCE*);

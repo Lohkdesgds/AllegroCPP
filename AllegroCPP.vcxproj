@@ -218,18 +218,15 @@
     <ClInclude Include="include\font.h" />
     <ClInclude Include="include\Graphics.h" />
     <ClInclude Include="include\joystick.h" />
-    <ClInclude Include="include\keyboard.h" />
     <ClInclude Include="include\locked_region.h" />
     <ClInclude Include="include\menu.h" />
     <ClInclude Include="include\monitor_info.h" />
-    <ClInclude Include="include\mouse.h" />
     <ClInclude Include="include\native_dialog.h" />
     <ClInclude Include="include\path.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\state.h" />
     <ClInclude Include="include\thread.h" />
     <ClInclude Include="include\timer.h" />
-    <ClInclude Include="include\touch.h" />
     <ClInclude Include="include\transform.h" />
     <ClInclude Include="include\user_event.h" />
     <ClInclude Include="include\utfstring.h" />
@@ -239,6 +236,7 @@
   <ItemGroup>
     <ClCompile Include="src\bitmap.cpp" />
     <ClCompile Include="src\display.cpp" />
+    <ClCompile Include="src\events.cpp" />
     <ClCompile Include="src\event_queue.cpp" />
     <ClCompile Include="src\file.cpp" />
     <ClCompile Include="src\font.cpp" />

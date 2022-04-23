@@ -57,13 +57,7 @@
     <ClInclude Include="include\joystick.h">
       <Filter>bind\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\keyboard.h">
-      <Filter>bind\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\monitor_info.h">
-      <Filter>bind\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mouse.h">
       <Filter>bind\include</Filter>
     </ClInclude>
     <ClInclude Include="include\path.h">
@@ -79,9 +73,6 @@
       <Filter>bind\include</Filter>
     </ClInclude>
     <ClInclude Include="include\timer.h">
-      <Filter>bind\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\touch.h">
       <Filter>bind\include</Filter>
     </ClInclude>
     <ClInclude Include="include\transform.h">
@@ -150,6 +141,9 @@
       <Filter>bind\src</Filter>
     </ClCompile>
     <ClCompile Include="src\event_queue.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\events.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
   </ItemGroup>

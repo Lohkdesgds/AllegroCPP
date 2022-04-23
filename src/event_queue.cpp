@@ -2,9 +2,78 @@
 
 namespace AllegroCPP {
 
+	Event::Event(Event&& oth) noexcept
+		: ev(oth.ev), valid_event(oth.valid_event)
+	{
+		oth.ev = {};
+		oth.ev.type = 0; // be 100% sure
+		oth.valid_event = false;
+	}
+
+	Event::Event(const ALLEGRO_EVENT& e, const bool v)
+		: ev(e), valid_event(v)
+	{
+	}
+
+	Event::~Event()
+	{
+		if (ALLEGRO_EVENT_TYPE_IS_USER(ev.type) && valid_event) {
+			al_unref_user_event(&ev.user);
+		}
+	}
+
 	Event::operator bool() const
 	{
 		return valid_event;
+	}
+
+	void Event::operator=(Event&& oth) noexcept
+	{
+		if (ALLEGRO_EVENT_TYPE_IS_USER(ev.type) && valid_event) {
+			al_unref_user_event(&ev.user);
+		}
+		ev = oth.ev;
+		oth.ev = {};
+		oth.ev.type = 0;
+		valid_event = oth.valid_event;
+		oth.valid_event = false;
+	}
+
+	bool Event::empty() const
+	{
+		return !valid_event;
+	}
+
+	bool Event::valid() const
+	{
+		return valid_event;
+	}
+
+	ALLEGRO_EVENT Event::get() const
+	{
+		return ev;
+	}
+
+	const std::any* Event::get_data()
+	{
+		if (!valid_event) return nullptr;
+		return (std::any*)al_get_event_source_data(ev.any.source);
+	}
+
+	bool Event::replace_data(std::any val)
+	{
+		if (!valid_event) return false;
+		clear_data();
+		al_set_event_source_data(ev.any.source, (intptr_t)(new std::any(std::move(val))));
+		return true;
+	}
+
+	bool Event::clear_data()
+	{
+		if (!valid_event) return false;
+		std::any* curr = (std::any*)al_get_event_source_data(ev.any.source);
+		if (curr) delete curr;
+		return true;
 	}
 
 	Event_queue::Event_queue()
@@ -40,7 +109,7 @@ namespace AllegroCPP {
 	
 	Event_queue::operator bool() const
 	{
-		return m_evq != nullptr;
+		return m_evq && !al_is_event_queue_empty(m_evq);
 	}
 
 	bool Event_queue::register_source(ALLEGRO_EVENT_SOURCE* src)

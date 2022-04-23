@@ -12,9 +12,38 @@ using namespace AllegroCPP;
 
 const std::string imgtest = "test.jpg";
 
+void _test()
+{
+	Event_queue qu;
+	Event_custom custom;
+
+	qu << custom;
+	std::jthread thr([&] {
+		Event ev = qu.wait_for_event();
+		if (ev.empty()) std::cout << "OH NO\n";
+
+		auto* ptr = ev.get_data();
+		std::cout << "Shared value: " << (ptr ? std::any_cast<int>(*ptr) : -1) << std::endl;
+		std::cout << "ID: " << ev.get().type << std::endl;
+		std::cout << "Final: " << (*(std::string*)ev.get().user.data1) << std::endl;
+	});
+
+	custom.set_data((int)200);
+	custom.emit("Hello there!", 513, [] {std::cout << "__SENT TRIGGER LOG\n"; });
+
+	al_rest(20.0);
+}
+
 int main()
 {
+	_test();
+
 	const float zoomin = 2.0f;
+	File log("log.txt");
+
+	log << "Started log." << std::endl;
+	log << "Creating display and stuff..." << std::endl;
+
 	Monitor_info moninfo;
 	Display* disp = new Display({ moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f }, "Funny window", ALLEGRO_OPENGL | ALLEGRO_RESIZABLE);
 	Event_queue queue;
@@ -22,6 +51,8 @@ int main()
 	Font basicfont;
 	Transform trans;
 	ALLEGRO_TIMER* tima = al_create_timer(1.0 / 30);
+
+	log << "Preparing stuff..." << std::endl;
 
 	queue << *disp;
 	queue << al_get_timer_event_source(tima);
@@ -36,13 +67,15 @@ int main()
 
 	bool _is_minimized = false;
 
+	log << "Running." << std::endl;
+
 	for(bool runn = true; runn;)
 	{
 		if (queue.has_event() || _is_minimized) {
 			const auto ev = queue.wait_for_event();
 			if (!ev) continue;
 
-			switch (ev.ev.type) {
+			switch (ev.get().type) {
 			case ALLEGRO_EVENT_DISPLAY_CLOSE:
 				runn = false;
 				continue;
@@ -67,7 +100,6 @@ int main()
 
 		bmp.draw({ disp->get_width() * 0.125f, disp->get_height() * 0.125f }, { bitmap_scale{ disp->get_width() * 0.5f / (bmp.get_width() * zoomin), disp->get_height() * 0.5f / (bmp.get_height() * zoomin) }, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) });
 
-
 		{
 			const double __cst = (fabs(al_get_time() - _last) + 1e-100);
 			const double __qo = (pow(2.0 * (1.0 / __cst) + 1e-6, 0.9));
@@ -91,8 +123,12 @@ int main()
 		disp->flip();
 	}
 
+	log << "Destroying stuff..." << std::endl;
+
 	delete disp;
 	al_destroy_timer(tima);
+
+	log << "Testing TCP/UDP..." << std::endl;
 
 	std::cout << "Testing TCP..." << std::endl;
 
@@ -102,6 +138,7 @@ int main()
 	bool keep = true;
 
 	std::jthread thr([&] {
+		log << "Host started." << std::endl;
 		while (keep) {
 			std::cout << "HOST: WAIT" << std::endl;
 
@@ -113,24 +150,26 @@ int main()
 			client.set_timeout_read(200);
 						
 			while (client) {
-				char buf[256]{};
+				std::string buf;
 
-				auto red = client.read(buf, 256);
-				std::cout << "HOST: READ: " << red << std::endl;
+				client >> buf;
+				std::cout << "HOST: READ: " << buf.size() << std::endl;
 
-				if (red == 0 && client.has_error()) break;
+				if (buf.empty() && !client) break;
 
-				red = client.write(buf, red);
-				std::cout << "HOST: WRITE: " << red << std::endl;
+				client << buf;
+				std::cout << "HOST: WRITE BACK" << std::endl;
 
-				if (red == 0) break;
+				if (!client) break;
 			}
 
-			if (client.has_error()) {
+			if (!client) {
 				auto err = client.get_error();
-				std::cout << "HOST: got error: " << err.msg << std::endl;
+				log << "Host log: " << err.msg << std::endl;
+				std::cout << "HOST: got message: " << err.msg << std::endl;
 			}
 		}
+		log << "Host closed." << std::endl;
 	});
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -141,19 +180,22 @@ int main()
 		File_client cli("localhost", 50000, prt);
 		if (!cli) {
 			std::cout << "Can't connect" << std::endl;
+			log << "Failed to connect (client)." << std::endl;
 			return 0;
 		}
 
 		std::cout << "Connected" << std::endl;
 
-		char buf[256]{};
-		cli.write("Hello", 6);
-		cli.read(buf, 256);
+		std::string buf;
+		cli << "Hello";
+		cli >> buf;
 
-		std::cout << "client read: " << buf << std::endl;
+		std::cout << "Client read: " << buf << std::endl;
 
 		keep = false;
 	}
+
+	log << "Ended successfully." << std::endl;
 
 	return 0;
 }
