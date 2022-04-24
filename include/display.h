@@ -89,5 +89,12 @@ namespace AllegroCPP {
 		const ALLEGRO_TRANSFORM* get_current_projection_transform() const;
 
 		bool clear_to_color(ALLEGRO_COLOR = al_map_rgb(0,0,0));
+
+		bool set_blend_color(ALLEGRO_COLOR);
+		bool set_blender(int op, int src, int dst);
+		bool set_blender(int op, int src, int dst, int alpha_op, int alpha_src, int alpha_dst);
+		bool get_blend_color(ALLEGRO_COLOR&);
+		bool get_blender(int& op, int& src, int& dst);
+		bool get_blender(int& op, int& src, int& dst, int& alpha_op, int& alpha_src, int& alpha_dst);
 	};
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "file.h" // priority
-#include "color.h"
 #include "bitmap.h"
 #include "display.h"
 #include "display_mode.h"
@@ -20,3 +19,4 @@
 #include "utfstring.h"
 #include "vertex.h"
 #include "video.h"
+#include "config.h"

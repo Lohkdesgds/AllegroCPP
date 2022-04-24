@@ -45,9 +45,6 @@
     <ClInclude Include="include\display_mode.h">
       <Filter>bind\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\color.h">
-      <Filter>bind\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\locked_region.h">
       <Filter>bind\include</Filter>
     </ClInclude>
@@ -108,9 +105,6 @@
     <ClInclude Include="include\Graphics.h">
       <Filter>bind\include\_selected</Filter>
     </ClInclude>
-    <ClInclude Include="include\blender.h">
-      <Filter>bind\include</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display.cpp">
@@ -141,6 +135,9 @@
       <Filter>bind\src</Filter>
     </ClCompile>
     <ClCompile Include="src\events.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
   </ItemGroup>

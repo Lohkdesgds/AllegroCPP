@@ -336,4 +336,64 @@ namespace AllegroCPP {
 		return true;
 	}
 
+	bool Display::set_blend_color(ALLEGRO_COLOR color)
+	{
+		if (!m_disp) return false;
+		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		al_set_target_backbuffer(m_disp);
+		al_set_blend_color(color);
+		al_set_target_bitmap(oldtarg);
+		return true;
+	}
+
+	bool Display::set_blender(int op, int src, int dst)
+	{
+		if (!m_disp) return false;
+		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		al_set_target_backbuffer(m_disp);
+		al_set_blender(op, src, dst);
+		al_set_target_bitmap(oldtarg);
+		return true;
+	}
+
+	bool Display::set_blender(int op, int src, int dst, int alpha_op, int alpha_src, int alpha_dst)
+	{
+		if (!m_disp) return false;
+		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		al_set_target_backbuffer(m_disp);
+		al_set_separate_blender(op, src, dst, alpha_op, alpha_src, alpha_dst);
+		al_set_target_bitmap(oldtarg);
+		return true;
+	}
+
+	bool Display::get_blend_color(ALLEGRO_COLOR& color)
+	{
+		if (!m_disp) return false;
+		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		al_set_target_backbuffer(m_disp);
+		color = al_get_blend_color();
+		al_set_target_bitmap(oldtarg);
+		return true;
+	}
+
+	bool Display::get_blender(int& op, int& src, int& dst)
+	{
+		if (!m_disp) return false;
+		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		al_set_target_backbuffer(m_disp);
+		al_get_blender(&op, &src, &dst);
+		al_set_target_bitmap(oldtarg);
+		return true;
+	}
+
+	bool Display::get_blender(int& op, int& src, int& dst, int& alpha_op, int& alpha_src, int& alpha_dst)
+	{
+		if (!m_disp) return false;
+		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		al_set_target_backbuffer(m_disp);
+		al_get_separate_blender(&op, &src, &dst, &alpha_op, &alpha_src, &alpha_dst);
+		al_set_target_bitmap(oldtarg);
+		return true;
+	}
+
 }

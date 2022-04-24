@@ -207,8 +207,6 @@
     <ClInclude Include="include\audio_stream.h" />
     <ClInclude Include="include\audio_voice.h" />
     <ClInclude Include="include\bitmap.h" />
-    <ClInclude Include="include\blender.h" />
-    <ClInclude Include="include\color.h" />
     <ClInclude Include="include\config.h" />
     <ClInclude Include="include\display.h" />
     <ClInclude Include="include\display_mode.h" />
@@ -234,6 +232,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\bitmap.cpp" />
+    <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\display.cpp" />
     <ClCompile Include="src\events.cpp" />
     <ClCompile Include="src\event_queue.cpp" />

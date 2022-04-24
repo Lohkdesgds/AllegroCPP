@@ -94,12 +94,23 @@ void _test()
 
 int main()
 {
+	Config_system confsys;
+
 	al_register_assert_handler(&err_handler);
 	al_register_trace_handler(&trace_handler);
 #ifdef _DEBUG
-	al_set_config_value(al_get_system_config(), "trace", "level", "warn");
+	confsys.set("trace", "level", "warn");
 #endif
+	confsys.set("image", "jpeg_quality_level", "95");
+	confsys.set("image", "png_compression_level ", "9");
 	//_test();
+
+	std::cout << "System values:" << std::endl;
+	for (const auto& eac : Config_system{})
+	{
+		std::cout << "[" << eac.m_currsec << " > " << eac.m_currkey << "] = " << eac.m_currval << std::endl;
+	}
+	std::cout << "End of system values." << std::endl;
 
 	const float zoomin = 2.0f;
 	File log("log.txt");
