@@ -54,9 +54,6 @@
     <ClInclude Include="include\bitmap.h">
       <Filter>bind\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\joystick.h">
-      <Filter>bind\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\monitor_info.h">
       <Filter>bind\include</Filter>
     </ClInclude>

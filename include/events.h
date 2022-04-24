@@ -29,6 +29,12 @@ namespace AllegroCPP
 		operator ALLEGRO_EVENT_SOURCE* () const;
 	};
 
+	class Event_joystick {
+	public:
+		Event_joystick();
+		operator ALLEGRO_EVENT_SOURCE* () const;
+	};
+
 	class Event_custom {		
 		ALLEGRO_EVENT_SOURCE* m_ev = nullptr;
 		std::atomic<size_t> m_accumulated_events = 0;

@@ -38,45 +38,16 @@ namespace AllegroCPP {
 	}
 
 
-	//Event_custom::any_sized::any_sized(const any_sized& oth)
-	//	: std::any(oth), m_siz(oth.m_siz)
-	//{
-	//}
-	//
-	//Event_custom::any_sized::any_sized(any_sized&& oth)
-	//	: std::any(std::move(oth)), m_siz(oth.m_siz)
-	//{
-	//	oth.m_siz = 0;
-	//}
-	//
-	//Event_custom::any_sized& Event_custom::any_sized::operator=(const any_sized& oth) noexcept
-	//{
-	//	this->std::any::operator=(oth);
-	//	m_siz = oth.m_siz;
-	//	return *this;
-	//}
-	//
-	//void Event_custom::any_sized::operator=(any_sized&& oth) noexcept
-	//{
-	//	this->std::any::operator=(std::move(oth));
-	//	m_siz = oth.m_siz;
-	//	oth.m_siz = 0;
-	//}
-	//
-	//std::any& Event_custom::any_sized::get()
-	//{
-	//	return *this;
-	//}
-	//
-	//const std::any& Event_custom::any_sized::get() const
-	//{
-	//	return *this;
-	//}
-	//
-	//size_t Event_custom::any_sized::size() const
-	//{
-	//	return m_siz;
-	//}
+	Event_joystick::Event_joystick()
+	{
+		if (!al_is_system_installed()) al_init();
+		if (!al_is_joystick_installed()) al_install_joystick();
+	}
+
+	Event_joystick::operator ALLEGRO_EVENT_SOURCE* () const
+	{
+		return al_get_joystick_event_source();
+	}
 
 
 	Event_custom::Event_custom()

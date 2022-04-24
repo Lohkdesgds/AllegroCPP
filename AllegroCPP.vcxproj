@@ -217,7 +217,6 @@
     <ClInclude Include="include\file.h" />
     <ClInclude Include="include\font.h" />
     <ClInclude Include="include\Graphics.h" />
-    <ClInclude Include="include\joystick.h" />
     <ClInclude Include="include\locked_region.h" />
     <ClInclude Include="include\menu.h" />
     <ClInclude Include="include\monitor_info.h" />
