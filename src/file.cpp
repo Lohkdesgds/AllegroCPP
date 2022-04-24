@@ -541,6 +541,8 @@ namespace AllegroCPP {
 		if (!m_fp) return {};
 		std::string str(max, '\0');
 		al_fgets(m_fp, str.data(), str.size());
+		size_t exp_siz = strnlen(str.data(), max);
+		if (exp_siz < str.size()) str.resize(exp_siz);
 		return str;
 	}
 
@@ -1039,6 +1041,62 @@ namespace AllegroCPP {
 		_FileSocket::operator bool() const
 		{
 			return !empty() && !has_error();
+		}
+		
+		std::string _FileSocket::gets(size_t max)
+		{
+			if (!m_fp) return {};
+			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp);
+			if (!sod || sod->badflag || sod->has_host()) return {};
+			auto& curr = sod->m_socks[0];
+			int res = 0;
+			switch (curr.type) {
+			case socket_type::TCP_CLIENT:
+				return this->File::gets(max);
+			case socket_type::UDP_CLIENT:
+			case socket_type::UDP_HOST_CLIENT:
+			{
+				std::string str(max, '\0');
+				size_t tot = al_fread(m_fp, str.data(), str.size());
+				str.resize(tot);
+				return str;
+			}
+			default:
+				return {};
+			}
+		}
+
+		char* _FileSocket::gets(char* const buf, size_t max)
+		{
+			if (!m_fp) return {};
+			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp);
+			if (!sod || sod->badflag || sod->has_host()) return {};
+			auto& curr = sod->m_socks[0];
+			int res = 0;
+			switch (curr.type) {
+			case socket_type::TCP_CLIENT:
+				return this->File::gets(buf, max);
+			case socket_type::UDP_CLIENT:
+			case socket_type::UDP_HOST_CLIENT:
+			{
+				al_fread(m_fp, buf, max);
+				return buf;
+			}
+			default:
+				return {};
+			}
+		}
+
+		bool _FileSocket::puts(char const* str)
+		{
+			if (!m_fp) return false;
+			return al_fwrite(m_fp, str, strlen(str)) > 0;
+		}
+
+		bool _FileSocket::puts(const std::string& str)
+		{
+			if (!m_fp) return false;
+			return al_fwrite(m_fp, str.data(), str.size()) == str.size();
 		}
 
 	}

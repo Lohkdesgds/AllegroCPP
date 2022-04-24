@@ -161,11 +161,11 @@ namespace AllegroCPP {
 		File& operator>>(double& val);
 		File& operator>>(long double& val);
 
-		std::string gets(size_t);
-		char* gets(char* const buf, size_t max);
+		virtual std::string gets(size_t);
+		virtual char* gets(char* const buf, size_t max);
 		std::shared_ptr<ALLEGRO_USTR> get_ustr(); // autofree
-		bool puts(char const* str);
-		bool puts(const std::string&);
+		virtual bool puts(char const* str);
+		virtual bool puts(const std::string&);
 
 		const std::string& get_filepath() const;
 
@@ -322,8 +322,11 @@ namespace AllegroCPP {
 			using File::operator<<;
 			using File::operator>>;
 
-			using File::gets;
-			using File::puts;
+			std::string gets(size_t);
+			char* gets(char* const buf, size_t max);
+
+			bool puts(char const* str);
+			bool puts(const std::string&);
 		};
 	}
 

@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #undef min
 #undef max
@@ -11,6 +12,56 @@
 using namespace AllegroCPP;
 
 const std::string imgtest = "test.jpg";
+
+void err_handler(char const* expr, char const* file, int line, char const* func)
+{
+	std::cout << "[FATAL ERROR ASSERT] @ '" << file << "'L'" << line << "'F'" << func << "' issued: " << expr << std::endl;
+}
+
+void trace_handler(char const* str)
+{
+	std::string blockname;
+	std::string kind;
+	std::string pathfull;
+	double timeelap = 0.0;
+	std::string extra;
+	
+	std::stringstream ss(str);
+	std::string token;
+
+	size_t _c = 0;
+	while (std::getline(ss, token, ' '))
+	{
+		if (token.empty()) continue;
+
+		switch (_c++) {
+		case 0:
+			std::cout << "__T <" << token;
+			break;
+		case 1:
+			std::cout << ">[" << token;
+			break;
+		case 2:
+			std::cout << "](" << token;
+			break;
+		case 3:
+			std::cout << ")> '" << token;
+			break;
+		case 4:
+			std::cout << "' #";
+			break;
+		case 5:
+			while (token.size() && !std::isdigit(token.front())) token.erase(token.begin());
+			while (token.size() && !std::isdigit(token.back())) token.pop_back();
+			std::cout << token << "# >\t";
+			break;
+		default:
+			std::cout << " " << token;
+		}
+	}
+}
+
+
 
 void _test()
 {
@@ -20,9 +71,15 @@ void _test()
 	qu << custom;
 	std::jthread thr([&] {
 		Event ev = qu.wait_for_event();
-		if (ev.empty()) std::cout << "OH NO\n";
 
 		auto* ptr = ev.get_data();
+		std::cout << "Shared value: " << (ptr ? std::any_cast<int>(*ptr) : -1) << std::endl;
+		std::cout << "ID: " << ev.get().type << std::endl;
+		std::cout << "Final: " << (*(std::string*)ev.get().user.data1) << std::endl;
+
+		ev = qu.wait_for_event();
+
+		ptr = ev.get_data();
 		std::cout << "Shared value: " << (ptr ? std::any_cast<int>(*ptr) : -1) << std::endl;
 		std::cout << "ID: " << ev.get().type << std::endl;
 		std::cout << "Final: " << (*(std::string*)ev.get().user.data1) << std::endl;
@@ -30,13 +87,19 @@ void _test()
 
 	custom.set_data((int)200);
 	custom.emit("Hello there!", 513, [] {std::cout << "__SENT TRIGGER LOG\n"; });
+	custom.emit("Second message here", 513, [] {std::cout << "__SENT TRIGGER LOG2\n"; });
 
-	al_rest(20.0);
+	al_rest(3.0);
 }
 
 int main()
 {
-	_test();
+	al_register_assert_handler(&err_handler);
+	al_register_trace_handler(&trace_handler);
+#ifdef _DEBUG
+	al_set_config_value(al_get_system_config(), "trace", "level", "warn");
+#endif
+	//_test();
 
 	const float zoomin = 2.0f;
 	File log("log.txt");
@@ -56,6 +119,7 @@ int main()
 
 	queue << *disp;
 	queue << al_get_timer_event_source(tima);
+	queue << Event_keyboard();
 		
 	trans.scale({ zoomin, zoomin });
 	trans.use();
@@ -93,6 +157,9 @@ int main()
 				continue;
 			case ALLEGRO_EVENT_TIMER:
 				break;
+			case ALLEGRO_EVENT_KEY_DOWN:
+				runn = false;
+				continue;
 			}
 		}
 
@@ -149,13 +216,13 @@ int main()
 
 			client.set_timeout_read(200);
 						
-			while (client) {
+			while (client.valid()) {
 				std::string buf;
 
 				client >> buf;
 				std::cout << "HOST: READ: " << buf.size() << std::endl;
 
-				if (buf.empty() && !client) break;
+				if (buf.empty() && !client.valid()) break;
 
 				client << buf;
 				std::cout << "HOST: WRITE BACK" << std::endl;
@@ -163,7 +230,7 @@ int main()
 				if (!client) break;
 			}
 
-			if (!client) {
+			if (!client.valid()) {
 				auto err = client.get_error();
 				log << "Host log: " << err.msg << std::endl;
 				std::cout << "HOST: got message: " << err.msg << std::endl;

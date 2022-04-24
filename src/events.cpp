@@ -93,11 +93,12 @@ namespace AllegroCPP {
 			al_destroy_user_event_source(m_ev);
 			delete m_ev;
 			m_ev = nullptr;
+			ALLEGRO_ASSERT(m_accumulated_events == 0); // if not 0 there may be a memory leak! (Events are queued and they were not deleted properly. This variable is the amount queued. It should be ZERO)
 		}
 	}
 
 	Event_custom::Event_custom(Event_custom&& oth) noexcept
-		: m_ev(oth.m_ev)
+		: m_ev(oth.m_ev), m_accumulated_events(oth.m_accumulated_events.exchange(0))
 	{
 		oth.m_ev = nullptr;
 	}
@@ -105,9 +106,12 @@ namespace AllegroCPP {
 	void Event_custom::operator=(Event_custom&& oth) noexcept
 	{
 		if (m_ev) {
+			clear_data();
 			al_destroy_user_event_source(m_ev);
 			delete m_ev;
+			ALLEGRO_ASSERT(m_accumulated_events == 0); // if not 0 there may be a memory leak! (Events are queued and they were not deleted properly. This variable is the amount queued. It should be ZERO)
 		}
+		m_accumulated_events = oth.m_accumulated_events.exchange(0);
 		m_ev = oth.m_ev;
 		oth.m_ev = nullptr;
 	}
@@ -121,6 +125,7 @@ namespace AllegroCPP {
 	{
 		if (!m_ev) return false;
 		al_set_event_source_data(m_ev, (intptr_t)(new std::any(std::move(any))));
+		return true;
 	}
 
 	bool Event_custom::has_data() const
@@ -193,10 +198,10 @@ namespace AllegroCPP {
 		ev.user.data1 = (intptr_t)data;
 		ev.user.data2 = (intptr_t)_f;
 		ev.user.data3 = (intptr_t)_tck;
-		ev.user.data4 = (intptr_t)&accumulated_events;
+		ev.user.data4 = (intptr_t)&m_accumulated_events;
 		ev.user.type = id;
 
-		++accumulated_events;
+		++m_accumulated_events;
 		return al_emit_user_event(m_ev, &ev, &__event_custom_dtor);
 	}
 
@@ -209,7 +214,7 @@ namespace AllegroCPP {
 
 	size_t Event_custom::total_on_queue() const
 	{
-		return accumulated_events;
+		return m_accumulated_events;
 	}
 
 	void __event_custom_dtor(ALLEGRO_USER_EVENT* ptr)
@@ -229,36 +234,5 @@ namespace AllegroCPP {
 		}
 		--accum;
 	}
-
-
-	//bool Event_custom::emit(ALLEGRO_EVENT ev, void(*dtor)(ALLEGRO_USER_EVENT*))
-	//{
-	//	if (!m_ev) return false;
-	//	return al_emit_user_event(m_ev, &ev, dtor);
-	//}
-	//
-	//void Event_custom::unref(ALLEGRO_USER_EVENT ev)
-	//{
-	//	al_unref_user_event(&ev);
-	//}
-	//
-	//void Event_custom::unref(ALLEGRO_USER_EVENT* ev)
-	//{
-	//	if (ev) al_unref_user_event(ev);
-	//}
-	// 
-	//void* Event_custom::get_data()
-	//{
-	//	return m_ev ? (void*)al_get_event_source_data(m_ev) : nullptr;
-	//}
-	//
-	//bool Event_custom::set_data(void* ptr)
-	//{
-	//	if (!m_ev) return false;
-	//	al_set_event_source_data(m_ev, (intptr_t)ptr);
-	//
-	//}
-
-
 
 }
