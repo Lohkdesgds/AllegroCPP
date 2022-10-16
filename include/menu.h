@@ -4,6 +4,8 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
 
+#include "display.h"
+
 #include <stdexcept>
 #include <string>
 #include <functional>
@@ -380,11 +382,13 @@ namespace AllegroCPP {
 		std::atomic<uint16_t> _counter = 0;
 		ALLEGRO_EVENT_SOURCE* ev_source = nullptr;
 		const menu_type mmt = menu_type::BAR;
-		ALLEGRO_DISPLAY* last_applied_display = nullptr;
+		std::weak_ptr<ALLEGRO_DISPLAY> last_applied_display;
 
 		uint16_t find_greatest_id(const __menu_structure&) const;
 		__menu_structure* find_anywhere(const std::map<int, __menu_structure>&, const std::function<bool(const std::pair<const int, __menu_structure>&)>&);
 		bool make_self_as();
+
+		std::shared_ptr<ALLEGRO_DISPLAY> _get_display() const;
 	public:
 		Menu(const Menu&) = delete;
 		void operator=(const Menu&) = delete;
@@ -402,7 +406,7 @@ namespace AllegroCPP {
 		/// </summary>
 		/// <param name="{ALLEGRO_DISPLAY*}">A display to put the Menu on (you have to show() manually when ready).</param>
 		/// <param name="{menu_type}">What style of Menu?</param>
-		Menu(ALLEGRO_DISPLAY*, const menu_type = menu_type::BAR);
+		Menu(std::weak_ptr<ALLEGRO_DISPLAY>, const menu_type = menu_type::BAR);
 
 		/// <summary>
 		/// <para>Move the Menu around.</para>
@@ -430,7 +434,7 @@ namespace AllegroCPP {
 		/// </summary>
 		/// <param name="{ALLEGRO_DISPLAY*}">A display to put the Menu on (you have to show() manually when ready).</param>
 		/// <param name="{initializer_list}">List of Menu_quick.</param>
-		Menu(ALLEGRO_DISPLAY*, const std::initializer_list<Menu_quick>);
+		Menu(std::weak_ptr<ALLEGRO_DISPLAY>, const std::initializer_list<Menu_quick>);
 
 		/// <summary>
 		/// <para>Directly create a Menu with a pre-defined ALLEGRO_DISPLAY*, type and items ready to go.</para>
@@ -440,7 +444,7 @@ namespace AllegroCPP {
 		/// <param name="{ALLEGRO_DISPLAY*}">A display to put the Menu on (you have to show() manually when ready).</param>
 		/// <param name="{menu_type}">What style of Menu?</param>
 		/// <param name="{initializer_list}">List of Menu_quick.</param>
-		Menu(ALLEGRO_DISPLAY*, const menu_type, const std::initializer_list<Menu_quick>);
+		Menu(std::weak_ptr<ALLEGRO_DISPLAY>, const menu_type, const std::initializer_list<Menu_quick>);
 
 		// Destroy the Menu.
 		~Menu();
@@ -541,7 +545,7 @@ namespace AllegroCPP {
 		/// <para>The display pointer is stored for easier show/hide (if no parameter, it uses the latest one defined).</para>
 		/// </summary>
 		/// <param name="{ALLEGRO_DISPLAY*}">If set, show Menu on this display.</param>
-		void show(ALLEGRO_DISPLAY* = nullptr);
+		void show(std::weak_ptr<ALLEGRO_DISPLAY> = {});
 
 		/// <summary>
 		/// <para>Remove Menu from screen.</para>
@@ -549,7 +553,7 @@ namespace AllegroCPP {
 		/// <para>The display pointer is stored for easier show/hide (if no parameter, it uses the latest one defined).</para>
 		/// </summary>
 		/// <param name="{ALLEGRO_DISPLAY*}">If set, hide Menu of this display.</param>
-		void hide(ALLEGRO_DISPLAY* = nullptr);
+		void hide(std::weak_ptr<ALLEGRO_DISPLAY> = {});
 
 		/// <summary>
 		/// <para>Insert a new sub-Menu to the bottom of the list.</para>
@@ -586,7 +590,7 @@ namespace AllegroCPP {
 		/// <para>Put menu into display</para>
 		/// </summary>
 		/// <param name="{ALLEGRO_DISPLAY*}">A display to show the menu on.</param>
-		void operator>>(ALLEGRO_DISPLAY*);
+		void operator>>(std::weak_ptr<ALLEGRO_DISPLAY>);
 	};
 
 	/// <summary>

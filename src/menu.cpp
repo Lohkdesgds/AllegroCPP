@@ -557,6 +557,13 @@ namespace AllegroCPP {
         return false;
     }
 
+    std::shared_ptr<ALLEGRO_DISPLAY> Menu::_get_display() const
+    {
+        const auto ptr = last_applied_display.lock();
+        if (ptr.get()) return ptr;
+        return {};
+    }
+
     Menu::Menu(const menu_type mt)
         : mmt(mt)
     {
@@ -564,7 +571,7 @@ namespace AllegroCPP {
         if (!make_self_as()) throw std::runtime_error("Can't create menu!");
     }
 
-    Menu::Menu(ALLEGRO_DISPLAY* nd, const menu_type mt)
+    Menu::Menu(std::weak_ptr<ALLEGRO_DISPLAY> nd, const menu_type mt)
         : mmt(mt)
     {
         __display_menu_allegro_start();
@@ -581,7 +588,7 @@ namespace AllegroCPP {
         make_self_as();
         oth.curr.Menu = nullptr; // really really sure
         oth.ev_source = nullptr;
-        oth.last_applied_display = nullptr;
+        oth.last_applied_display.reset();
     }
 
     Menu::Menu(const std::initializer_list<Menu_quick> lst)
@@ -600,7 +607,7 @@ namespace AllegroCPP {
         for (const auto& each : lst) push(each);
     }
 
-    Menu::Menu(ALLEGRO_DISPLAY* nd, const std::initializer_list<Menu_quick> lst)
+    Menu::Menu(std::weak_ptr<ALLEGRO_DISPLAY> nd, const std::initializer_list<Menu_quick> lst)
         : mmt(menu_type::BAR)
     {
         __display_menu_allegro_start();
@@ -609,7 +616,7 @@ namespace AllegroCPP {
         last_applied_display = nd;
     }
 
-    Menu::Menu(ALLEGRO_DISPLAY* nd, const menu_type mt, const std::initializer_list<Menu_quick> lst)
+    Menu::Menu(std::weak_ptr<ALLEGRO_DISPLAY> nd, const menu_type mt, const std::initializer_list<Menu_quick> lst)
         : mmt(mt)
     {
         __display_menu_allegro_start();
@@ -621,6 +628,8 @@ namespace AllegroCPP {
     Menu::~Menu()
     {
         if (!curr.Menu) return;
+        if (mmt == menu_type::BAR) hide();
+
         __magic_pop_menu(ev_source);
         al_disable_menu_event_source(curr.Menu);
         ev_source = nullptr;
@@ -751,7 +760,7 @@ namespace AllegroCPP {
 
     Menu Menu::duplicate_as(const menu_type mt) const
     {
-        Menu nmen(last_applied_display, mt);
+        Menu nmen(_get_display(), mt);
         Menu_quick mq(curr);
         for (const auto& m : mq.lst) nmen.push(m);
         return nmen;
@@ -773,25 +782,31 @@ namespace AllegroCPP {
         return Menu_handler{ *fnd, _counter }; // never goes here
     }
 
-    void Menu::show(ALLEGRO_DISPLAY* d)
+    void Menu::show(std::weak_ptr<ALLEGRO_DISPLAY> _d)
     {
-        if (!d) d = last_applied_display;
+        auto d = _d.lock();
+        const auto last_cpy = _get_display();
+        if (!d) d = last_cpy;
+        if (!d) return;
 
         if (d && curr.Menu) {
-            if (last_applied_display != d && last_applied_display) al_remove_display_menu(last_applied_display);
+            if (last_cpy.get() != d.get() && last_cpy) al_remove_display_menu(last_cpy.get());
 
             last_applied_display = d;
 
-            if (mmt == menu_type::POPUP) al_popup_menu(curr.Menu, d);
-            else al_set_display_menu(d, curr.Menu);
+            if (mmt == menu_type::POPUP) al_popup_menu(curr.Menu, d.get());
+            else al_set_display_menu(d.get(), curr.Menu);
         }
     }
 
-    void Menu::hide(ALLEGRO_DISPLAY* d)
+    void Menu::hide(std::weak_ptr<ALLEGRO_DISPLAY> _d)
     {
-        if (!d) d = last_applied_display;
+        auto d = _d.lock();
+        const auto last_cpy = _get_display();
+        if (!d) d = last_cpy;
+        if (!d) return;
 
-        if (d) al_remove_display_menu(d);
+        al_remove_display_menu(d.get());
     }
 
     int Menu::push(const Menu_quick& mq)
@@ -834,7 +849,7 @@ namespace AllegroCPP {
         return curr.Menu;
     }
 
-    void Menu::operator>>(ALLEGRO_DISPLAY* d)
+    void Menu::operator>>(std::weak_ptr<ALLEGRO_DISPLAY> d)
     {
         show(d);
     }

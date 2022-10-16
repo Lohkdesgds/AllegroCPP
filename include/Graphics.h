@@ -9,7 +9,7 @@
 //#include "filesystem.h"
 #include "font.h" // depends on file.h
 #include "locked_region.h"
-#include "menu.h" // depends on bitmap.h
+#include "menu.h" // depends on display.h
 #include "monitor_info.h"
 #include "native_dialog.h"
 #include "path.h"

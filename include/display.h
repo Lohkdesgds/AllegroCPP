@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdexcept>
 #include <string>
+#include <memory>
 
 #undef max
 #undef min
@@ -21,7 +22,7 @@ namespace AllegroCPP {
 	};
 
 	class Display {
-		ALLEGRO_DISPLAY* m_disp = nullptr;
+		std::shared_ptr<ALLEGRO_DISPLAY> m_disp;
 	public:
 		Display(std::pair<int, int> size, const std::string& windowname, int flags = 0, std::pair<int, int> pos = display_undefined_position, int refresh_rate = 0, std::vector<display_option> options = {});
 		~Display();
@@ -39,10 +40,13 @@ namespace AllegroCPP {
 		operator bool() const;
 		operator ALLEGRO_DISPLAY*();
 		operator ALLEGRO_EVENT_SOURCE*();
+		operator std::weak_ptr<ALLEGRO_DISPLAY>();
 
 		ALLEGRO_EVENT_SOURCE* get_event_source() const;
 		ALLEGRO_BITMAP* get_backbuffer();
 		ALLEGRO_DISPLAY* get_display();
+		std::weak_ptr<ALLEGRO_DISPLAY> get_display_ref();
+
 		bool flip();
 		bool update_region(std::pair<int, int>, std::pair<int, int>);
 		void wait_for_vsync() const;
