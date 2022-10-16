@@ -36,6 +36,7 @@ namespace AllegroCPP {
 	private:
 		std::shared_ptr<ALLEGRO_BITMAP> m_bmp, m_parent;
 		std::shared_ptr<ALLEGRO_FILE> m_file; // reference to a file if bitmap loaded from it
+		Bitmap() = default;
 	public:
 		Bitmap(std::pair<int, int> size, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
 		Bitmap(const Bitmap&, std::pair<int,int> subcut, std::pair<int,int> subsize, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
@@ -53,6 +54,7 @@ namespace AllegroCPP {
 		operator bool() const;
 		operator ALLEGRO_BITMAP* ();
 
+		Bitmap make_ref() const;
 		bool convert(int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
 
 		int get_flags() const;

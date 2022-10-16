@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="bind">
       <UniqueIdentifier>{3e854b4f-782e-474f-8457-c53b1d0189b2}</UniqueIdentifier>
     </Filter>
@@ -105,6 +102,9 @@
     <ClInclude Include="include\Graphics.h">
       <Filter>bind\include\_selected</Filter>
     </ClInclude>
+    <ClInclude Include="include\System.h">
+      <Filter>bind\include\_selected</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display.cpp">
@@ -140,5 +140,17 @@
     <ClCompile Include="src\config.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\thread.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\timer.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menu.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

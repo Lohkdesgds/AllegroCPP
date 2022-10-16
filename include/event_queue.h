@@ -27,6 +27,8 @@ namespace AllegroCPP {
 		const std::any* get_data();
 		bool replace_data(std::any);
 		bool clear_data();
+
+		operator ALLEGRO_EVENT() const;
 	};
 
 	class Event_queue {

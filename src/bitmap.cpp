@@ -142,6 +142,15 @@ namespace AllegroCPP {
 		return m_bmp.get();
 	}
 
+	Bitmap Bitmap::make_ref() const
+	{
+		Bitmap bmp;
+		bmp.m_bmp = m_bmp;
+		bmp.m_parent = m_parent;
+		bmp.m_file = m_file;
+		return bmp;
+	}
+
 	bool Bitmap::convert(int flags, int format)
 	{
 		if (!m_bmp) return false;

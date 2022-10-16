@@ -7,7 +7,7 @@ namespace AllegroCPP {
 		if (!al_is_system_installed()) al_init();
 
 		if (flags >= 0) al_set_new_display_flags(flags);
-		if (pos != display_invalid_position) al_set_new_window_position(pos.first, pos.second);
+		if (pos != display_undefined_position) al_set_new_window_position(pos.first, pos.second);
 		if (refresh_rate > 0) al_set_new_display_refresh_rate(refresh_rate);
 		for (const auto& i : options) al_set_new_display_option(i.option, i.value, i.importance);
 		al_set_new_window_title(windowname.substr(0, ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE).c_str());
@@ -18,7 +18,10 @@ namespace AllegroCPP {
 
 	Display::~Display()
 	{
-		if (m_disp) al_destroy_display(m_disp);
+		if (m_disp) {
+			al_set_display_menu(m_disp, nullptr); // if something attached, free resources.
+			al_destroy_display(m_disp);
+		}
 		m_disp = nullptr;
 	}
 
@@ -122,7 +125,7 @@ namespace AllegroCPP {
 
 	std::pair<int, int> Display::get_position() const
 	{
-		if (!m_disp) return display_invalid_position;
+		if (!m_disp) return display_undefined_position;
 		std::pair<int, int> pos;
 		al_get_window_position(m_disp, &pos.first, &pos.second);
 		return pos;
@@ -394,6 +397,11 @@ namespace AllegroCPP {
 		al_get_separate_blender(&op, &src, &dst, &alpha_op, &alpha_src, &alpha_dst);
 		al_set_target_bitmap(oldtarg);
 		return true;
+	}
+
+	void Display::operator<<(ALLEGRO_MENU* m)
+	{
+		if (m_disp && m) al_set_display_menu(m_disp, m);
 	}
 
 }

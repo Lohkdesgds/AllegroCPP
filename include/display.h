@@ -1,6 +1,7 @@
 #pragma once
 
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_native_dialog.h>
 
 #include <vector>
 #include <stdexcept>
@@ -11,18 +12,18 @@
 
 namespace AllegroCPP {
 
-	constexpr std::pair<int, int> display_invalid_position = { std::numeric_limits<int>::min(), std::numeric_limits<int>::min() };
+	constexpr std::pair<int, int> display_undefined_position = { std::numeric_limits<int>::min(), std::numeric_limits<int>::min() };
 
 	struct display_option {
 		int option;
 		int value;
-		int importance;
+		int importance; // ALLEGRO_REQUIRE|SUGGEST|DONTCARE
 	};
 
 	class Display {
 		ALLEGRO_DISPLAY* m_disp = nullptr;
 	public:
-		Display(std::pair<int, int> size, const std::string& windowname, int flags = 0, std::pair<int, int> pos = display_invalid_position, int refresh_rate = 0, std::vector<display_option> options = {});
+		Display(std::pair<int, int> size, const std::string& windowname, int flags = 0, std::pair<int, int> pos = display_undefined_position, int refresh_rate = 0, std::vector<display_option> options = {});
 		~Display();
 
 		Display(const Display&) = delete;
@@ -96,5 +97,7 @@ namespace AllegroCPP {
 		bool get_blend_color(ALLEGRO_COLOR&);
 		bool get_blender(int& op, int& src, int& dst);
 		bool get_blender(int& op, int& src, int& dst, int& alpha_op, int& alpha_src, int& alpha_dst);
+
+		void operator<<(ALLEGRO_MENU*);
 	};
 }

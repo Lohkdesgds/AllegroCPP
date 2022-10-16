@@ -76,6 +76,11 @@ namespace AllegroCPP {
 		return true;
 	}
 
+	Event::operator ALLEGRO_EVENT() const
+	{
+		return ev;
+	}
+
 	Event_queue::Event_queue()
 	{
 		if (!al_is_system_installed()) al_init();

@@ -1,4 +1,5 @@
 #include <Graphics.h>
+#include <System.h>
 
 #include <thread>
 #include <chrono>
@@ -119,23 +120,32 @@ int main()
 	log << "Creating display and stuff..." << std::endl;
 
 	Monitor_info moninfo;
-	Display* disp = new Display({ moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f }, "Funny window", ALLEGRO_OPENGL | ALLEGRO_RESIZABLE);
+	Display* disp = new Display({ moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f }, "Funny window", ALLEGRO_OPENGL | ALLEGRO_RESIZABLE, display_undefined_position, 0, { display_option{ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST} });
 	Event_queue queue;
 	Bitmap bmp(imgtest);
 	Font basicfont;
 	Transform trans;
-	ALLEGRO_TIMER* tima = al_create_timer(1.0 / 30);
+	//ALLEGRO_TIMER* tima = al_create_timer(1.0 / 30);
+	Timer tima(1.0 / 30);
+	Menu menn({
+		Menu_each_menu("File", 0, {
+			Menu_each_default("Show Exit button below", 1)
+		})
+	});
 
 	log << "Preparing stuff..." << std::endl;
 
 	queue << *disp;
-	queue << al_get_timer_event_source(tima);
+	queue << tima;
 	queue << Event_keyboard();
+	queue << menn;
+
+	menn >> *disp;
 		
 	trans.scale({ zoomin, zoomin });
 	trans.use();
 
-	double _last = al_get_time();
+	double _last = Time::get_time();
 	double _smooth_fps = 1.0;
 	double _fps_cpy = 0.0;
 	const double _elap_calc = al_get_time();
@@ -151,15 +161,36 @@ int main()
 			if (!ev) continue;
 
 			switch (ev.get().type) {
+			case ALLEGRO_EVENT_MENU_CLICK:
+			{
+				Menu_event mev(ev);
+				switch (mev.get_id()) {
+				case 1:
+					mev.get_source()["File"].push(Menu_each_default("You'll have to press this one", 2));
+					mev.patch_caption("This is no longer available.");
+					mev.patch_toggle_flag(menu_flags::DISABLED);
+					break;
+				case 2:
+					mev.get_source()["File"].push(Menu_each_default("Ok, click this one to exit then", 3));
+					mev.patch_caption("Please don't kill me");
+					mev.patch_toggle_flag(menu_flags::DISABLED);
+					mev.get_source()["File"].remove(0);
+					break;
+				case 3:
+					runn = false;
+					break;
+				}
+			}
+				break;
 			case ALLEGRO_EVENT_DISPLAY_CLOSE:
 				runn = false;
 				continue;
 			case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
 				_is_minimized = true;
-				al_start_timer(tima);
+				tima.start();
 				continue;
 			case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
-				al_stop_timer(tima);
+				tima.stop();
 				_is_minimized = false;
 				continue;
 			case ALLEGRO_EVENT_DISPLAY_RESIZE:
@@ -176,11 +207,14 @@ int main()
 
 		disp->clear_to_color(al_map_rgb_f(0.4f + 0.3f * sinf(al_get_time() * 0.3f + 0.5f), 0.4f + 0.3f * sinf(al_get_time() * 1.1f + 1.2f), 0.4f + 0.3f * sinf(al_get_time() * 0.7f + 2.1f)));
 
-		bmp.draw({ disp->get_width() * 0.125f, disp->get_height() * 0.125f }, { bitmap_scale{ disp->get_width() * 0.5f / (bmp.get_width() * zoomin), disp->get_height() * 0.5f / (bmp.get_height() * zoomin) }, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) });
+		bmp.draw(
+			{ disp->get_width() * 0.125f, disp->get_height() * 0.125f },
+			{ bitmap_scale{ disp->get_width() * 0.5f / (bmp.get_width() * zoomin), disp->get_height() * 0.5f / (bmp.get_height() * zoomin) }, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) }
+		);
 
 		{
 			const double __cst = (fabs(al_get_time() - _last) + 1e-100);
-			const double __qo = (pow(2.0 * (1.0 / __cst) + 1e-6, 0.9));
+			const double __qo = (pow(2.0 * (1.0 / __cst) + 1e-6, 0.57));
 
 			_smooth_fps = ((_smooth_fps * __qo + __cst) / (__qo + 1.0));
 
@@ -204,26 +238,27 @@ int main()
 	log << "Destroying stuff..." << std::endl;
 
 	delete disp;
-	al_destroy_timer(tima);
+	tima.stop();
 
 	log << "Testing TCP/UDP..." << std::endl;
 
-	std::cout << "Testing TCP..." << std::endl;
+	std::cout << "Testing TCP with threads..." << std::endl;
 
 	const file_protocol prt = file_protocol::UDP;
 
 	File_host host(50000, prt);
 	bool keep = true;
 
-	std::jthread thr([&] {
-		log << "Host started." << std::endl;
+	Thread thrr([&] {
+		log << "-- Host started." << std::endl;
+
 		while (keep) {
-			std::cout << "HOST: WAIT" << std::endl;
+			std::cout << "HOST: Listening..." << std::endl;
 
 			auto client = host.listen(2000);
 			if (!client) continue;
 
-			std::cout << "HOST: HAS" << std::endl;
+			std::cout << "HOST: Client connected successfully" << std::endl;
 
 			client.set_timeout_read(200);
 						
@@ -231,44 +266,48 @@ int main()
 				std::string buf;
 
 				client >> buf;
-				std::cout << "HOST: READ: " << buf.size() << std::endl;
+				std::cout << "HOST <- CLIENT: " << buf << std::endl;
 
 				if (buf.empty() && !client.valid()) break;
 
+				std::cout << "HOST -> CLIENT: " << buf << std::endl;
 				client << buf;
-				std::cout << "HOST: WRITE BACK" << std::endl;
 
 				if (!client) break;
 			}
 
 			if (!client.valid()) {
 				auto err = client.get_error();
-				log << "Host log: " << err.msg << std::endl;
-				std::cout << "HOST: got message: " << err.msg << std::endl;
+				log << "HOST log: " << err.msg << std::endl;
+				//std::cout << "HOST: got message: " << err.msg << std::endl;
 			}
 		}
-		log << "Host closed." << std::endl;
+		log << "-- Host closed." << std::endl;
+		return false;
 	});
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
 	{
-		std::cout << "Connecting..." << std::endl;
+		std::cout << "CLIENT: Connecting..." << std::endl;
 
 		File_client cli("localhost", 50000, prt);
 		if (!cli) {
-			std::cout << "Can't connect" << std::endl;
-			log << "Failed to connect (client)." << std::endl;
+			std::cout << "CLIENT: Can't connect" << std::endl;
+			log << "CLIENT: Failed to connect (client)." << std::endl;
 			return 0;
 		}
 
-		std::cout << "Connected" << std::endl;
+		std::cout << "CLIENT: Connected" << std::endl;
 
 		std::string buf;
+
+		std::cout << "CLIENT -> HOST: Hello" << std::endl;
 		cli << "Hello";
+
 		cli >> buf;
 
-		std::cout << "Client read: " << buf << std::endl;
+		std::cout << "CLIENT <- HOST: " << buf << std::endl;
 
 		keep = false;
 	}
