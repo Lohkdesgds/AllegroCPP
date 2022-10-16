@@ -120,7 +120,7 @@ int main()
 	log << "Creating display and stuff..." << std::endl;
 
 	Monitor_info moninfo;
-	Display* disp = new Display({ moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f }, "Funny window", ALLEGRO_OPENGL | ALLEGRO_RESIZABLE, display_undefined_position, 0, { display_option{ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST} });
+	Display disp({ moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f }, "Funny window", ALLEGRO_OPENGL | ALLEGRO_RESIZABLE, display_undefined_position, 0, { display_option{ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST} });
 	Event_queue queue;
 	Bitmap bmp(imgtest);
 	Font basicfont;
@@ -135,12 +135,12 @@ int main()
 
 	log << "Preparing stuff..." << std::endl;
 
-	queue << *disp;
+	queue << disp;
 	queue << tima;
 	queue << Event_keyboard();
 	queue << menn;
 
-	menn >> *disp;
+	menn >> disp;
 		
 	trans.scale({ zoomin, zoomin });
 	trans.use();
@@ -194,7 +194,7 @@ int main()
 				_is_minimized = false;
 				continue;
 			case ALLEGRO_EVENT_DISPLAY_RESIZE:
-				disp->acknowledge_resize();
+				disp.acknowledge_resize();
 				//trans.use(); // not needed
 				continue;
 			case ALLEGRO_EVENT_TIMER:
@@ -205,11 +205,11 @@ int main()
 			}
 		}
 
-		disp->clear_to_color(al_map_rgb_f(0.4f + 0.3f * sinf(al_get_time() * 0.3f + 0.5f), 0.4f + 0.3f * sinf(al_get_time() * 1.1f + 1.2f), 0.4f + 0.3f * sinf(al_get_time() * 0.7f + 2.1f)));
+		disp.clear_to_color(al_map_rgb_f(0.4f + 0.3f * sinf(al_get_time() * 0.3f + 0.5f), 0.4f + 0.3f * sinf(al_get_time() * 1.1f + 1.2f), 0.4f + 0.3f * sinf(al_get_time() * 0.7f + 2.1f)));
 
 		bmp.draw(
-			{ disp->get_width() * 0.125f, disp->get_height() * 0.125f },
-			{ bitmap_scale{ disp->get_width() * 0.5f / (bmp.get_width() * zoomin), disp->get_height() * 0.5f / (bmp.get_height() * zoomin) }, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) }
+			{ disp.get_width() * 0.125f, disp.get_height() * 0.125f },
+			{ bitmap_scale{ disp.get_width() * 0.5f / (bmp.get_width() * zoomin), disp.get_height() * 0.5f / (bmp.get_height() * zoomin) }, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) }
 		);
 
 		{
@@ -232,12 +232,12 @@ int main()
 		);
 
 		//bmp.draw({ 0,0 });
-		disp->flip();
+		disp.flip();
 	}
 
 	log << "Destroying stuff..." << std::endl;
 
-	delete disp;
+	disp.destroy();
 	tima.stop();
 
 	log << "Testing TCP/UDP..." << std::endl;

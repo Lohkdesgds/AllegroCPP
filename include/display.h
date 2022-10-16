@@ -31,6 +31,9 @@ namespace AllegroCPP {
 		void operator=(const Display&) = delete;
 		void operator=(Display&&) noexcept;
 
+		bool create(std::pair<int, int> size, const std::string& windowname, int flags = 0, std::pair<int, int> pos = display_undefined_position, int refresh_rate = 0, std::vector<display_option> options = {});
+		void destroy();
+
 		bool empty() const;
 		bool valid() const;
 		operator bool() const;

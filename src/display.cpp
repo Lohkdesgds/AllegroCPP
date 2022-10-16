@@ -4,25 +4,12 @@ namespace AllegroCPP {
 
 	Display::Display(std::pair<int, int> size, const std::string& windowname, int flags, std::pair<int, int> pos, int refresh_rate, std::vector<display_option> options)
 	{
-		if (!al_is_system_installed()) al_init();
-
-		if (flags >= 0) al_set_new_display_flags(flags);
-		if (pos != display_undefined_position) al_set_new_window_position(pos.first, pos.second);
-		if (refresh_rate > 0) al_set_new_display_refresh_rate(refresh_rate);
-		for (const auto& i : options) al_set_new_display_option(i.option, i.value, i.importance);
-		al_set_new_window_title(windowname.substr(0, ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE).c_str());
-
-		m_disp = al_create_display(size.first, size.second);
-		if (!m_disp) throw std::runtime_error("Failed creating display!");
+		if (!create(size, windowname, flags, pos, refresh_rate, options)) throw std::runtime_error("Failed creating display!");
 	}
 
 	Display::~Display()
 	{
-		if (m_disp) {
-			al_set_display_menu(m_disp, nullptr); // if something attached, free resources.
-			al_destroy_display(m_disp);
-		}
-		m_disp = nullptr;
+		destroy();
 	}
 
 	Display::Display(Display&& oth) noexcept
@@ -36,6 +23,29 @@ namespace AllegroCPP {
 		if (m_disp) al_destroy_display(m_disp);
 		m_disp = oth.m_disp;
 		oth.m_disp = nullptr;
+	}
+
+	bool Display::create(std::pair<int, int> size, const std::string& windowname, int flags, std::pair<int, int> pos, int refresh_rate, std::vector<display_option> options)
+	{
+		if (!al_is_system_installed()) al_init();
+		if (m_disp) destroy();
+
+		if (flags >= 0) al_set_new_display_flags(flags);
+		if (pos != display_undefined_position) al_set_new_window_position(pos.first, pos.second);
+		if (refresh_rate >= 0) al_set_new_display_refresh_rate(refresh_rate);
+		for (const auto& i : options) al_set_new_display_option(i.option, i.value, i.importance);
+		al_set_new_window_title(windowname.substr(0, ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE).c_str());
+
+		return (m_disp = al_create_display(size.first, size.second)) != nullptr;
+	}
+
+	void Display::destroy()
+	{
+		if (m_disp) {
+			al_set_display_menu(m_disp, nullptr); // if something attached, free resources.
+			al_destroy_display(m_disp);
+		}
+		m_disp = nullptr;
 	}
 
 	bool Display::empty() const
