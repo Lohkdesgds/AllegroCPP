@@ -19,6 +19,12 @@
     <Filter Include="bind\include\_each">
       <UniqueIdentifier>{eface94d-6bee-4f74-959c-37a88d15882a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="bind\include\deps">
+      <UniqueIdentifier>{268eead8-8ceb-481a-8641-195baf233b96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bind\include\deps\lunaris-memory">
+      <UniqueIdentifier>{bec80bfc-7f73-4092-b585-a075f26f1150}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config.h">
@@ -104,6 +110,12 @@
     </ClInclude>
     <ClInclude Include="include\System.h">
       <Filter>bind\include\_selected</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\lunaris-memory\memory.h">
+      <Filter>bind\include\deps\lunaris-memory</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\lunaris-memory\memory.ipp">
+      <Filter>bind\include\deps\lunaris-memory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

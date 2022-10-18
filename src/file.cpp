@@ -8,7 +8,7 @@ namespace AllegroCPP {
 		if (path.empty() || mode.empty()) throw std::invalid_argument("Path or mode is empty!");
 		if (!al_is_system_installed()) al_init();
 
-		if (!(m_fp = al_fopen(path.c_str(), mode.c_str()))) throw std::runtime_error("Could not open file!");
+		if (!(m_fp = Lunaris::Memory<ALLEGRO_FILE>(al_fopen(path.c_str(), mode.c_str()), [](ALLEGRO_FILE* f) { al_fclose(f); }))) throw std::runtime_error("Could not open file!");
 	}
 
 
@@ -19,7 +19,7 @@ namespace AllegroCPP {
 		if (path.empty() || mode.empty()) throw std::invalid_argument("Path or mode is empty!");
 		if (!al_is_system_installed()) al_init();
 
-		if (!(m_fp = al_fopen_interface(interfac, path.c_str(), mode.c_str()))) throw std::runtime_error("Could not open file!");
+		if (!(m_fp = Lunaris::Memory<ALLEGRO_FILE>(al_fopen_interface(interfac, path.c_str(), mode.c_str()), [](ALLEGRO_FILE* f) { al_fclose(f); }))) throw std::runtime_error("Could not open file!");
 	}
 
 	File::File(int fd, const std::string& mode)
@@ -27,7 +27,7 @@ namespace AllegroCPP {
 		if (fd < 0 || mode.empty()) throw std::invalid_argument("FD or mode is empty!");
 		if (!al_is_system_installed()) al_init();		
 
-		if (!(m_fp = al_fopen_fd(fd, mode.c_str()))) throw std::runtime_error("Could not open FD!");
+		if (!(m_fp = Lunaris::Memory<ALLEGRO_FILE>(al_fopen_fd(fd, mode.c_str()), [](ALLEGRO_FILE* f) { al_fclose(f); }))) throw std::runtime_error("Could not open FD!");
 	}
 
 	File::File(File& fp, size_t slice_initial_size, const std::string& mode)
@@ -37,161 +37,164 @@ namespace AllegroCPP {
 		if (mode.empty()) throw std::invalid_argument("Mode is invalid!");
 		if (!al_is_system_installed()) al_init();
 
-		if (!(m_fp = al_fopen_slice(fp.m_fp, slice_initial_size, mode.c_str()))) throw std::runtime_error("Could not open file!");
+		if (!(m_fp = Lunaris::Memory<ALLEGRO_FILE>(al_fopen_slice(fp.m_fp.get(), slice_initial_size, mode.c_str()), [](ALLEGRO_FILE* f) { al_fclose(f); }))) throw std::runtime_error("Could not open file!");
 	}
 
 
 	File::~File()
 	{
-		if (m_fp) { al_fclose(m_fp); m_fp = nullptr; }
+		m_fp.reset();
 	}
 
 	bool File::empty() const
 	{
-		return m_fp == nullptr;
+		return !valid();
 	}
 
 	bool File::valid() const
 	{
-		return m_fp != nullptr;
+		return m_fp;
 	}
 
 	File::operator bool() const
 	{
-		return m_fp != nullptr;
+		return m_fp;
 	}
 
 	File::operator ALLEGRO_FILE* ()
+	{
+		return m_fp.get();
+	}
+
+	File::operator Lunaris::Memory<ALLEGRO_FILE>() const
 	{
 		return m_fp;
 	}
 
 	File::File(File&& oth) noexcept
-		: m_fp(oth.m_fp), m_curr_path(std::move(oth.m_curr_path))
+		: m_fp(std::exchange(oth.m_fp, {})), m_curr_path(std::move(oth.m_curr_path))
 	{
-		oth.m_fp = nullptr;
 	}
 
 	void File::operator=(File&& oth) noexcept
 	{
-		if (m_fp) al_fclose(m_fp);
+		m_fp.reset();
 		m_curr_path = std::move(oth.m_curr_path);
-		m_fp = oth.m_fp; 
-		oth.m_fp = nullptr;
+		m_fp = std::exchange(oth.m_fp, {});
 	}
 
 	size_t File::read(void* dat, size_t len)
 	{
-		return m_fp ? al_fread(m_fp, dat, len) : 0;
+		return m_fp ? al_fread(m_fp.get(), dat, len) : 0;
 	}
 
 	size_t File::write(const void* dat, size_t len)
 	{
-		return m_fp ? al_fwrite(m_fp, dat, len) : 0;
+		return m_fp ? al_fwrite(m_fp.get(), dat, len) : 0;
 	}
 
 	bool File::flush()
 	{
-		return m_fp ? al_fflush(m_fp) : false;
+		return m_fp ? al_fflush(m_fp.get()) : false;
 	}
 
 	int64_t File::tell() const
 	{
-		return m_fp ? al_ftell(m_fp) : -1;
+		return m_fp ? al_ftell((ALLEGRO_FILE*)m_fp.get()) : -1;
 	}
 
 	bool File::seek(int64_t offset, int whence)
 	{
-		return m_fp ? al_fseek(m_fp, offset, whence) : false;
+		return m_fp ? al_fseek(m_fp.get(), offset, whence) : false;
 	}
 
 	bool File::eof() const
 	{
-		return m_fp ? al_feof(m_fp) : true;
+		return m_fp ? al_feof((ALLEGRO_FILE*)m_fp.get()) : true;
 	}
 
 	bool File::has_error() const
 	{
-		return m_fp ? (al_ferror(m_fp) != 0) : false;
+		return m_fp ? (al_ferror((ALLEGRO_FILE*)m_fp.get()) != 0) : false;
 	}
 
 	file_error_report File::get_error() const
 	{
-		return m_fp ? file_error_report{ al_ferrmsg(m_fp), al_ferror(m_fp) } : file_error_report{"null", 0};
+		return m_fp ? file_error_report{ al_ferrmsg((ALLEGRO_FILE*)m_fp.get()), al_ferror((ALLEGRO_FILE*)m_fp.get()) } : file_error_report{"null", 0};
 	}
 
 	int File::ungetc(int c)
 	{
-		return m_fp ? al_fungetc(m_fp, c) : -1;
+		return m_fp ? al_fungetc(m_fp.get(), c) : -1;
 	}
 
 	int64_t File::size() const
 	{
-		return m_fp ? al_fsize(m_fp) : -1;
+		return m_fp ? al_fsize((ALLEGRO_FILE*)m_fp.get()) : -1;
 	}
 
 	int File::getc()
 	{
-		return m_fp ? al_fgetc(m_fp) : -1;
+		return m_fp ? al_fgetc(m_fp.get()) : -1;
 	}
 
 	int File::putc(int c)
 	{
-		return m_fp ? al_fputc(m_fp, c) : -1;
+		return m_fp ? al_fputc(m_fp.get(), c) : -1;
 	}
 
 	int File::printformat(const char* format, ...)
 	{
 		va_list args;
 		va_start(args, format);
-		auto ret = al_vfprintf(m_fp, format, args);
+		auto ret = al_vfprintf(m_fp.get(), format, args);
 		va_end(args);
 		return ret;
 	}
 
 	int File::vprintformat(const char* format, va_list args)
 	{
-		return al_vfprintf(m_fp, format, args);
+		return al_vfprintf(m_fp.get(), format, args);
 	}
 
 	int16_t File::read16le()
 	{
-		return m_fp ? al_fread16le(m_fp) : -1;
+		return m_fp ? al_fread16le(m_fp.get()) : -1;
 	}
 
 	int16_t File::read16be()
 	{
-		return m_fp ? al_fread16be(m_fp) : -1;
+		return m_fp ? al_fread16be(m_fp.get()) : -1;
 	}
 
 	size_t File::write16le(int16_t c)
 	{
-		return m_fp ? al_fwrite16le(m_fp, c) : -1;
+		return m_fp ? al_fwrite16le(m_fp.get(), c) : -1;
 	}
 
 	size_t File::write16be(int16_t c)
 	{
-		return m_fp ? al_fwrite16le(m_fp, c) : -1;
+		return m_fp ? al_fwrite16le(m_fp.get(), c) : -1;
 	}
 
 	int32_t File::read32le()
 	{
-		return m_fp ? al_fread32le(m_fp) : -1;
+		return m_fp ? al_fread32le(m_fp.get()) : -1;
 	}
 
 	int32_t File::read32be()
 	{
-		return m_fp ? al_fread32be(m_fp) : -1;
+		return m_fp ? al_fread32be(m_fp.get()) : -1;
 	}
 
 	size_t File::write32le(int32_t c)
 	{
-		return m_fp ? al_fwrite32le(m_fp, c) : -1;
+		return m_fp ? al_fwrite32le(m_fp.get(), c) : -1;
 	}
 
 	size_t File::write32be(int32_t c)
 	{
-		return m_fp ? al_fwrite32le(m_fp, c) : -1;
+		return m_fp ? al_fwrite32le(m_fp.get(), c) : -1;
 	}
 
 	File& File::operator<<(const char* val)
@@ -540,7 +543,7 @@ namespace AllegroCPP {
 	{
 		if (!m_fp) return {};
 		std::string str(max, '\0');
-		al_fgets(m_fp, str.data(), str.size());
+		al_fgets(m_fp.get(), str.data(), str.size());
 		size_t exp_siz = strnlen(str.data(), max);
 		if (exp_siz < str.size()) str.resize(exp_siz);
 		return str;
@@ -548,23 +551,23 @@ namespace AllegroCPP {
 
 	char* File::gets(char* const buf, size_t max)
 	{
-		return m_fp ? al_fgets(m_fp, buf, max) : nullptr;
+		return m_fp ? al_fgets(m_fp.get(), buf, max) : nullptr;
 	}
 
 	std::shared_ptr<ALLEGRO_USTR> File::get_ustr()
 	{
 		if (!m_fp) return nullptr;
-		return std::shared_ptr<ALLEGRO_USTR>(al_fget_ustr(m_fp), [](ALLEGRO_USTR* u) { al_ustr_free(u); });
+		return std::shared_ptr<ALLEGRO_USTR>(al_fget_ustr(m_fp.get()), [](ALLEGRO_USTR* u) { al_ustr_free(u); });
 	}
 
 	bool File::puts(char const* str)
 	{
-		return m_fp ? (al_fputs(m_fp, str) >= 0) : false;
+		return m_fp ? (al_fputs(m_fp.get(), str) >= 0) : false;
 	}
 
 	bool File::puts(const std::string& str)
 	{
-		return m_fp ? (al_fputs(m_fp, str.c_str()) >= 0) : false;
+		return m_fp ? (al_fputs(m_fp.get(), str.c_str()) >= 0) : false;
 	}
 
 	const std::string& File::get_filepath() const
@@ -572,12 +575,12 @@ namespace AllegroCPP {
 		return m_curr_path;
 	}
 
-	ALLEGRO_FILE* File::drop()
-	{
-		ALLEGRO_FILE* nf = m_fp;
-		m_fp = nullptr;
-		return nf;
-	}
+	//ALLEGRO_FILE* File::drop()
+	//{
+	//	ALLEGRO_FILE* nf = m_fp;
+	//	m_fp = nullptr;
+	//	return m_fp.;
+	//}
 
 	File_tmp::File_tmp(const std::string& tmppath)
 	{
@@ -585,7 +588,7 @@ namespace AllegroCPP {
 		if (!al_is_system_installed()) al_init();
 
 		ALLEGRO_PATH* tmpptr = al_create_path(nullptr);
-		if (!(m_fp = al_make_temp_file(tmppath.c_str(), &tmpptr))) {
+		if (!(m_fp = Lunaris::Memory<ALLEGRO_FILE>(al_make_temp_file(tmppath.c_str(), &tmpptr), [this](ALLEGRO_FILE* f) { if (!m_curr_path.empty()) { std::remove(m_curr_path.c_str()); } al_fclose(f); }))) {
 			al_destroy_path(tmpptr);
 			throw std::runtime_error("Could not open temp file!");
 		}
@@ -596,9 +599,8 @@ namespace AllegroCPP {
 
 	File_tmp::~File_tmp()
 	{
-		if (!m_curr_path.empty()) {
-			std::remove(m_curr_path.c_str());
-		}
+		//if (!m_curr_path.empty()) { std::remove(m_curr_path.c_str()); }
+		m_fp.reset();
 	}
 
 	File_tmp::File_tmp(File_tmp&& oth) noexcept 
@@ -609,9 +611,9 @@ namespace AllegroCPP {
 	void File_tmp::operator=(File_tmp&& oth) noexcept
 	{
 		this->File::operator=(std::move(oth));
-		if (!m_curr_path.empty()) {
-			std::remove(m_curr_path.c_str());
-		}
+		//if (!m_curr_path.empty()) {
+		//	std::remove(m_curr_path.c_str());
+		//}
 		m_curr_path = std::move(oth.m_curr_path);
 	}
 
@@ -621,26 +623,26 @@ namespace AllegroCPP {
 		if (!al_is_system_installed()) al_init();
 
 		if (!(m_mem = (char*)al_malloc(memlen))) throw std::runtime_error("Can't alloc!");
+		m_fp = Lunaris::Memory<ALLEGRO_FILE>(al_open_memfile(m_mem, memlen, "wb+"), [this](ALLEGRO_FILE* f) { al_fclose(f);  al_free(m_mem); });
 	}
 
 	File_memory::~File_memory()
 	{
 		this->File::~File(); // close file FIRST
-		if (m_mem) { al_free(m_mem); m_mem = nullptr; }
+		//if (m_mem) { al_free(m_mem); m_mem = nullptr; }
 	}
 
 	File_memory::File_memory(File_memory&& oth) noexcept
-		: File(std::move(oth)), m_mem(oth.m_mem)
+		: File(std::move(oth)), m_mem(std::exchange(oth.m_mem, nullptr))
 	{
-		oth.m_mem = nullptr;
+		//oth.m_mem = nullptr;
 	}
 
 	void File_memory::operator=(File_memory&& oth) noexcept
 	{
 		this->File::operator=(std::move(oth));
 		if (m_mem) al_free(m_mem);
-		m_mem = oth.m_mem;
-		oth.m_mem = nullptr;
+		m_mem = std::exchange(oth.m_mem, nullptr);
 	}
 
 	namespace _socketmap {
@@ -1007,7 +1009,8 @@ namespace AllegroCPP {
 
 			conf.prealloc = absorb;
 
-			m_fp = al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len);
+			m_fp = Lunaris::Memory<ALLEGRO_FILE>(al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len),
+				[](ALLEGRO_FILE* f) { al_fclose(f); });
 
 			if (!m_fp) throw std::runtime_error("Could not create FileSocket");
 		}
@@ -1046,7 +1049,7 @@ namespace AllegroCPP {
 		std::string _FileSocket::gets(size_t max)
 		{
 			if (!m_fp) return {};
-			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp);
+			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp.get());
 			if (!sod || sod->badflag || sod->has_host()) return {};
 			auto& curr = sod->m_socks[0];
 			int res = 0;
@@ -1057,7 +1060,7 @@ namespace AllegroCPP {
 			case socket_type::UDP_HOST_CLIENT:
 			{
 				std::string str(max, '\0');
-				size_t tot = al_fread(m_fp, str.data(), str.size());
+				size_t tot = al_fread(m_fp.get(), str.data(), str.size());
 				str.resize(tot);
 				return str;
 			}
@@ -1069,7 +1072,7 @@ namespace AllegroCPP {
 		char* _FileSocket::gets(char* const buf, size_t max)
 		{
 			if (!m_fp) return {};
-			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp);
+			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp.get());
 			if (!sod || sod->badflag || sod->has_host()) return {};
 			auto& curr = sod->m_socks[0];
 			int res = 0;
@@ -1079,7 +1082,7 @@ namespace AllegroCPP {
 			case socket_type::UDP_CLIENT:
 			case socket_type::UDP_HOST_CLIENT:
 			{
-				al_fread(m_fp, buf, max);
+				al_fread(m_fp.get(), buf, max);
 				return buf;
 			}
 			default:
@@ -1090,13 +1093,13 @@ namespace AllegroCPP {
 		bool _FileSocket::puts(char const* str)
 		{
 			if (!m_fp) return false;
-			return al_fwrite(m_fp, str, strlen(str)) > 0;
+			return al_fwrite(m_fp.get(), str, strlen(str)) > 0;
 		}
 
 		bool _FileSocket::puts(const std::string& str)
 		{
 			if (!m_fp) return false;
-			return al_fwrite(m_fp, str.data(), str.size()) == str.size();
+			return al_fwrite(m_fp.get(), str.data(), str.size()) == str.size();
 		}
 
 	}
@@ -1118,7 +1121,8 @@ namespace AllegroCPP {
 		conf.port = port;
 		conf.host = false;
 
-		m_fp = al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len);
+		m_fp = Lunaris::Memory<ALLEGRO_FILE>(al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len), 
+			[](ALLEGRO_FILE* f) { al_fclose(f); });
 
 		if (!m_fp) throw std::runtime_error("Could not create FileSocket");
 	}
@@ -1135,7 +1139,8 @@ namespace AllegroCPP {
 		conf.port = port;
 		conf.host = false;
 
-		m_fp = al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len);
+		m_fp = Lunaris::Memory<ALLEGRO_FILE>(al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len),
+			[](ALLEGRO_FILE* f) { al_fclose(f); });
 
 		if (!m_fp) throw std::runtime_error("Could not create FileSocket");
 	}
@@ -1153,7 +1158,7 @@ namespace AllegroCPP {
 	bool File_client::set_timeout_read(unsigned long ms)
 	{
 		if (!m_fp) return false;
-		_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp);
+		_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp.get());
 		if (!sod) return false;
 
 		for (auto& i : sod->m_socks) {
@@ -1181,7 +1186,8 @@ namespace AllegroCPP {
 		conf.port = port;
 		conf.host = true;
 
-		m_fp = al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len);
+		m_fp = Lunaris::Memory<ALLEGRO_FILE>(al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len),
+			[](ALLEGRO_FILE* f) { al_fclose(f); });
 
 		if (!m_fp) throw std::runtime_error("Could not create FileSocket");
 	}
@@ -1197,7 +1203,8 @@ namespace AllegroCPP {
 		conf.port = port;
 		conf.host = true;
 
-		m_fp = al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len);
+		m_fp = Lunaris::Memory<ALLEGRO_FILE>(al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len),
+			[](ALLEGRO_FILE* f) { al_fclose(f); });
 
 		if (!m_fp) throw std::runtime_error("Could not create FileSocket");
 	}
@@ -1219,20 +1226,21 @@ namespace AllegroCPP {
 			return true;
 		}
 		if (!oth.m_fp) return false;
-		_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp);
-		_socketmap::socket_user_data* sod_them = (_socketmap::socket_user_data*)al_get_file_userdata(oth.m_fp);
+		_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp.get());
+		_socketmap::socket_user_data* sod_them = (_socketmap::socket_user_data*)al_get_file_userdata(oth.m_fp.get());
 		if (!sod || !sod_them || !sod->has_host() || !sod_them->has_host()) return false;
 		sod->m_socks.insert(sod->m_socks.end(), std::move_iterator(sod_them->m_socks.begin()), std::move_iterator(sod_them->m_socks.end()));
 		sod_them->m_socks.clear();
-		al_fclose(oth.m_fp);
-		oth.m_fp = nullptr;
+		//al_fclose(oth.m_fp);
+		//oth.m_fp = nullptr;
+		oth.m_fp.reset();
 		return true;
 	}
 
 	File_client File_host::listen(long timeout)
 	{
 		if (!m_fp) throw std::runtime_error("Invalid state: null");
-		_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp);
+		_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp.get());
 		if (!sod || !sod->has_host()) throw std::runtime_error("Invalid state: it's not a host?!");
 
 		_socketmap::new_socket_user_data nsud;
@@ -1240,7 +1248,7 @@ namespace AllegroCPP {
 		if (!nsud.ptr) throw std::bad_alloc();
 		nsud.timeout = timeout;
 
-		size_t confirm = al_fread(m_fp, (void*)&nsud, sizeof(_socketmap::new_socket_user_data));
+		size_t confirm = al_fread(m_fp.get(), (void*)&nsud, sizeof(_socketmap::new_socket_user_data));
 		if (confirm != sizeof(_socketmap::socket_user_data)) {
 			delete nsud.ptr;
 			return File_client(nullptr);

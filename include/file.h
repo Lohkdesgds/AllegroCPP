@@ -66,6 +66,8 @@ constexpr int SocketTimeout = 0;
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_memfile.h>
 
+#include "../deps/lunaris-memory/memory.h"
+
 #include <string>
 #include <stdexcept>
 #include <memory>
@@ -82,7 +84,8 @@ namespace AllegroCPP {
 
 	class File {
 	protected:
-		ALLEGRO_FILE* m_fp = nullptr;
+		//ALLEGRO_FILE* m_fp = nullptr;
+		Lunaris::Memory<ALLEGRO_FILE> m_fp;
 		std::string m_curr_path;
 		File() = default;
 	public:
@@ -96,6 +99,7 @@ namespace AllegroCPP {
 		bool valid() const;
 		operator bool() const;
 		operator ALLEGRO_FILE* ();
+		operator Lunaris::Memory<ALLEGRO_FILE>() const;
 
 		File(const File&) = delete;
 		File(File&&) noexcept;
@@ -170,11 +174,11 @@ namespace AllegroCPP {
 		const std::string& get_filepath() const;
 
 		// Reset internal ALLEGRO_FILE*. Valid only if not a memory file (else throw)
-		ALLEGRO_FILE* drop();
+		//ALLEGRO_FILE* drop();
 	};
 
 	class File_tmp : public File {
-		using File::drop; // remove access
+		//using File::drop; // remove access
 	public:
 		File_tmp(const std::string& tmppath = "XXXXXXXX.tmp");
 		~File_tmp();
@@ -188,7 +192,7 @@ namespace AllegroCPP {
 	class File_memory : public File {
 		char* m_mem = nullptr;
 
-		using File::drop; // remove access
+		//using File::drop; // remove access
 	public:
 		File_memory(size_t memlen);
 		~File_memory();

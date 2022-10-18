@@ -1,0 +1,3 @@
+[submodule "deps/lunaris-memory"]
+	path = deps/lunaris-memory
+	url = https://github.com/LunarisLib/Lunaris-Memory

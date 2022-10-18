@@ -199,6 +199,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="deps\lunaris-memory\memory.h" />
+    <ClInclude Include="deps\lunaris-memory\memory.ipp" />
     <ClInclude Include="include\audio_mixer.h" />
     <ClInclude Include="include\audio_sample.h" />
     <ClInclude Include="include\audio_stream.h" />
