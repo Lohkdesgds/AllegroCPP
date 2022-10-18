@@ -66,14 +66,13 @@ constexpr int SocketTimeout = 0;
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_memfile.h>
 
-#include "../deps/lunaris-memory/memory.h"
-
 #include <string>
 #include <stdexcept>
 #include <memory>
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <functional>
 
 namespace AllegroCPP {
 
@@ -82,10 +81,12 @@ namespace AllegroCPP {
 		int err;
 	};
 
+	using File_shareable_ptr = std::shared_ptr<std::unique_ptr<ALLEGRO_FILE,std::function<void(ALLEGRO_FILE*)>>>;
+
 	class File {
 	protected:
 		//ALLEGRO_FILE* m_fp = nullptr;
-		Lunaris::Memory<ALLEGRO_FILE> m_fp;
+		File_shareable_ptr m_fp;
 		std::string m_curr_path;
 		File() = default;
 	public:
@@ -99,7 +100,7 @@ namespace AllegroCPP {
 		bool valid() const;
 		operator bool() const;
 		operator ALLEGRO_FILE* ();
-		operator Lunaris::Memory<ALLEGRO_FILE>() const;
+		operator File_shareable_ptr() const;
 
 		File(const File&) = delete;
 		File(File&&) noexcept;
