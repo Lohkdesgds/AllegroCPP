@@ -140,6 +140,7 @@
       <ConformanceMode>true</ConformanceMode>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,6 +158,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -173,6 +175,7 @@
       <ConformanceMode>true</ConformanceMode>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -190,6 +193,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -201,6 +205,7 @@
   <ItemGroup>
     <ClInclude Include="deps\lunaris-memory\memory.h" />
     <ClInclude Include="deps\lunaris-memory\memory.ipp" />
+    <ClInclude Include="include\Audio.h" />
     <ClInclude Include="include\audio_mixer.h" />
     <ClInclude Include="include\audio_sample.h" />
     <ClInclude Include="include\audio_stream.h" />
@@ -231,9 +236,13 @@
     <ClInclude Include="include\video.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\audio_all.cpp" />
+    <ClCompile Include="src\audio_sample.cpp" />
+    <ClCompile Include="src\audio_voice.cpp" />
     <ClCompile Include="src\bitmap.cpp" />
     <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\display.cpp" />
+    <ClCompile Include="src\display_mode.cpp" />
     <ClCompile Include="src\events.cpp" />
     <ClCompile Include="src\event_queue.cpp" />
     <ClCompile Include="src\file.cpp" />

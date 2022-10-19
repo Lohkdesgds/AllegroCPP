@@ -125,7 +125,6 @@ int main()
 	Bitmap bmp(imgtest);
 	Font basicfont;
 	Transform trans;
-	//ALLEGRO_TIMER* tima = al_create_timer(1.0 / 30);
 	Timer tima(1.0 / 30);
 	Menu menn({
 		Menu_each_menu("File", 0, {

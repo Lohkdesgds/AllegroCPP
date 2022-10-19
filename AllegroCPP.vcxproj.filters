@@ -117,6 +117,9 @@
     <ClInclude Include="deps\lunaris-memory\memory.ipp">
       <Filter>bind\include\deps\lunaris-memory</Filter>
     </ClInclude>
+    <ClInclude Include="include\Audio.h">
+      <Filter>bind\include\_selected</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display.cpp">
@@ -159,6 +162,18 @@
       <Filter>bind\src</Filter>
     </ClCompile>
     <ClCompile Include="src\menu.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\display_mode.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio_voice.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio_all.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio_sample.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
   </ItemGroup>
