@@ -203,11 +203,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="deps\lunaris-memory\memory.h" />
-    <ClInclude Include="deps\lunaris-memory\memory.ipp" />
     <ClInclude Include="include\Audio.h" />
     <ClInclude Include="include\audio_mixer.h" />
     <ClInclude Include="include\audio_sample.h" />
+    <ClInclude Include="include\audio_sample_instance.h" />
     <ClInclude Include="include\audio_stream.h" />
     <ClInclude Include="include\audio_voice.h" />
     <ClInclude Include="include\bitmap.h" />
@@ -237,7 +236,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\audio_all.cpp" />
+    <ClCompile Include="src\audio_mixer.cpp" />
     <ClCompile Include="src\audio_sample.cpp" />
+    <ClCompile Include="src\audio_sample_instance.cpp" />
+    <ClCompile Include="src\audio_stream.cpp" />
     <ClCompile Include="src\audio_voice.cpp" />
     <ClCompile Include="src\bitmap.cpp" />
     <ClCompile Include="src\config.cpp" />
@@ -250,9 +252,11 @@
     <ClCompile Include="src\locked_region.cpp" />
     <ClCompile Include="src\menu.cpp" />
     <ClCompile Include="src\monitor_info.cpp" />
+    <ClCompile Include="src\native_dialog.cpp" />
     <ClCompile Include="src\thread.cpp" />
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\transform.cpp" />
+    <ClCompile Include="src\vertex.cpp" />
     <ClCompile Include="test\test.cpp" />
   </ItemGroup>
   <ItemGroup>

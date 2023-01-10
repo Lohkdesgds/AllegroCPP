@@ -4,9 +4,15 @@ namespace AllegroCPP {
 
 	extern void __audio_allegro_start(int);
 
-	Voice::Voice(int samplestart)
+	Voice::Voice(bool start, int sp)
+	{
+		if (start) __audio_allegro_start(sp);
+	}
+
+	Voice::Voice(int samplestart, unsigned freq, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF conf)
 	{
 		__audio_allegro_start(samplestart);
+		if (!create(freq, depth, conf)) throw std::invalid_argument("Could not create Voice.");
 	}
 
 	Voice::Voice(Voice&& oth)
@@ -104,9 +110,10 @@ namespace AllegroCPP {
 		return false;
 	}
 
-	void Voice::set_playing(const bool s)
+	bool Voice::set_playing(const bool s)
 	{
-		if (m_voice) al_set_voice_playing(m_voice, s);
+		if (m_voice) return al_set_voice_playing(m_voice, s);
+		return false;
 	}
 
 	unsigned Voice::get_position() const
@@ -115,9 +122,10 @@ namespace AllegroCPP {
 		return 0;
 	}
 
-	void Voice::set_position(const unsigned p)
+	bool Voice::set_position(const unsigned p)
 	{
-		if (m_voice) al_set_voice_position(m_voice, p);
+		if (m_voice) return al_set_voice_position(m_voice, p);
+		return false;
 	}
 
 	ALLEGRO_VOICE* Voice::get() const
@@ -130,4 +138,28 @@ namespace AllegroCPP {
 		return m_voice;
 	}
 		
+	Default_Voice::Default_Voice(int samplestart)
+	{
+		__audio_allegro_start(samplestart);
+		if (!(m_voice = al_get_default_voice())) {
+			if (!al_restore_default_mixer()) throw std::runtime_error("Cannot create/recreate default voice.");
+			if (!(m_voice = al_get_default_voice())) throw std::runtime_error("Default voice still null after recreation.");
+		}
+	}
+
+	Default_Voice::~Default_Voice()
+	{
+		m_voice = nullptr; // don't touch it.
+	}
+
+	void Default_Voice::set_default(Voice&& oth)
+	{
+		al_set_default_voice(std::exchange(oth.m_voice, nullptr));
+	}
+
+	void Default_Voice::destroy_default()
+	{
+		al_set_default_voice(nullptr);
+	}
+
 }

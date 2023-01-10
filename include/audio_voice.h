@@ -8,12 +8,16 @@
 
 namespace AllegroCPP {
 
-	constexpr int default_voice_audio_samples = 16;
+	class Default_Voice;
 
 	class Voice {
+	protected:
 		ALLEGRO_VOICE* m_voice = nullptr;
+
+		friend class Default_Voice;
 	public:
-		Voice(int = default_voice_audio_samples);
+		Voice(bool, int = 0);
+		Voice(int = 0, unsigned = 48000, ALLEGRO_AUDIO_DEPTH = ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF = ALLEGRO_CHANNEL_CONF_2);
 		Voice(const Voice&) = delete;
 		void operator=(const Voice&) = delete;
 		Voice(Voice&&);
@@ -38,15 +42,26 @@ namespace AllegroCPP {
 		ALLEGRO_AUDIO_DEPTH get_depth() const;
 		bool get_playing() const;
 
-		void set_playing(const bool);
+		bool set_playing(const bool);
 
 		// non-streaming object attached, this returns current sample pos
 		unsigned get_position() const;
 		// non-streaming object attached, this set current sample pos
-		void set_position(const unsigned);
+		bool set_position(const unsigned);
 
 		ALLEGRO_VOICE* get() const;
 		operator ALLEGRO_VOICE*() const;
+	};
+
+	class Default_Voice : public Voice {
+		using Voice::create;
+		using Voice::destroy;
+	public:
+		Default_Voice(int = 0);
+		~Default_Voice();
+
+		void set_default(Voice&&);
+		void destroy_default();
 	};
 
 }

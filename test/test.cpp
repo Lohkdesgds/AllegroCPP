@@ -1,4 +1,5 @@
 #include <Graphics.h>
+#include <Audio.h>
 #include <System.h>
 
 #include <thread>
@@ -13,6 +14,7 @@
 using namespace AllegroCPP;
 
 const std::string imgtest = "test.jpg";
+const std::string msktest = "music.ogg";
 
 void err_handler(char const* expr, char const* file, int line, char const* func)
 {
@@ -96,11 +98,15 @@ void _test()
 int main()
 {
 	Config_system confsys;
+	Text_log loggin("Logging system CO.");
+
+	loggin << "Hello there" << std::endl;
+	loggin << "This is some logging\nHopefully\nthis breaks lines." << std::endl;
 
 	al_register_assert_handler(&err_handler);
 	al_register_trace_handler(&trace_handler);
 #ifdef _DEBUG
-	confsys.set("trace", "level", "warn");
+	confsys.set("trace", "level", "debug"); // Can be one of debug, info, warn, error, none or empty. // https://github.com/liballeg/allegro5/blob/master/allegro5.cfg#L186
 #endif
 	confsys.set("image", "jpeg_quality_level", "95");
 	confsys.set("image", "png_compression_level ", "9");
@@ -120,7 +126,7 @@ int main()
 	log << "Creating display and stuff..." << std::endl;
 
 	Monitor_info moninfo;
-	Display disp({ moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f }, "Funny window", ALLEGRO_OPENGL | ALLEGRO_RESIZABLE, display_undefined_position, 0, { display_option{ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST} });
+	Display disp({ moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f }, "Funny window", ALLEGRO_DIRECT3D_INTERNAL | ALLEGRO_RESIZABLE, display_undefined_position, 0, { display_option{ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST} });
 	Event_queue queue;
 	Bitmap bmp(imgtest);
 	Font basicfont;
@@ -131,6 +137,17 @@ int main()
 			Menu_each_default("Show Exit button below", 1)
 		})
 	});
+	Voice voice;
+	Mixer mixer;
+	Audio_stream astream(msktest, 4, 1 << 14);
+	Vertexes vertx;
+
+	voice << mixer;
+	mixer << astream;
+
+	astream.set_playing(false);
+	astream.set_playmode(ALLEGRO_PLAYMODE_LOOP);
+	astream.set_gain(0.1f);
 
 	log << "Preparing stuff..." << std::endl;
 
@@ -138,11 +155,22 @@ int main()
 	queue << tima;
 	queue << Event_keyboard();
 	queue << menn;
+	queue << astream;
 
 	menn >> disp;
-		
+
 	trans.scale({ zoomin, zoomin });
 	trans.use();
+
+	vertx
+		.push_back({ 510, 510, 0, al_map_rgb(200,200,200) })
+		.push_back({ 550, 510, 0, al_map_rgb(200,200,200) })
+		.push_back({ 530, 530, 0, al_map_rgb(200,200,200) })
+		.push_back({ 570, 530, 0, al_map_rgb(200,255,200) })
+		.push_back({ 550, 560, 0, al_map_rgb(25,255,200) })
+		.set_mode(Vertexes::types::TRIANGLE_STRIP);
+
+	vertx.generate_transformed();
 
 	double _last = Time::get_time();
 	double _smooth_fps = 1.0;
@@ -152,6 +180,8 @@ int main()
 	bool _is_minimized = false;
 
 	log << "Running." << std::endl;
+
+	astream.set_playing(true);
 
 	for(bool runn = true; runn;)
 	{
@@ -199,8 +229,14 @@ int main()
 			case ALLEGRO_EVENT_TIMER:
 				break;
 			case ALLEGRO_EVENT_KEY_DOWN:
-				runn = false;
+				if (ev.get().keyboard.keycode == ALLEGRO_KEY_ESCAPE) runn = false;
 				continue;
+			//case ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT:
+			//	loggin << "Got slice:\n";
+			//	//{
+			//	//	const char* frag = (char*)astream.get_fragment();
+			//	//}
+			//	break;
 			}
 		}
 
@@ -221,23 +257,33 @@ int main()
 			_last = al_get_time();
 		}
 
+		const uint64_t music_t = astream.get_played_samples() * 100ULL / static_cast<uint64_t>(astream.get_frequency());
+
 		basicfont.draw_multiline({ 0.5f,0.5f },
 			"Fancy line - AllegroCPP test\n"
 			"FPS: " + std::to_string(static_cast<int>(_fps_cpy)) + "." + std::to_string(static_cast<int>(10000 * _fps_cpy) % 10000) + "\n"
 			"Frametime: " + std::to_string(_smooth_fps * 1e3) + " ms\n"
-			//"Remaining time: " + std::to_string(nn - al_get_time()) + " s",
-			"Elapsed time: " + std::to_string(al_get_time() - _elap_calc) + " s",
+			"Elapsed time: " + std::to_string(al_get_time() - _elap_calc) + " s\n"
+			"Music time: " + std::to_string(music_t / 100ULL) + "." + std::to_string(music_t % 100ULL) + " s | Samples: " + std::to_string(astream.get_played_samples())
+			,
 			-1.0f, -1.0f, al_map_rgb(0, 255, 255)
 		);
 
-		//bmp.draw({ 0,0 });
+		vertx.draw();
+
 		disp.flip();
 	}
 
 	log << "Destroying stuff..." << std::endl;
 
+	astream.set_playing(false);
+
 	disp.destroy();
 	tima.stop();
+
+	astream.destroy();
+	mixer.destroy();
+	voice.destroy();
 
 	log << "Testing TCP/UDP..." << std::endl;
 

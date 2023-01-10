@@ -19,12 +19,6 @@
     <Filter Include="bind\include\_each">
       <UniqueIdentifier>{eface94d-6bee-4f74-959c-37a88d15882a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="bind\include\deps">
-      <UniqueIdentifier>{268eead8-8ceb-481a-8641-195baf233b96}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="bind\include\deps\lunaris-memory">
-      <UniqueIdentifier>{bec80bfc-7f73-4092-b585-a075f26f1150}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config.h">
@@ -111,14 +105,11 @@
     <ClInclude Include="include\System.h">
       <Filter>bind\include\_selected</Filter>
     </ClInclude>
-    <ClInclude Include="deps\lunaris-memory\memory.h">
-      <Filter>bind\include\deps\lunaris-memory</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\lunaris-memory\memory.ipp">
-      <Filter>bind\include\deps\lunaris-memory</Filter>
-    </ClInclude>
     <ClInclude Include="include\Audio.h">
       <Filter>bind\include\_selected</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio_sample_instance.h">
+      <Filter>bind\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -174,6 +165,21 @@
       <Filter>bind\src</Filter>
     </ClCompile>
     <ClCompile Include="src\audio_sample.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio_mixer.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio_sample_instance.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio_stream.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\native_dialog.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vertex.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
   </ItemGroup>

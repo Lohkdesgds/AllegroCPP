@@ -65,9 +65,7 @@ namespace AllegroCPP {
 
 	Bitmap::~Bitmap()
 	{
-		m_bmp.reset();
-		m_parent.reset();
-		m_file.reset();
+		destroy();
 	}
 
 	Bitmap::Bitmap(const Bitmap& oth)
@@ -140,6 +138,13 @@ namespace AllegroCPP {
 	Bitmap::operator ALLEGRO_BITMAP* ()
 	{
 		return m_bmp.get();
+	}
+
+	void Bitmap::destroy()
+	{
+		m_bmp.reset();
+		m_parent.reset();
+		m_file.reset();
 	}
 
 	Bitmap Bitmap::make_ref() const
