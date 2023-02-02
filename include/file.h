@@ -181,7 +181,7 @@ namespace AllegroCPP {
 	class File_tmp : public File {
 		//using File::drop; // remove access
 	public:
-		File_tmp(const std::string& tmppath = "XXXXXXXX.tmp");
+		File_tmp(const std::string& tmppath = "XXXXXXXX.tmp", const std::string& mode = "wb+");
 		~File_tmp();
 
 		File_tmp(const File_tmp&) = delete;

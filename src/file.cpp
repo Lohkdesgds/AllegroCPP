@@ -588,19 +588,25 @@ namespace AllegroCPP {
 	//	return m_fp.;
 	//}
 
-	File_tmp::File_tmp(const std::string& tmppath)
+	File_tmp::File_tmp(const std::string& tmppath, const std::string& mode)
 	{
 		if (tmppath.empty()) throw std::invalid_argument("File format is empty!");
 		if (!al_is_system_installed()) al_init();
 
 		ALLEGRO_PATH* tmpptr = al_create_path(nullptr);
-		if (!(m_fp = make_shareable_file(al_make_temp_file(tmppath.c_str(), &tmpptr), [this](ALLEGRO_FILE* f) { if (!m_curr_path.empty()) { std::remove(m_curr_path.c_str()); } al_fclose(f); }))) {
+		auto* fpp = al_make_temp_file(tmppath.c_str(), &tmpptr);
+		if (!fpp) throw std::runtime_error("Could not open temp file!");
+		m_curr_path = al_path_cstr(tmpptr, ALLEGRO_NATIVE_PATH_SEP);
+		al_destroy_path(tmpptr);
+		al_fclose(fpp);
+
+		if (!(m_fp = make_shareable_file(al_fopen(m_curr_path.c_str(), mode.c_str()), [this](ALLEGRO_FILE* f) { if (!m_curr_path.empty()) { std::remove(m_curr_path.c_str()); } al_fclose(f); }))) {
 			al_destroy_path(tmpptr);
 			throw std::runtime_error("Could not open temp file!");
 		}
 
-		m_curr_path = al_path_cstr(tmpptr, ALLEGRO_NATIVE_PATH_SEP);
-		al_destroy_path(tmpptr);
+		//m_curr_path = al_path_cstr(tmpptr, ALLEGRO_NATIVE_PATH_SEP);
+		//al_destroy_path(tmpptr);
 	}
 
 	File_tmp::~File_tmp()

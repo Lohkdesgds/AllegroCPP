@@ -128,7 +128,16 @@ int main()
 	Monitor_info moninfo;
 	Display disp({ moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f }, "Funny window", ALLEGRO_DIRECT3D_INTERNAL | ALLEGRO_RESIZABLE, display_undefined_position, 0, { display_option{ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST} });
 	Event_queue queue;
-	Bitmap bmp(imgtest);
+	File_tmp tmp("LunarisTestXXXX.jpg");
+	File fpload(imgtest, "rb");
+	{
+		char ch{};
+		while (fpload.read(&ch, 1)) tmp.write(&ch, 1);
+		tmp.flush();
+		tmp.seek(0, ALLEGRO_SEEK_SET);
+	}
+
+	Bitmap bmp(tmp, 1024, 0, ".jpg");
 	Font basicfont;
 	Transform trans;
 	Timer tima(1.0 / 30);
