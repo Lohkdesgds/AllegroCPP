@@ -47,7 +47,7 @@ namespace AllegroCPP {
 		m_bmp = std::shared_ptr<ALLEGRO_BITMAP>(nbmp, [](ALLEGRO_BITMAP* b) { al_destroy_bitmap(b); });
 	}
 
-	Bitmap::Bitmap(std::shared_ptr<ALLEGRO_FILE> file, int flags, int format, const std::string& fileextensionincludingdot)
+	Bitmap::Bitmap(std::shared_ptr<std::unique_ptr<ALLEGRO_FILE, std::function<void(ALLEGRO_FILE*)>>> file, int flags, int format, const std::string& fileextensionincludingdot)
 		: m_file(file)
 	{
 		if (!m_file) throw std::invalid_argument("File was null");
@@ -57,7 +57,7 @@ namespace AllegroCPP {
 		al_set_new_bitmap_flags(flags);
 		al_set_new_bitmap_format(format);
 
-		ALLEGRO_BITMAP* nbmp = al_load_bitmap_f(m_file.get(), fileextensionincludingdot.empty() ? nullptr : fileextensionincludingdot.c_str());
+		ALLEGRO_BITMAP* nbmp = al_load_bitmap_f(m_file->get(), fileextensionincludingdot.empty() ? nullptr : fileextensionincludingdot.c_str());
 		if (!nbmp) throw std::runtime_error("Cannot load bitmap!");
 
 		m_bmp = std::shared_ptr<ALLEGRO_BITMAP>(nbmp, [](ALLEGRO_BITMAP* b) { al_destroy_bitmap(b); });
