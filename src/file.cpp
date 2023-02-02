@@ -600,7 +600,7 @@ namespace AllegroCPP {
 		al_destroy_path(tmpptr);
 		al_fclose(fpp);
 
-		if (!(m_fp = make_shareable_file(al_fopen(m_curr_path.c_str(), mode.c_str()), [this](ALLEGRO_FILE* f) { al_fclose(f); if (!m_curr_path.empty()) { std::remove(m_curr_path.c_str()); } }))) {
+		if (!(m_fp = make_shareable_file(al_fopen(m_curr_path.c_str(), mode.c_str()), [path = m_curr_path](ALLEGRO_FILE* f) { al_fclose(f); if (!path.empty()) { std::remove(path.c_str()); } }))) {
 			al_destroy_path(tmpptr);
 			throw std::runtime_error("Could not open temp file!");
 		}
