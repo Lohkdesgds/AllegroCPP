@@ -605,7 +605,6 @@ namespace AllegroCPP {
 
 	File_tmp::~File_tmp()
 	{
-		//if (!m_curr_path.empty()) { std::remove(m_curr_path.c_str()); }
 		m_fp.reset();
 	}
 
@@ -617,10 +616,6 @@ namespace AllegroCPP {
 	void File_tmp::operator=(File_tmp&& oth) noexcept
 	{
 		this->File::operator=(std::move(oth));
-		//if (!m_curr_path.empty()) {
-		//	std::remove(m_curr_path.c_str());
-		//}
-		m_curr_path = std::move(oth.m_curr_path);
 	}
 
 	File_memory::File_memory(size_t memlen)
@@ -635,7 +630,6 @@ namespace AllegroCPP {
 	File_memory::~File_memory()
 	{
 		this->File::~File(); // close file FIRST
-		//if (m_mem) { al_free(m_mem); m_mem = nullptr; }
 	}
 
 	File_memory::File_memory(File_memory&& oth) noexcept
