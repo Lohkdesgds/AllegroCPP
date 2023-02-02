@@ -82,10 +82,11 @@ namespace AllegroCPP {
 		al_set_new_bitmap_flags(flags);
 		al_set_new_bitmap_format(format);
 
-		ALLEGRO_BITMAP* nbmp = al_clone_bitmap(m_parent.get());
+		ALLEGRO_BITMAP* nbmp = al_clone_bitmap(m_bmp.get());
 		if (!nbmp) throw std::runtime_error("Cannot clone bitmap!");
 
 		m_bmp = std::shared_ptr<ALLEGRO_BITMAP>(nbmp, [](ALLEGRO_BITMAP* b) { al_destroy_bitmap(b); });
+		m_parent = oth.m_parent;
 	}
 
 	Bitmap::Bitmap(Bitmap&& oth) noexcept
@@ -105,10 +106,11 @@ namespace AllegroCPP {
 		al_set_new_bitmap_flags(flags);
 		al_set_new_bitmap_format(format);
 
-		ALLEGRO_BITMAP* nbmp = al_clone_bitmap(m_parent.get());
+		ALLEGRO_BITMAP* nbmp = al_clone_bitmap(m_bmp.get());
 		if (!nbmp) throw std::runtime_error("Cannot clone bitmap!");
 
 		m_bmp = std::shared_ptr<ALLEGRO_BITMAP>(nbmp, [](ALLEGRO_BITMAP* b) { al_destroy_bitmap(b); });
+		m_parent = oth.m_parent;
 
 		return *this;
 	}
