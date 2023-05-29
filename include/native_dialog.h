@@ -78,6 +78,16 @@ namespace AllegroCPP {
 		Text_log& operator<<(std::ios_base& (*pf)(std::ios_base&));
 	};
 
+	/// <summary>
+	/// Generate a pop up in messagebox style
+	/// </summary>
+	/// <param name="{std::string}">Title</param>
+	/// <param name="{std::string}">Header</param>
+	/// <param name="{std::string}">Body text</param>
+	/// <param name="{std::string}">Buttons (doesn't work on Windows)</param>
+	/// <param name="{int}">Flags</param>
+	/// <param name="{ALLEGRO_DISPLAY*}">Referenced as parent display if possible, optional</param>
+	/// <returns>{int} 0 if closed or failed, 1 for OK or Yes, 2 for Cancel or No. If custom buttons, they start at 1.</returns>
 	int message_box(const std::string&, const std::string&, const std::string&, const std::string& = "", int = ALLEGRO_MESSAGEBOX_WARN, ALLEGRO_DISPLAY* = nullptr);
 
 }

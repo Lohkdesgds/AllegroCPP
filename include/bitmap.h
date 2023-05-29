@@ -40,7 +40,9 @@ namespace AllegroCPP {
 	public:
 		Bitmap() = default;
 		Bitmap(std::pair<int, int> size, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
+		Bitmap(int size_x, int size_y, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
 		Bitmap(const Bitmap&, std::pair<int,int> subcut, std::pair<int,int> subsize, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
+		Bitmap(const Bitmap&, int subcut_x, int subcut_y, int subsize_x, int subsize_y, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
 		Bitmap(const std::string& path, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
 		Bitmap(std::shared_ptr<std::unique_ptr<ALLEGRO_FILE, std::function<void(ALLEGRO_FILE*)>>> file, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0, const std::string& fileextensionincludingdot = {});
 		~Bitmap();
@@ -66,20 +68,26 @@ namespace AllegroCPP {
 		int get_width() const;
 
 		ALLEGRO_COLOR get_pixel(std::pair<int, int> pos) const;
+		ALLEGRO_COLOR get_pixel(int pos_x, int pos_y) const;
 		bool is_locked() const;
 		bool is_compatible() const;
 		bool is_sub_bitmap() const;
 		bitmap_parent_info get_parent_info();
 		bool reparent(std::pair<int, int> subcut, std::pair<int, int> subsize);
+		bool reparent(int subcut_x, int subcut_y, int subsize_x, int subsize_y);
 		bool reparent(const Bitmap&, std::pair<int, int> subcut, std::pair<int, int> subsize);
+		bool reparent(const Bitmap&, int subcut_x, int subcut_y, int subsize_x, int subsize_y);
 
 		bool clear_to_color(ALLEGRO_COLOR color);
 		bool draw(std::pair<float, float> target, std::vector<bitmap_prop> props = {}, int flags = 0);
+		bool draw(float target_x, float target_y, std::vector<bitmap_prop> props = {}, int flags = 0);
 		bool put_pixel(std::pair<int, int> pos, ALLEGRO_COLOR color, pixelrule rule = pixelrule::DEFAULT);
+		bool put_pixel(int pos_x, int pos_y, ALLEGRO_COLOR color, pixelrule rule = pixelrule::DEFAULT);
 
 		bool set_as_target();
 
 		bool set_clip_rectangle(std::pair<int, int> clipcut, std::pair<int, int> clipsize);
+		bool set_clip_rectangle(int clipcut_x, int clipcut_y, int clipsize_x, int clipsize_y);
 		bool get_clip_rectangle(int& posx, int& posy, int& width, int& height) const;
 		bool reset_clip_rectangle();
 

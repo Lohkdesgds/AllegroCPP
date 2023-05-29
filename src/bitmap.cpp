@@ -16,6 +16,20 @@ namespace AllegroCPP {
 		m_bmp = std::shared_ptr<ALLEGRO_BITMAP>(nbmp, [](ALLEGRO_BITMAP* b) { al_destroy_bitmap(b); });
 	}
 
+	Bitmap::Bitmap(int size_x, int size_y, int flags, int format)
+	{
+		if (!al_is_system_installed()) al_init();
+		if (!al_is_image_addon_initialized()) al_init_image_addon();
+
+		al_set_new_bitmap_flags(flags);
+		al_set_new_bitmap_format(format);
+
+		ALLEGRO_BITMAP* nbmp = al_create_bitmap(size_x, size_y);
+		if (!nbmp) throw std::runtime_error("Cannot create bitmap!");
+
+		m_bmp = std::shared_ptr<ALLEGRO_BITMAP>(nbmp, [](ALLEGRO_BITMAP* b) { al_destroy_bitmap(b); });
+	}
+
 	Bitmap::Bitmap(const Bitmap& oth, std::pair<int, int> subcut, std::pair<int, int> subsize, int flags, int format)
 		: m_parent(oth.m_bmp)
 	{
@@ -27,6 +41,22 @@ namespace AllegroCPP {
 		al_set_new_bitmap_format(format);
 
 		ALLEGRO_BITMAP* nbmp = al_create_sub_bitmap(m_parent.get(), subcut.first, subcut.second, subsize.first, subsize.second);
+		if (!nbmp) throw std::runtime_error("Cannot create sub bitmap!");
+
+		m_bmp = std::shared_ptr<ALLEGRO_BITMAP>(nbmp, [](ALLEGRO_BITMAP* b) { al_destroy_bitmap(b); });
+	}
+
+	Bitmap::Bitmap(const Bitmap& oth, int subcut_x, int subcut_y, int subsize_x, int subsize_y, int flags, int format)
+		: m_parent(oth.m_bmp)
+	{
+		if (!m_parent) throw std::invalid_argument("Bitmap parent was null!");
+		if (!al_is_system_installed()) al_init();
+		if (!al_is_image_addon_initialized()) al_init_image_addon();
+
+		al_set_new_bitmap_flags(flags);
+		al_set_new_bitmap_format(format);
+
+		ALLEGRO_BITMAP* nbmp = al_create_sub_bitmap(m_parent.get(), subcut_x, subcut_y, subsize_x, subsize_y);
 		if (!nbmp) throw std::runtime_error("Cannot create sub bitmap!");
 
 		m_bmp = std::shared_ptr<ALLEGRO_BITMAP>(nbmp, [](ALLEGRO_BITMAP* b) { al_destroy_bitmap(b); });
@@ -193,6 +223,12 @@ namespace AllegroCPP {
 		return m_bmp ? al_get_pixel(m_bmp.get(), pos.first, pos.second) : solid_white;
 	}
 
+	ALLEGRO_COLOR Bitmap::get_pixel(int pos_x, int pos_y) const
+	{
+		static const ALLEGRO_COLOR solid_white = al_map_rgb(255, 255, 255);
+		return m_bmp ? al_get_pixel(m_bmp.get(), pos_x, pos_y) : solid_white;
+	}
+
 	bool Bitmap::is_locked() const
 	{
 		return m_bmp ? al_is_bitmap_locked(m_bmp.get()) : false;
@@ -227,12 +263,28 @@ namespace AllegroCPP {
 		return true;
 	}
 
+	bool Bitmap::reparent(int subcut_x, int subcut_y, int subsize_x, int subsize_y)
+	{
+		if (!m_bmp || !m_parent) return false;
+		al_reparent_bitmap(m_bmp.get(), m_parent.get(), subcut_x, subcut_y, subsize_x, subsize_y);
+		return true;
+	}
+
 	bool Bitmap::reparent(const Bitmap& oth, std::pair<int, int> subcut, std::pair<int, int> subsize)
 	{
 		if (!m_bmp || !oth.m_bmp) return false;
 		m_parent = oth.m_bmp;
 		m_file = oth.m_file;
 		al_reparent_bitmap(m_bmp.get(), m_parent.get(), subcut.first, subcut.second, subsize.first, subsize.second);
+		return true;
+	}
+
+	bool Bitmap::reparent(const Bitmap& oth, int subcut_x, int subcut_y, int subsize_x, int subsize_y)
+	{
+		if (!m_bmp || !oth.m_bmp) return false;
+		m_parent = oth.m_bmp;
+		m_file = oth.m_file;
+		al_reparent_bitmap(m_bmp.get(), m_parent.get(), subcut_x, subcut_y, subsize_x, subsize_y);
 		return true;
 	}
 
@@ -276,6 +328,36 @@ namespace AllegroCPP {
 		return true;
 	}
 
+	bool Bitmap::draw(float target_x, float target_y, std::vector<bitmap_prop> props, int flags)
+	{
+		static const ALLEGRO_COLOR solid_white = al_map_rgb(255, 255, 255);
+		if (!m_bmp) return false;
+
+		bitmap_cut _cut = bitmap_cut{ 0, 0, get_width(), get_height() };
+		bitmap_rotate_transform _transf = bitmap_rotate_transform{ 0.0f, 0.0f, 0.0f };
+		ALLEGRO_COLOR _color = solid_white;
+		bitmap_scale _scale = bitmap_scale{ 1.0f, 1.0f };
+
+		for (const auto& i : props) {
+			if (std::holds_alternative<bitmap_cut>(i)) _cut = std::get<bitmap_cut>(i);
+			else if (std::holds_alternative<bitmap_rotate_transform>(i)) _transf = std::get<bitmap_rotate_transform>(i);
+			else if (std::holds_alternative<ALLEGRO_COLOR>(i)) _color = std::get<ALLEGRO_COLOR>(i);
+			else if (std::holds_alternative<bitmap_scale>(i)) _scale = std::get<bitmap_scale>(i);
+		}
+
+		al_draw_tinted_scaled_rotated_bitmap_region(m_bmp.get(),
+			_cut.posx, _cut.posy, _cut.width, _cut.height,
+			_color,
+			_transf.centerx, _transf.centery,
+			target_x, target_y,
+			_scale.scalex, _scale.scaley,
+			_transf.rotationrad,
+			flags
+		);
+
+		return true;
+	}
+
 	bool Bitmap::put_pixel(std::pair<int, int> pos, ALLEGRO_COLOR color, pixelrule rule)
 	{
 		if (!m_bmp) return false;
@@ -296,6 +378,26 @@ namespace AllegroCPP {
 		return true;
 	}
 
+	bool Bitmap::put_pixel(int pos_x, int pos_y, ALLEGRO_COLOR color, pixelrule rule)
+	{
+		if (!m_bmp) return false;
+		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		al_set_target_bitmap(m_bmp.get());
+		switch (rule) {
+		case pixelrule::DEFAULT:
+			al_put_pixel(pos_x, pos_y, color);
+			break;
+		case pixelrule::AFFECTED_BY_TRANSFORM:
+			al_draw_pixel(pos_x, pos_y, color);
+			break;
+		case pixelrule::AFFECTED_BY_BLENDER:
+			al_put_blended_pixel(pos_x, pos_y, color);
+			break;
+		}
+		al_set_target_bitmap(oldtarg);
+		return true;
+	}
+
 	bool Bitmap::set_as_target()
 	{
 		if (!m_bmp) return false;
@@ -309,6 +411,16 @@ namespace AllegroCPP {
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
 		al_set_target_bitmap(m_bmp.get());
 		al_set_clipping_rectangle(clipcut.first, clipcut.second, clipsize.first, clipsize.second);
+		al_set_target_bitmap(oldtarg);
+		return true;
+	}
+
+	bool Bitmap::set_clip_rectangle(int clipcut_x, int clipcut_y, int clipsize_x, int clipsize_y)
+	{
+		if (!m_bmp) return false;
+		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
+		al_set_target_bitmap(m_bmp.get());
+		al_set_clipping_rectangle(clipcut_x, clipcut_y, clipsize_x, clipsize_y);
 		al_set_target_bitmap(oldtarg);
 		return true;
 	}

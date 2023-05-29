@@ -182,6 +182,12 @@
     <ClCompile Include="src\vertex.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\path.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\state.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

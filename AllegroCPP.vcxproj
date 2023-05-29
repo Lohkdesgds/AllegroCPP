@@ -253,6 +253,8 @@
     <ClCompile Include="src\menu.cpp" />
     <ClCompile Include="src\monitor_info.cpp" />
     <ClCompile Include="src\native_dialog.cpp" />
+    <ClCompile Include="src\path.cpp" />
+    <ClCompile Include="src\state.cpp" />
     <ClCompile Include="src\thread.cpp" />
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\transform.cpp" />

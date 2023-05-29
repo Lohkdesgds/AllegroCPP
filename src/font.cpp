@@ -315,6 +315,25 @@ namespace AllegroCPP {
 		return true;
 	}
 
+	bool Font::draw(float target_x, float target_y, std::variant<std::string, const ALLEGRO_USTR*> text, ALLEGRO_COLOR color, text_alignment align, std::optional<font_delimiter_justified> just_settings)
+	{
+		if (!m_font) return false;
+
+		ALLEGRO_USTR_INFO __ustr_auto{};
+		const ALLEGRO_USTR* _str = (std::holds_alternative<std::string>(text) ? al_ref_cstr(&__ustr_auto, std::get<std::string>(text).c_str()) : std::get<const ALLEGRO_USTR*>(text));
+
+		if (align == text_alignment::JUSTIFIED) { // JUST
+			if (!just_settings.has_value()) return false; // needs just_settings!
+			const auto& sett = just_settings.value();
+			al_draw_justified_ustr(m_font, color, target_x, sett.max_x, target_y, sett.diff, sett.extra_flags, _str);
+		}
+		else { // LEFT, CENTER, RIGHT
+			al_draw_ustr(m_font, color, target_x, target_y, static_cast<int>(align), _str);
+		}
+
+		return true;
+	}
+
 	//bool Font::drawf(std::pair<float, float> target, const std::string& text, ALLEGRO_COLOR color, text_alignment align, std::optional<font_delimiter_justified> just_settings, ...)
 	//{
 	//	if (!m_font) return false;
@@ -355,6 +374,22 @@ namespace AllegroCPP {
 		return true;
 	}
 
+	bool Font::draw_multiline(float target_x, float target_y, std::variant<std::string, const ALLEGRO_USTR*> text, float max_width, float line_height, ALLEGRO_COLOR color, text_alignment align, std::optional<font_delimiter_justified> just_settings)
+	{
+		if (!m_font) return false;
+		if (line_height < 0) line_height = static_cast<float>(get_line_height()) * 1.15f;
+		if (max_width < 0) max_width = std::numeric_limits<float>::max();
+
+		ALLEGRO_USTR_INFO __ustr_auto{};
+		const ALLEGRO_USTR* _str = (std::holds_alternative<std::string>(text) ? al_ref_cstr(&__ustr_auto, std::get<std::string>(text).c_str()) : std::get<const ALLEGRO_USTR*>(text));
+
+		__multiline_font_draw_ustr _ref{ m_font, color, line_height, { target_x, target_y }, align, just_settings };
+
+		al_do_multiline_ustr(m_font, max_width, _str, &__do_text_ustr_multiline, &_ref);
+
+		return true;
+	}
+
 	//bool Font::drawf_multiline(std::pair<float, float> target, const std::string& text, float max_width, float line_height, ALLEGRO_COLOR color, text_alignment align, std::optional<font_delimiter_justified> just_settings, ...)
 	//{
 	//	if (!m_font) return false;
@@ -379,6 +414,14 @@ namespace AllegroCPP {
 		if (!m_font) return false;
 
 		al_draw_glyph(m_font, color, target.first, target.second, codepoint);
+		return true;
+	}
+
+	bool Font::draw_glyph(float target_x, float target_y, int codepoint, ALLEGRO_COLOR color)
+	{
+		if (!m_font) return false;
+
+		al_draw_glyph(m_font, color, target_x, target_y, codepoint);
 		return true;
 	}
 

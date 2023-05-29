@@ -123,6 +123,15 @@ int main()
 	File log("log.txt");
 
 	log << "Started log." << std::endl;
+
+	log << "Testing path stuff!" << std::endl;
+
+	Path path("C:\\Program Files\\Adobe\\");
+
+	path.make_canonical();
+
+	std::cout << path.c_str() << std::endl;
+
 	log << "Creating display and stuff..." << std::endl;
 
 	Monitor_info moninfo;
