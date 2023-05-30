@@ -203,6 +203,9 @@
     <ClCompile Include="src\shader.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\video.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

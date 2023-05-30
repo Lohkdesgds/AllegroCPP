@@ -264,6 +264,7 @@
     <ClCompile Include="src\transform.cpp" />
     <ClCompile Include="src\utfstring.cpp" />
     <ClCompile Include="src\vertex.cpp" />
+    <ClCompile Include="src\video.cpp" />
     <ClCompile Include="test\test.cpp" />
   </ItemGroup>
   <ItemGroup>

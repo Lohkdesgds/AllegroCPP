@@ -159,13 +159,14 @@ int main()
 	Mixer mixer;
 	Audio_stream astream(msktest, 4, 1 << 14);
 	Vertexes vertx;
+	Video vid("video.ogv");
 
 	voice << mixer;
 	mixer << astream;
 
 	astream.set_playing(false);
 	astream.set_playmode(ALLEGRO_PLAYMODE_LOOP);
-	astream.set_gain(0.1f);
+	astream.set_gain(0.01f);
 
 	log << "Preparing stuff..." << std::endl;
 
@@ -174,6 +175,7 @@ int main()
 	queue << Event_keyboard();
 	queue << menn;
 	queue << astream;
+	queue << vid;
 
 	menn >> disp;
 
@@ -200,6 +202,8 @@ int main()
 	log << "Running." << std::endl;
 
 	astream.set_playing(true);
+	vid.start(mixer);
+	vid.set_playing(true);
 
 	for(bool runn = true; runn;)
 	{
@@ -259,6 +263,16 @@ int main()
 		}
 
 		disp.clear_to_color(al_map_rgb_f(0.4f + 0.3f * sinf(al_get_time() * 0.3f + 0.5f), 0.4f + 0.3f * sinf(al_get_time() * 1.1f + 1.2f), 0.4f + 0.3f * sinf(al_get_time() * 0.7f + 2.1f)));
+
+
+		if (auto frame = vid.get_frame(); frame) {
+			const float scale = 0.3f; /* Adjust this to fit your target bitmap dimensions. */
+			float sw = al_get_bitmap_width(frame);
+			float sh = al_get_bitmap_height(frame);
+			float dw = scale * vid.get_scaled_width();
+			float dh = scale * vid.get_scaled_height();
+			al_draw_scaled_bitmap(frame, 0, 0, sw, sh, 120, 120, dw, dh, 0);
+		}
 
 		bmp.draw(
 			{ disp.get_width() * 0.125f, disp.get_height() * 0.125f },
