@@ -9,5 +9,6 @@
 #include "config.h"
 #include "state.h"
 #include "thread.h"
-#include "user_event.h"
 #include "utfstring.h"
+#include "mouse.h"
+#include "keyboard.h"

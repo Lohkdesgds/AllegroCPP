@@ -42,5 +42,4 @@ namespace AllegroCPP {
 	{
 		al_set_errno(val);
 	}
-
 }

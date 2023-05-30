@@ -30,9 +30,6 @@
     <ClInclude Include="include\events.h">
       <Filter>bind\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\user_event.h">
-      <Filter>bind\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\event_queue.h">
       <Filter>bind\include</Filter>
     </ClInclude>
@@ -111,6 +108,12 @@
     <ClInclude Include="include\audio_sample_instance.h">
       <Filter>bind\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\mouse.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\keyboard.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display.cpp">
@@ -186,6 +189,18 @@
       <Filter>bind\src</Filter>
     </ClCompile>
     <ClCompile Include="src\state.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mouse.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\keyboard.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utfstring.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shader.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
   </ItemGroup>

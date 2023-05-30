@@ -20,7 +20,7 @@ namespace AllegroCPP {
 
 		void store(int flags);
 		void restore();
-	};
+	};	
 
 	int get_errno();
 	void set_errno(const int);

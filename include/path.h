@@ -63,6 +63,8 @@ namespace AllegroCPP {
 
 		Path& operator+=(const std::string&);
 		Path operator+(const std::string&);
+
+		operator ALLEGRO_PATH*() const;
 	};
 
 }

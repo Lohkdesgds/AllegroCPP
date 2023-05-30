@@ -184,4 +184,9 @@ namespace AllegroCPP {
 		return this->operator+(Path(str));
 	}
 
+	Path::operator ALLEGRO_PATH* () const
+	{
+		return m_path;
+	}
+
 }
