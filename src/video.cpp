@@ -17,6 +17,11 @@ namespace AllegroCPP {
 		return Video(get_source());
 	}
 
+	ALLEGRO_BITMAP* Video::get_for_draw() const
+	{
+		return m_video ? al_get_video_frame(m_video) : nullptr;
+	}
+
 	Video::Video(Video&& oth) noexcept
 		: m_video(std::exchange(oth.m_video, nullptr))
 	{
@@ -111,12 +116,12 @@ namespace AllegroCPP {
 
 	ALLEGRO_BITMAP* Video::get_frame() const
 	{
-		return m_video ? al_get_video_frame(m_video) : nullptr;
+		return get_for_draw();
 	}
 
 	Video::operator ALLEGRO_BITMAP* () const
 	{
-		return m_video ? al_get_video_frame(m_video) : nullptr;
+		return get_for_draw();
 	}
 
 	double Video::get_position(const ALLEGRO_VIDEO_POSITION_TYPE type) const

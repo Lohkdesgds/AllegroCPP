@@ -114,6 +114,9 @@
     <ClInclude Include="include\keyboard.h">
       <Filter>bind\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\gif.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display.cpp">
@@ -204,6 +207,9 @@
       <Filter>bind\src</Filter>
     </ClCompile>
     <ClCompile Include="src\video.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gif.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
   </ItemGroup>

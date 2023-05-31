@@ -146,6 +146,7 @@ int main()
 		tmp.seek(0, ALLEGRO_SEEK_SET);
 	}
 
+	GIF gif("cat.gif");
 	Bitmap bmp(tmp, 1024, 0, ".jpg");
 	Font basicfont;
 	Transform trans;
@@ -265,19 +266,30 @@ int main()
 		disp.clear_to_color(al_map_rgb_f(0.4f + 0.3f * sinf(al_get_time() * 0.3f + 0.5f), 0.4f + 0.3f * sinf(al_get_time() * 1.1f + 1.2f), 0.4f + 0.3f * sinf(al_get_time() * 0.7f + 2.1f)));
 
 
-		if (auto frame = vid.get_frame(); frame) {
-			const float scale = 0.3f; /* Adjust this to fit your target bitmap dimensions. */
-			float sw = al_get_bitmap_width(frame);
-			float sh = al_get_bitmap_height(frame);
-			float dw = scale * vid.get_scaled_width();
-			float dh = scale * vid.get_scaled_height();
-			al_draw_scaled_bitmap(frame, 0, 0, sw, sh, 120, 120, dw, dh, 0);
-		}
+		//if (auto frame = vid.get_frame(); frame) {
+		//	const float scale = 0.3f; /* Adjust this to fit your target bitmap dimensions. */
+		//	float sw = al_get_bitmap_width(frame);
+		//	float sh = al_get_bitmap_height(frame);
+		//	float dw = scale * vid.get_scaled_width();
+		//	float dh = scale * vid.get_scaled_height();
+		//	al_draw_scaled_bitmap(frame, 0, 0, sw, sh, 120, 120, dw, dh, 0);
+		//}
+
+		vid.draw(
+			{ 0.5f * (disp.get_width() - vid.get_width()), 0.5f * (disp.get_height() - vid.get_height()) },
+			{ bitmap_scale{ 0.5f, 0.5f}, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) }
+		);
 
 		bmp.draw(
 			{ disp.get_width() * 0.125f, disp.get_height() * 0.125f },
 			{ bitmap_scale{ disp.get_width() * 0.5f / (bmp.get_width() * zoomin), disp.get_height() * 0.5f / (bmp.get_height() * zoomin) }, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) }
 		);
+
+		gif.draw(
+			{ 0, 0 },
+			{ bitmap_scale{ 1.0f, 1.0f}, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) }
+		);
+
 
 		{
 			const double __cst = (fabs(al_get_time() - _last) + 1e-100);

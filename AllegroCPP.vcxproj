@@ -217,6 +217,7 @@
     <ClInclude Include="include\event_queue.h" />
     <ClInclude Include="include\file.h" />
     <ClInclude Include="include\font.h" />
+    <ClInclude Include="include\gif.h" />
     <ClInclude Include="include\Graphics.h" />
     <ClInclude Include="include\keyboard.h" />
     <ClInclude Include="include\locked_region.h" />
@@ -250,6 +251,7 @@
     <ClCompile Include="src\event_queue.cpp" />
     <ClCompile Include="src\file.cpp" />
     <ClCompile Include="src\font.cpp" />
+    <ClCompile Include="src\gif.cpp" />
     <ClCompile Include="src\keyboard.cpp" />
     <ClCompile Include="src\locked_region.cpp" />
     <ClCompile Include="src\menu.cpp" />

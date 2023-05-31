@@ -36,7 +36,14 @@ namespace AllegroCPP {
 		enum class pixelrule{DEFAULT, AFFECTED_BY_TRANSFORM, AFFECTED_BY_BLENDER};
 	private:
 		std::shared_ptr<ALLEGRO_BITMAP> m_bmp, m_parent;
+		bool m_treat_ref_const = false;
 		std::shared_ptr<std::unique_ptr<ALLEGRO_FILE, std::function<void(ALLEGRO_FILE*)>>> m_file; // reference to a file if bitmap loaded from it
+		
+		Bitmap(ALLEGRO_BITMAP*, const bool treat_as_const);
+
+		friend Bitmap make_const_bitmap_of(ALLEGRO_BITMAP*);
+
+		virtual ALLEGRO_BITMAP* get_for_draw() const;
 	public:
 		Bitmap() = default;
 		Bitmap(std::pair<int, int> size, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
@@ -93,4 +100,6 @@ namespace AllegroCPP {
 
 		bool mask_to_alpha(ALLEGRO_COLOR);
 	};
+
+	Bitmap make_const_bitmap_of(ALLEGRO_BITMAP*);
 }

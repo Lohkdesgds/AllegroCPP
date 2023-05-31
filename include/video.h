@@ -3,6 +3,8 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_video.h>
 
+#include "bitmap.h"
+
 #include <string>
 
 namespace AllegroCPP {
@@ -27,9 +29,11 @@ namespace AllegroCPP {
 		Video get_video_source() const;
 	};
 
-	class Video {
+	class Video : protected Bitmap {
 		ALLEGRO_VIDEO* m_video = nullptr;
 		const bool m_delete_auto = true;
+
+		ALLEGRO_BITMAP* get_for_draw() const override;
 	public:
 		enum dir {SET, CUR}; // END not supported
 
@@ -75,6 +79,13 @@ namespace AllegroCPP {
 
 		static std::string identify(const std::string&);
 		static std::string identify_f(ALLEGRO_FILE*);
+
+		using Bitmap::get_flags;
+		using Bitmap::get_format;
+		using Bitmap::get_width;
+		using Bitmap::get_height;
+		using Bitmap::get_pixel;
+		using Bitmap::draw;
 	};
 
 }

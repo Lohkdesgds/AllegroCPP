@@ -20,3 +20,4 @@
 #include "vertex.h"
 #include "video.h"
 #include "config.h"
+#include "gif.h"
