@@ -137,6 +137,17 @@ namespace AllegroCPP {
 		return true;
 	}
 
+	void Event_queue::pause(const bool pause_it)
+	{
+		if (!m_evq) return;
+		al_pause_event_queue(m_evq, pause_it);
+	}
+
+	bool Event_queue::is_paused() const
+	{
+		return m_evq ? al_is_event_queue_paused(m_evq) : false;
+	}
+
 	bool Event_queue::is_queue_empty() const
 	{
 		return m_evq ? al_is_event_queue_empty(m_evq) : true;

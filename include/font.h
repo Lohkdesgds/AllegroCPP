@@ -87,11 +87,14 @@ namespace AllegroCPP {
 		int get_glypth_advance(int codepoint, int codepoint2 = ALLEGRO_NO_KERNING);
 
 		bool draw(std::pair<float, float> target, std::variant<std::string, const ALLEGRO_USTR*> text, ALLEGRO_COLOR color = al_map_rgb(255,255,255), text_alignment align = text_alignment::LEFT, std::optional<font_delimiter_justified> just_settings = {});
+		bool draw(float target_x, float target_y, std::variant<std::string, const ALLEGRO_USTR*> text, ALLEGRO_COLOR color = al_map_rgb(255,255,255), text_alignment align = text_alignment::LEFT, std::optional<font_delimiter_justified> just_settings = {});
 		//bool drawf(std::pair<float, float> target, const std::string& text, ALLEGRO_COLOR color, text_alignment align, std::optional<font_delimiter_justified> just_settings, ...);
 		bool draw_multiline(std::pair<float, float> target, std::variant<std::string, const ALLEGRO_USTR*> text, float max_width = -1.f, float line_height = -1.f, ALLEGRO_COLOR color = al_map_rgb(255, 255, 255), text_alignment align = text_alignment::LEFT, std::optional<font_delimiter_justified> just_settings = {});
+		bool draw_multiline(float target_x, float target_y, std::variant<std::string, const ALLEGRO_USTR*> text, float max_width = -1.f, float line_height = -1.f, ALLEGRO_COLOR color = al_map_rgb(255, 255, 255), text_alignment align = text_alignment::LEFT, std::optional<font_delimiter_justified> just_settings = {});
 		//bool drawf_multiline(std::pair<float, float> target, const std::string& text, float max_width, float line_height, ALLEGRO_COLOR color, text_alignment align, std::optional<font_delimiter_justified> just_settings, ...);
 
 		bool draw_glyph(std::pair<float, float> target, int codepoint, ALLEGRO_COLOR color = al_map_rgb(255, 255, 255));
+		bool draw_glyph(float target_x, float target_y, int codepoint, ALLEGRO_COLOR color = al_map_rgb(255, 255, 255));
 
 		std::vector<font_ranges_pair> get_ranges(int max = -1);
 	};

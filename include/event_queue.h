@@ -51,7 +51,7 @@ namespace AllegroCPP {
 
 		bool remove_source(ALLEGRO_EVENT_SOURCE*);
 
-		void pause();
+		void pause(const bool pause_it);
 		bool is_paused() const;
 
 		bool is_queue_empty() const;

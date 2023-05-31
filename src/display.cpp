@@ -2,9 +2,9 @@
 
 namespace AllegroCPP {
 
-	Display::Display(std::pair<int, int> size, const std::string& windowname, int flags, std::pair<int, int> pos, int refresh_rate, std::vector<display_option> options)
+	Display::Display(std::pair<int, int> size, const std::string& windowname, int flags, std::pair<int, int> pos, int refresh_rate, std::vector<display_option> options, const std::pair<bool, bool> center_display_on_posxy)
 	{
-		if (!create(size, windowname, flags, pos, refresh_rate, options)) throw std::runtime_error("Failed creating display!");
+		if (!create(size, windowname, flags, pos, refresh_rate, options, center_display_on_posxy)) throw std::runtime_error("Failed creating display!");
 	}
 
 	Display::~Display()
@@ -24,13 +24,13 @@ namespace AllegroCPP {
 		oth.m_disp.reset();
 	}
 
-	bool Display::create(std::pair<int, int> size, const std::string& windowname, int flags, std::pair<int, int> pos, int refresh_rate, std::vector<display_option> options)
+	bool Display::create(std::pair<int, int> size, const std::string& windowname, int flags, std::pair<int, int> pos, int refresh_rate, std::vector<display_option> options, const std::pair<bool, bool> center_display_on_posxy)
 	{
 		if (!al_is_system_installed()) al_init();
 		if (m_disp) destroy();
 
 		if (flags >= 0) al_set_new_display_flags(flags);
-		if (pos != display_undefined_position) al_set_new_window_position(pos.first, pos.second);
+		if (pos != display_undefined_position) al_set_new_window_position(center_display_on_posxy.first ? (pos.first - 0.5f * size.first) : pos.first, center_display_on_posxy.second ? (pos.second - 0.5f * size.second) : pos.second);
 		if (refresh_rate >= 0) al_set_new_display_refresh_rate(refresh_rate);
 		for (const auto& i : options) al_set_new_display_option(i.option, i.value, i.importance);
 		al_set_new_window_title(windowname.substr(0, ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE).c_str());

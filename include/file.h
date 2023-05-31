@@ -72,6 +72,7 @@ constexpr int SocketTimeout = 0;
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <functional>
 
 namespace AllegroCPP {
 
@@ -80,9 +81,12 @@ namespace AllegroCPP {
 		int err;
 	};
 
+	using File_shareable_ptr = std::shared_ptr<std::unique_ptr<ALLEGRO_FILE,std::function<void(ALLEGRO_FILE*)>>>;
+
 	class File {
 	protected:
-		ALLEGRO_FILE* m_fp = nullptr;
+		//ALLEGRO_FILE* m_fp = nullptr;
+		File_shareable_ptr m_fp;
 		std::string m_curr_path;
 		File() = default;
 	public:
@@ -96,6 +100,7 @@ namespace AllegroCPP {
 		bool valid() const;
 		operator bool() const;
 		operator ALLEGRO_FILE* ();
+		operator File_shareable_ptr() const;
 
 		File(const File&) = delete;
 		File(File&&) noexcept;
@@ -170,13 +175,13 @@ namespace AllegroCPP {
 		const std::string& get_filepath() const;
 
 		// Reset internal ALLEGRO_FILE*. Valid only if not a memory file (else throw)
-		ALLEGRO_FILE* drop();
+		//ALLEGRO_FILE* drop();
 	};
 
 	class File_tmp : public File {
-		using File::drop; // remove access
+		//using File::drop; // remove access
 	public:
-		File_tmp(const std::string& tmppath = "XXXXXXXX.tmp");
+		File_tmp(const std::string& tmppath = "XXXXXXXX.tmp", const std::string& mode = "wb+");
 		~File_tmp();
 
 		File_tmp(const File_tmp&) = delete;
@@ -188,7 +193,7 @@ namespace AllegroCPP {
 	class File_memory : public File {
 		char* m_mem = nullptr;
 
-		using File::drop; // remove access
+		//using File::drop; // remove access
 	public:
 		File_memory(size_t memlen);
 		~File_memory();

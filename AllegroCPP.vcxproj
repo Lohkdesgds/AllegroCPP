@@ -140,6 +140,7 @@
       <ConformanceMode>true</ConformanceMode>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,6 +158,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -173,6 +175,7 @@
       <ConformanceMode>true</ConformanceMode>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -190,6 +193,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -199,8 +203,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Audio.h" />
     <ClInclude Include="include\audio_mixer.h" />
     <ClInclude Include="include\audio_sample.h" />
+    <ClInclude Include="include\audio_sample_instance.h" />
     <ClInclude Include="include\audio_stream.h" />
     <ClInclude Include="include\audio_voice.h" />
     <ClInclude Include="include\bitmap.h" />
@@ -211,10 +217,13 @@
     <ClInclude Include="include\event_queue.h" />
     <ClInclude Include="include\file.h" />
     <ClInclude Include="include\font.h" />
+    <ClInclude Include="include\gif.h" />
     <ClInclude Include="include\Graphics.h" />
+    <ClInclude Include="include\keyboard.h" />
     <ClInclude Include="include\locked_region.h" />
     <ClInclude Include="include\menu.h" />
     <ClInclude Include="include\monitor_info.h" />
+    <ClInclude Include="include\mouse.h" />
     <ClInclude Include="include\native_dialog.h" />
     <ClInclude Include="include\path.h" />
     <ClInclude Include="include\shader.h" />
@@ -223,25 +232,41 @@
     <ClInclude Include="include\thread.h" />
     <ClInclude Include="include\timer.h" />
     <ClInclude Include="include\transform.h" />
-    <ClInclude Include="include\user_event.h" />
     <ClInclude Include="include\utfstring.h" />
     <ClInclude Include="include\vertex.h" />
     <ClInclude Include="include\video.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\audio_all.cpp" />
+    <ClCompile Include="src\audio_mixer.cpp" />
+    <ClCompile Include="src\audio_sample.cpp" />
+    <ClCompile Include="src\audio_sample_instance.cpp" />
+    <ClCompile Include="src\audio_stream.cpp" />
+    <ClCompile Include="src\audio_voice.cpp" />
     <ClCompile Include="src\bitmap.cpp" />
     <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\display.cpp" />
+    <ClCompile Include="src\display_mode.cpp" />
     <ClCompile Include="src\events.cpp" />
     <ClCompile Include="src\event_queue.cpp" />
     <ClCompile Include="src\file.cpp" />
     <ClCompile Include="src\font.cpp" />
+    <ClCompile Include="src\gif.cpp" />
+    <ClCompile Include="src\keyboard.cpp" />
     <ClCompile Include="src\locked_region.cpp" />
     <ClCompile Include="src\menu.cpp" />
     <ClCompile Include="src\monitor_info.cpp" />
+    <ClCompile Include="src\mouse.cpp" />
+    <ClCompile Include="src\native_dialog.cpp" />
+    <ClCompile Include="src\path.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\state.cpp" />
     <ClCompile Include="src\thread.cpp" />
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\transform.cpp" />
+    <ClCompile Include="src\utfstring.cpp" />
+    <ClCompile Include="src\vertex.cpp" />
+    <ClCompile Include="src\video.cpp" />
     <ClCompile Include="test\test.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -30,9 +30,6 @@
     <ClInclude Include="include\events.h">
       <Filter>bind\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\user_event.h">
-      <Filter>bind\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\event_queue.h">
       <Filter>bind\include</Filter>
     </ClInclude>
@@ -105,6 +102,21 @@
     <ClInclude Include="include\System.h">
       <Filter>bind\include\_selected</Filter>
     </ClInclude>
+    <ClInclude Include="include\Audio.h">
+      <Filter>bind\include\_selected</Filter>
+    </ClInclude>
+    <ClInclude Include="include\audio_sample_instance.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mouse.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\keyboard.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gif.h">
+      <Filter>bind\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display.cpp">
@@ -147,6 +159,57 @@
       <Filter>bind\src</Filter>
     </ClCompile>
     <ClCompile Include="src\menu.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\display_mode.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio_voice.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio_all.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio_sample.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio_mixer.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio_sample_instance.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio_stream.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\native_dialog.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vertex.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\path.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\state.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mouse.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\keyboard.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utfstring.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shader.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video.cpp">
+      <Filter>bind\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gif.cpp">
       <Filter>bind\src</Filter>
     </ClCompile>
   </ItemGroup>

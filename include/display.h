@@ -24,7 +24,7 @@ namespace AllegroCPP {
 	class Display {
 		std::shared_ptr<ALLEGRO_DISPLAY> m_disp;
 	public:
-		Display(std::pair<int, int> size, const std::string& windowname, int flags = 0, std::pair<int, int> pos = display_undefined_position, int refresh_rate = 0, std::vector<display_option> options = {});
+		Display(std::pair<int, int> size, const std::string& windowname, int flags = 0, std::pair<int, int> pos = display_undefined_position, int refresh_rate = 0, std::vector<display_option> options = {}, const std::pair<bool, bool> center_display_on_posxy = { false, false });
 		~Display();
 
 		Display(const Display&) = delete;
@@ -32,7 +32,7 @@ namespace AllegroCPP {
 		void operator=(const Display&) = delete;
 		void operator=(Display&&) noexcept;
 
-		bool create(std::pair<int, int> size, const std::string& windowname, int flags = 0, std::pair<int, int> pos = display_undefined_position, int refresh_rate = 0, std::vector<display_option> options = {});
+		bool create(std::pair<int, int> size, const std::string& windowname, int flags = 0, std::pair<int, int> pos = display_undefined_position, int refresh_rate = 0, std::vector<display_option> options = {}, const std::pair<bool, bool> center_display_on_posxy = { false, false });
 		void destroy();
 
 		bool empty() const;
