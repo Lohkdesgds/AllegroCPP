@@ -58,6 +58,9 @@ namespace AllegroCPP {
 		bool empty() const;
 		operator bool() const;
 
+		bool save(const std::string&) const;
+		bool save(ALLEGRO_FILE*) const;
+
 		bool merge(Config&&);
 
 		bool add_section(const std::string& section);
