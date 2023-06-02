@@ -145,6 +145,18 @@ namespace AllegroCPP {
 		return m_conf != nullptr;
 	}
 
+	bool Config::save(const std::string& path) const
+	{
+		if (!m_conf) return false;
+		return al_save_config_file(path.c_str(), m_conf);
+	}
+
+	bool Config::save(ALLEGRO_FILE* fp) const
+	{
+		if (!m_conf) return false;
+		return al_save_config_file_f(fp, m_conf);
+	}
+
 	bool Config::merge(Config&& oth)
 	{
 		if (!m_conf || !oth.m_conf) return false;

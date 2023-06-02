@@ -383,7 +383,7 @@ namespace AllegroCPP {
 		return
 			(codepoint_max == static_cast<size_t>(-1)) ?
 			(m_string ? (oth.m_string ? al_ustr_compare(m_string.get(), oth.m_string.get()) : 1) : (oth.m_string ? 1 : 0)) :
-			(m_string ? (oth.m_string ? al_ustr_ncompare(m_string.get(), oth.m_string.get(), codepoint_max) : 1) : (oth.m_string ? 1 : 0));
+			(m_string ? (oth.m_string ? al_ustr_ncompare(m_string.get(), oth.m_string.get(), static_cast<int>(codepoint_max)) : 1) : (oth.m_string ? 1 : 0));
 	}
 
 	bool UTFstring::operator==(const UTFstring& oth) const
