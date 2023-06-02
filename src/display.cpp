@@ -421,4 +421,17 @@ namespace AllegroCPP {
 		if (m_disp && m) al_set_display_menu(m_disp.get(), m);
 	}
 
+	bool Display::set_icon_from_resource(const int id)
+	{
+		HICON icon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(id), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+		if (icon) {
+			HWND winhandle = al_get_win_window_handle(m_disp.get());
+			SetClassLongPtr(winhandle, GCLP_HICON, (LONG_PTR)icon);
+			SetClassLongPtr(winhandle, GCLP_HICONSM, (LONG_PTR)icon);
+			DestroyIcon(icon);
+			return true;
+		}
+		return false;
+	}
+
 }

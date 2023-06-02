@@ -2,6 +2,8 @@
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
+#include <allegro5/allegro_windows.h>
+#include <Windows.h>
 
 #include <vector>
 #include <stdexcept>
@@ -106,5 +108,7 @@ namespace AllegroCPP {
 		bool get_blender(int& op, int& src, int& dst, int& alpha_op, int& alpha_src, int& alpha_dst);
 
 		void operator<<(ALLEGRO_MENU*);
+
+		bool set_icon_from_resource(const int id);
 	};
 }
