@@ -6,6 +6,7 @@
 #include "bitmap.h"
 
 #include <memory>
+#include <stdexcept>
 
 namespace AllegroCPP {
 
@@ -79,8 +80,10 @@ namespace AllegroCPP {
 		/// <para>Load a gif from a file path.</para>
 		/// </summary>
 		/// <param name="{std::string}">Path.</param>
+		/// <param name="{int}">Flags</param>
+		/// <param name="{int}">Format</param>
 		/// <returns>{bool} True if success.</returns>
-        GIF(const std::string&);
+        GIF(const std::string&, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
 
 		/// <summary>
 		/// <para>Load a gif from file directly.</para>
@@ -93,8 +96,10 @@ namespace AllegroCPP {
 		/// <para>Load a gif from a file path.</para>
 		/// </summary>
 		/// <param name="{std::string}">Path.</param>
+		/// <param name="{int}">Flags</param>
+		/// <param name="{int}">Format</param>
 		/// <returns>{bool} True if success.</returns>
-		bool load(const std::string&);
+		bool load(const std::string&, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
 
 		/// <summary>
 		/// <para>Load a gif from file directly.</para>
