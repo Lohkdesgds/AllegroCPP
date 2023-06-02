@@ -577,23 +577,29 @@ namespace AllegroCPP {
         m_anim = std::exchange(oth.m_anim, nullptr);
     }
 
-    GIF::GIF(const std::string& path)
+    GIF::GIF(const std::string& path, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0)
     {
-        load(path);
+        if (!load(path, flags, format))
+            throw std::runtime_error("Cannot load GIF!");
     }
 
     GIF::GIF(ALLEGRO_FILE* fp)
     {
-        load(fp);
+        if (!load(fp))
+            throw std::runtime_error("Cannot load GIF from FILE!");
     }
 
-    bool GIF::load(const std::string& path)
+    bool GIF::load(const std::string& path, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0)
     {
         if (!al_is_system_installed()) al_init();
 
         destroy();
 
         if (path.empty()) return false;
+
+        al_set_new_bitmap_flags(flags);
+        al_set_new_bitmap_format(format);
+
         if (!algif_load_animation(path.c_str())) return false;
 
         m_start_time = al_get_time();
