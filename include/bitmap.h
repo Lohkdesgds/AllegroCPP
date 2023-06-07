@@ -59,46 +59,46 @@ namespace AllegroCPP {
 		Bitmap& operator=(const Bitmap&); // clone
 		void operator=(Bitmap&&) noexcept; // move
 
-		bool empty() const;
-		bool valid() const;
-		operator bool() const;
-		operator ALLEGRO_BITMAP* ();
+		virtual bool empty() const;
+		virtual bool valid() const;
+		virtual operator bool() const;
+		virtual operator ALLEGRO_BITMAP* ();
 
-		void destroy();
+		virtual void destroy();
 
-		Bitmap make_ref() const;
-		bool convert(int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
+		virtual Bitmap make_ref() const;
+		virtual bool convert(int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
 
-		int get_flags() const;
-		int get_format() const;
-		int get_height() const;
-		int get_width() const;
+		virtual int get_flags() const;
+		virtual int get_format() const;
+		virtual int get_height() const;
+		virtual int get_width() const;
 
-		ALLEGRO_COLOR get_pixel(std::pair<int, int> pos) const;
-		ALLEGRO_COLOR get_pixel(int pos_x, int pos_y) const;
-		bool is_locked() const;
-		bool is_compatible() const;
-		bool is_sub_bitmap() const;
-		bitmap_parent_info get_parent_info();
-		bool reparent(std::pair<int, int> subcut, std::pair<int, int> subsize);
-		bool reparent(int subcut_x, int subcut_y, int subsize_x, int subsize_y);
-		bool reparent(const Bitmap&, std::pair<int, int> subcut, std::pair<int, int> subsize);
-		bool reparent(const Bitmap&, int subcut_x, int subcut_y, int subsize_x, int subsize_y);
+		virtual ALLEGRO_COLOR get_pixel(std::pair<int, int> pos) const;
+		virtual ALLEGRO_COLOR get_pixel(int pos_x, int pos_y) const;
+		virtual bool is_locked() const;
+		virtual bool is_compatible() const;
+		virtual bool is_sub_bitmap() const;
+		virtual bitmap_parent_info get_parent_info();
+		virtual bool reparent(std::pair<int, int> subcut, std::pair<int, int> subsize);
+		virtual bool reparent(int subcut_x, int subcut_y, int subsize_x, int subsize_y);
+		virtual bool reparent(const Bitmap&, std::pair<int, int> subcut, std::pair<int, int> subsize);
+		virtual bool reparent(const Bitmap&, int subcut_x, int subcut_y, int subsize_x, int subsize_y);
 
-		bool clear_to_color(ALLEGRO_COLOR color);
-		bool draw(std::pair<float, float> target, std::vector<bitmap_prop> props = {}, int flags = 0);
-		bool draw(float target_x, float target_y, std::vector<bitmap_prop> props = {}, int flags = 0);
-		bool put_pixel(std::pair<int, int> pos, ALLEGRO_COLOR color, pixelrule rule = pixelrule::DEFAULT);
-		bool put_pixel(int pos_x, int pos_y, ALLEGRO_COLOR color, pixelrule rule = pixelrule::DEFAULT);
+		virtual bool clear_to_color(ALLEGRO_COLOR color);
+		virtual bool draw(std::pair<float, float> target, std::vector<bitmap_prop> props = {}, int flags = 0);
+		virtual bool draw(float target_x, float target_y, std::vector<bitmap_prop> props = {}, int flags = 0);
+		virtual bool put_pixel(std::pair<int, int> pos, ALLEGRO_COLOR color, pixelrule rule = pixelrule::DEFAULT);
+		virtual bool put_pixel(int pos_x, int pos_y, ALLEGRO_COLOR color, pixelrule rule = pixelrule::DEFAULT);
 
-		bool set_as_target();
+		virtual bool set_as_target();
 
-		bool set_clip_rectangle(std::pair<int, int> clipcut, std::pair<int, int> clipsize);
-		bool set_clip_rectangle(int clipcut_x, int clipcut_y, int clipsize_x, int clipsize_y);
-		bool get_clip_rectangle(int& posx, int& posy, int& width, int& height) const;
-		bool reset_clip_rectangle();
+		virtual bool set_clip_rectangle(std::pair<int, int> clipcut, std::pair<int, int> clipsize);
+		virtual bool set_clip_rectangle(int clipcut_x, int clipcut_y, int clipsize_x, int clipsize_y);
+		virtual bool get_clip_rectangle(int& posx, int& posy, int& width, int& height) const;
+		virtual bool reset_clip_rectangle();
 
-		bool mask_to_alpha(ALLEGRO_COLOR);
+		virtual bool mask_to_alpha(ALLEGRO_COLOR);
 	};
 
 	Bitmap make_const_bitmap_of(ALLEGRO_BITMAP*);

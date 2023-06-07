@@ -59,6 +59,8 @@ namespace AllegroCPP {
 
 		ALLEGRO_BITMAP* get_for_draw() const override;
     public:
+		GIF() = default;
+
         GIF(const GIF&) = delete;
         void operator=(const GIF&) = delete;
 
@@ -74,7 +76,6 @@ namespace AllegroCPP {
         /// <param name="{texture_functional}">A texture_functional.</param>
         void operator=(GIF&&) noexcept;
 
-        GIF() = default;
 
 		/// <summary>
 		/// <para>Load a gif from a file path.</para>
