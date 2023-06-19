@@ -59,6 +59,8 @@ namespace AllegroCPP {
 
 		ALLEGRO_BITMAP* get_for_draw() const override;
     public:
+		GIF() = default;
+
         GIF(const GIF&) = delete;
         void operator=(const GIF&) = delete;
 
@@ -74,7 +76,6 @@ namespace AllegroCPP {
         /// <param name="{texture_functional}">A texture_functional.</param>
         void operator=(GIF&&) noexcept;
 
-        GIF() = default;
 
 		/// <summary>
 		/// <para>Load a gif from a file path.</para>
@@ -137,6 +138,12 @@ namespace AllegroCPP {
 		/// </summary>
 		/// <returns>{bool} Is there a gif?</returns>
 		bool valid() const;
+
+		/// <summary>
+		/// <para>It is considered valid if the bitmap and the gif buffer is not null.</para>
+		/// </summary>
+		/// <returns>{bool} Is there a gif?</returns>
+		operator bool() const;
 
 		/// <summary>
 		/// <para>It's true if there's no bitmap and gif buffer loaded.</para>
