@@ -648,6 +648,11 @@ namespace AllegroCPP {
         return m_anim != nullptr;
     }
 
+    GIF::operator bool() const
+    {
+        return m_anim != nullptr;
+    }
+
     bool GIF::empty() const
     {
         return !valid();

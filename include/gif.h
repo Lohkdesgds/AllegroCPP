@@ -140,6 +140,12 @@ namespace AllegroCPP {
 		bool valid() const;
 
 		/// <summary>
+		/// <para>It is considered valid if the bitmap and the gif buffer is not null.</para>
+		/// </summary>
+		/// <returns>{bool} Is there a gif?</returns>
+		operator bool() const;
+
+		/// <summary>
 		/// <para>It's true if there's no bitmap and gif buffer loaded.</para>
 		/// </summary>
 		/// <returns>{bool} No gif around?</returns>
