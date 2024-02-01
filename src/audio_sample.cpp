@@ -1,5 +1,7 @@
 #include "../include/audio_sample.h"
 
+#include <stdexcept>
+
 namespace AllegroCPP {
 	
 	extern void __audio_allegro_start(int);

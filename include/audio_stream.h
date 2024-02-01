@@ -4,8 +4,6 @@
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_audio.h>
 
-#include <stdexcept>
-#include <memory>
 #include <functional>
 
 #include "../include/file.h"

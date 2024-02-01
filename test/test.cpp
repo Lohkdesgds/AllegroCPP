@@ -14,6 +14,8 @@
 using namespace AllegroCPP;
 
 const std::string imgtest = "test.jpg";
+const std::string gif_path = "gif.gif";
+const std::string video_path = "video.ogv";
 const std::string msktest = "music.ogg";
 
 void err_handler(char const* expr, char const* file, int line, char const* func)
@@ -146,7 +148,7 @@ int main()
 		tmp.seek(0, ALLEGRO_SEEK_SET);
 	}
 
-	GIF gif("cat.gif");
+	GIF gif(gif_path);
 	Bitmap bmp(tmp, 1024, 0, ".jpg");
 	Font basicfont;
 	Transform trans;
@@ -157,13 +159,15 @@ int main()
 		})
 	});
 	Voice voice;
-	Mixer mixer;
+	Mixer mixer, vid_mixer, oth_mixer;
 	Audio_stream astream(msktest, 4, 1 << 14);
 	Vertexes vertx;
-	Video vid("video.ogv");
+	Video vid(video_path);
 
+	mixer << vid_mixer;
+	mixer << oth_mixer;
 	voice << mixer;
-	mixer << astream;
+	oth_mixer << astream;
 
 	astream.set_playing(false);
 	astream.set_playmode(ALLEGRO_PLAYMODE_LOOP);
@@ -202,9 +206,31 @@ int main()
 
 	log << "Running." << std::endl;
 
+
 	astream.set_playing(true);
-	vid.start(mixer);
+	vid.start(vid_mixer);
 	vid.set_playing(true);
+
+	vid_mixer.set_gain(0.01f);
+
+	vid.set_draw_properties({ bitmap_scale{ 0.5f, 0.5f}, al_map_rgba_f(0.7f,0.7f,0.7f,0.4f) });
+	bmp.set_draw_properties({ bitmap_scale{ disp.get_width() * 0.5f / (bmp.get_width() * zoomin), disp.get_height() * 0.5f / (bmp.get_height() * zoomin) }, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) });
+	gif.set_draw_properties({ bitmap_scale{ 1.0f, 1.0f}, al_map_rgba_f(0.7f,0.7f,0.7f,0.6f) });
+
+	{
+		const int x = 1 + vid.get_fps();
+		const int y = 1 + 1.0 / gif.get_interval_average();
+		int gcd = 1;
+		int lcm = 0;
+		
+		for (int i = 1; i <= x && i <= y; ++i) {
+			if (x % i == 0 && y % i == 0) {
+				gcd = i;
+			}
+		}
+		lcm = (x * y) / gcd;
+		tima.set_speed(1.0 / lcm);
+	}
 
 	for(bool runn = true; runn;)
 	{
@@ -275,19 +301,17 @@ int main()
 		//	al_draw_scaled_bitmap(frame, 0, 0, sw, sh, 120, 120, dw, dh, 0);
 		//}
 
-		vid.draw(
-			{ 0.5f * (disp.get_width() - vid.get_width()), 0.5f * (disp.get_height() - vid.get_height()) },
-			{ bitmap_scale{ 0.5f, 0.5f}, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) }
-		);
 
 		bmp.draw(
-			{ disp.get_width() * 0.125f, disp.get_height() * 0.125f },
-			{ bitmap_scale{ disp.get_width() * 0.5f / (bmp.get_width() * zoomin), disp.get_height() * 0.5f / (bmp.get_height() * zoomin) }, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) }
+			disp.get_width() * 0.125f, disp.get_height() * 0.125f
 		);
 
 		gif.draw(
-			{ 0, 0 },
-			{ bitmap_scale{ 1.0f, 1.0f}, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) }
+			0, 0
+		);
+
+		vid.draw(
+			0.5f * (disp.get_width() - vid.get_width()), 0.5f * (disp.get_height() - vid.get_height())
 		);
 
 
@@ -326,6 +350,8 @@ int main()
 	tima.stop();
 
 	astream.destroy();
+	oth_mixer.destroy();
+	vid_mixer.destroy();
 	mixer.destroy();
 	voice.destroy();
 

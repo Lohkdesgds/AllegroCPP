@@ -1,5 +1,7 @@
-#include "../include/audio_sample.h"
 #include "audio_sample_instance.h"
+
+#include <stdexcept>
+#include <memory>
 
 namespace AllegroCPP {
 

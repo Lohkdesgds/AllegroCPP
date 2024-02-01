@@ -4,8 +4,6 @@
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_audio.h>
 
-#include <stdexcept>
-
 namespace AllegroCPP {
 
 	class Default_Voice;

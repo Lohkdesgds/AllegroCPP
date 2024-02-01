@@ -1,5 +1,8 @@
 #include "../include/audio_stream.h"
 
+#include <stdexcept>
+#include <memory>
+
 namespace AllegroCPP {
 
 	extern void __audio_allegro_start(int);
