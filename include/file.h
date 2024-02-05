@@ -251,6 +251,7 @@ namespace AllegroCPP {
 			int family;
 			uint16_t port = 0;
 			bool host;
+			bool opt_broadcast;
 		};
 
 		// socket_config* and &(sizeof(socket_config)) (as uint64_t)
@@ -332,6 +333,9 @@ namespace AllegroCPP {
 
 			bool puts(char const* str);
 			bool puts(const std::string&);
+
+			// udp only
+			void set_broadcast(bool);
 		};
 	}
 
@@ -345,8 +349,8 @@ namespace AllegroCPP {
 
 		File_client(_socketmap::socket_user_data* absorb);
 	public:
-		File_client(const std::string& addr, uint16_t port, int protocol, int family = PF_UNSPEC);
-		File_client(const std::string& addr, uint16_t port, file_protocol protocol = file_protocol::TCP, file_family family = file_family::ANY);
+		File_client(const std::string& addr, uint16_t port, int protocol, int family = PF_UNSPEC, bool broadcast = false);
+		File_client(const std::string& addr, uint16_t port, file_protocol protocol = file_protocol::TCP, file_family family = file_family::ANY, bool broadcast = false);
 
 		File_client(const File_client&) = delete;
 		File_client(File_client&&) noexcept;

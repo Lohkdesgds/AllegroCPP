@@ -427,6 +427,40 @@ int main()
 		keep = false;
 	}
 
+	log << "Testing broadcast..." << std::endl;
+
+	bool bc_good = false;
+
+	Thread thrr2([&] {
+
+		File_host fh(5000, file_protocol::UDP);
+		while (1) {
+			auto cl = fh.listen(10000);
+			char buf[256]{};
+			size_t readd = cl.read(buf, 256);
+
+			std::cout << "Read from UDP broadcast: " << buf << std::endl;
+			if (std::string(buf) == "IT WORKED") break;
+		}
+		bc_good = true;
+
+		return false;
+	});
+
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	{
+		File_client cli("255.255.255.255", 5000, file_protocol::UDP);
+		cli.set_broadcast(true);
+
+		cli << "Broadcast 1 2 3...";
+		cli << "IT WORKED";
+
+		while (!bc_good) std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		thrr2.join();
+	}
+
+
 	log << "Ended successfully." << std::endl;
 
 	return 0;

@@ -724,6 +724,11 @@ namespace AllegroCPP {
 						continue;
 					}
 
+					if (theconf.opt_broadcast && theconf.protocol == SOCK_DGRAM) { // broadcaster
+						int enabled = 1;
+						setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char*)&enabled, sizeof(enabled));
+					}
+
 					if (AI == nullptr) {
 						sud->badflag |= static_cast<int32_t>(socket_errors::GETADDR_FAILED);
 						freeaddrinfo(AddrInfo);
@@ -1108,6 +1113,17 @@ namespace AllegroCPP {
 			return al_fwrite(m_fp->get(), str.data(), str.size()) == str.size();
 		}
 
+		void _FileSocket::set_broadcast(bool b)
+		{
+			if (!m_fp) return;
+			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp->get());
+
+			int enabled = b ? 1 : 0;
+			for (auto& i : sod->m_socks) {
+				setsockopt(i.sock, SOL_SOCKET, SO_BROADCAST, (char*)&enabled, sizeof(enabled));
+			}
+		}
+
 	}
 
 	File_client::File_client(_socketmap::socket_user_data* absorb)
@@ -1115,7 +1131,7 @@ namespace AllegroCPP {
 		set(absorb);
 	}
 
-	File_client::File_client(const std::string& addr, uint16_t port, int protocol, int family)
+	File_client::File_client(const std::string& addr, uint16_t port, int protocol, int family, bool broadcast)
 	{
 		_socketmap::socket_config conf;
 		uint64_t len = sizeof(conf);
@@ -1126,6 +1142,7 @@ namespace AllegroCPP {
 		conf.family = family;
 		conf.port = port;
 		conf.host = false;
+		conf.opt_broadcast = broadcast;
 
 		m_fp = make_shareable_file(al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len), 
 			[](ALLEGRO_FILE* f) { al_fclose(f); });
@@ -1133,7 +1150,7 @@ namespace AllegroCPP {
 		if (!m_fp) throw std::runtime_error("Could not create FileSocket");
 	}
 
-	File_client::File_client(const std::string& addr, uint16_t port, file_protocol protocol, file_family family)
+	File_client::File_client(const std::string& addr, uint16_t port, file_protocol protocol, file_family family, bool broadcast)
 	{
 		_socketmap::socket_config conf;
 		uint64_t len = sizeof(conf);
@@ -1144,6 +1161,7 @@ namespace AllegroCPP {
 		conf.family = static_cast<int>(family);
 		conf.port = port;
 		conf.host = false;
+		conf.opt_broadcast = broadcast;
 
 		m_fp = make_shareable_file(al_fopen_interface(&_socketmap::socket_interface, (char*)&conf, (char*)&len),
 			[](ALLEGRO_FILE* f) { al_fclose(f); });
