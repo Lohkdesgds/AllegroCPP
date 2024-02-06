@@ -243,7 +243,7 @@ namespace AllegroCPP {
         return *this;
     }
 
-    Menu_each_default& Menu_each_default::set_flags(menu_flags f)
+    Menu_each_default& Menu_each_default::set_flags(const menu_flags f)
     {
         flags = f;
         return *this;

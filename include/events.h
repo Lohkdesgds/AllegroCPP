@@ -54,11 +54,11 @@ namespace AllegroCPP
 		std::any get_data() const;
 		bool clear_data();
 				
-		bool emit(const char* val, int id, std::function<void(void)> trigger_on_del = {});
-		bool emit(const std::string& val, int id, std::function<void(void)> trigger_on_del = {});
-		bool emit(const std::vector<char>& val, int id, std::function<void(void)> trigger_on_del = {});
-		bool emit(std::any val, int id, std::function<void(void)> trigger_on_del = {});
-		bool emit(void* data, std::function<void(void*)> dtor, int id, std::function<void(void)> trigger_on_del = {});
+		bool emit(const char* val, const int id, std::function<void(void)> trigger_on_del = {});
+		bool emit(const std::string& val, const int id, std::function<void(void)> trigger_on_del = {});
+		bool emit(const std::vector<char>& val, const int id, std::function<void(void)> trigger_on_del = {});
+		bool emit(std::any val, const int id, std::function<void(void)> trigger_on_del = {});
+		bool emit(void* data, std::function<void(void*)> dtor, const int id, std::function<void(void)> trigger_on_del = {});
 
 		// vanilla style
 		bool emit(ALLEGRO_EVENT, void (*dtor)(ALLEGRO_USER_EVENT*) = nullptr);

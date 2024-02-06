@@ -2,26 +2,31 @@
 
 namespace AllegroCPP {
 
-	bool Font::_load_autotype(const std::string& pth, std::pair<int, int> res, int flg)
+	void Font::draw_props::reset()
+	{
+		*this = {};
+	}
+
+	bool Font::_load_autotype(const std::string& pth, const int res_x, const int res_y, int flg)
 	{
 		if (m_font) return false; // does not unload
-		if (res.first == res.second) {
+		if (res_x == res_y) {
 			if (pth.find(".ttf") != std::string::npos || pth.find(".otf") != std::string::npos)
 			{
-				m_font = al_load_ttf_font(pth.c_str(), res.first, flg);
+				m_font = al_load_ttf_font(pth.c_str(), res_x, flg);
 				if (m_font) return true;
-				m_font = al_load_font(pth.c_str(), res.first, flg);
+				m_font = al_load_font(pth.c_str(), res_x, flg);
 				if (m_font) return true;
 			}
 			else {
-				m_font = al_load_font(pth.c_str(), res.first, flg);
+				m_font = al_load_font(pth.c_str(), res_x, flg);
 				if (m_font) return true;
-				m_font = al_load_ttf_font(pth.c_str(), res.first, flg);
+				m_font = al_load_ttf_font(pth.c_str(), res_x, flg);
 				if (m_font) return true;
 			}
 		}
 		else {
-			m_font = al_load_ttf_font_stretch(pth.c_str(), res.first, res.second, flg);
+			m_font = al_load_ttf_font_stretch(pth.c_str(), res_x, res_y, flg);
 			if (m_font) return true;
 		}
 		return false;
@@ -50,25 +55,25 @@ namespace AllegroCPP {
 	{
 	}
 
-	Font::Font(int resolution, const std::string& path, int flags)
+	Font::Font(const int resolution, const std::string& path, const int flags)
 	{
 		if (!al_is_system_installed()) al_init();
 		if (!al_is_font_addon_initialized()) al_init_font_addon();
 		if (!al_is_ttf_addon_initialized()) al_init_ttf_addon();
 		
-		if (!_load_autotype(path, { resolution, resolution }, flags)) throw std::runtime_error("Cannot load font");
+		if (!_load_autotype(path, resolution, resolution, flags)) throw std::runtime_error("Cannot load font");
 	}
 
-	Font::Font(std::pair<int, int> resolution, const std::string& ttfpath, int flags)
+	Font::Font(const int resolution_x, const int resolution_y, const std::string& ttfpath, const int flags)
 	{
 		if (!al_is_system_installed()) al_init();
 		if (!al_is_font_addon_initialized()) al_init_font_addon();
 		if (!al_is_ttf_addon_initialized()) al_init_ttf_addon();
 
-		if (!_load_autotype(ttfpath, resolution, flags)) throw std::runtime_error("Cannot load font");
+		if (!_load_autotype(ttfpath, resolution_x, resolution_y, flags)) throw std::runtime_error("Cannot load font");
 	}
 
-	Font::Font(int resolution, File&& ttffile, int flags)
+	Font::Font(const int resolution, File&& ttffile, const int flags)
 	{
 		if (ttffile.empty()) throw std::invalid_argument("File was null");
 		if (!al_is_system_installed()) al_init();
@@ -84,7 +89,7 @@ namespace AllegroCPP {
 		}
 	}
 
-	Font::Font(std::pair<int, int> resolution, File&& ttffile, int flags)
+	Font::Font(const int resolution_x, const int resolution_y, File&& ttffile, const int flags)
 	{
 		if (ttffile.empty()) throw std::invalid_argument("File was null");
 		if (!al_is_system_installed()) al_init();
@@ -95,12 +100,12 @@ namespace AllegroCPP {
 		if (fpnam.empty()) throw std::invalid_argument("File has no path!");
 
 		// file.drop = drops handle
-		if (!(m_font = al_load_ttf_font_stretch_f(((File_shareable_ptr&)ttffile)->release(), fpnam.c_str(), resolution.first, resolution.second, flags))) {
+		if (!(m_font = al_load_ttf_font_stretch_f(((File_shareable_ptr&)ttffile)->release(), fpnam.c_str(), resolution_x, resolution_y, flags))) {
 			throw std::runtime_error("Cannot load ttf font file");
 		}
 	}
 
-	Font::Font(ALLEGRO_BITMAP* glyphbmpautocopy, std::vector<font_ranges_pair> ranges)
+	Font::Font(ALLEGRO_BITMAP* glyphbmpautocopy, const std::vector<font_ranges_pair> ranges)
 	{
 		if (!glyphbmpautocopy || ranges.empty()) throw std::invalid_argument("Bitmap or ranges empty");
 		if (!al_is_system_installed()) al_init();
@@ -113,7 +118,7 @@ namespace AllegroCPP {
 		}
 	}
 
-	Font::Font(const std::string& glyphpath, std::vector<font_ranges_pair> ranges)
+	Font::Font(const std::string& glyphpath, const std::vector<font_ranges_pair> ranges)
 	{
 		if (glyphpath.empty() || ranges.empty()) throw std::invalid_argument("Path or ranges empty");
 		if (!al_is_system_installed()) al_init();
@@ -130,7 +135,7 @@ namespace AllegroCPP {
 		}
 	}
 
-	Font::Font(const std::string& bmppath, int flags)
+	Font::Font(const std::string& bmppath, const int flags)
 	{
 		if (!al_is_system_installed()) al_init();
 		if (!al_is_font_addon_initialized()) al_init_font_addon();
@@ -178,16 +183,19 @@ namespace AllegroCPP {
 	}
 
 	Font::Font(Font&& oth) noexcept
-		: m_font(oth.m_font)
+		: m_font(oth.m_font), m_stored_draw_props(oth.m_stored_draw_props)
 	{
 		oth.m_font = nullptr;
+		oth.m_stored_draw_props.reset();
 	}
 
 	void Font::operator=(Font&& oth) noexcept
 	{
 		if (m_font) al_destroy_font(m_font);
 		m_font = oth.m_font;
+		m_stored_draw_props = oth.m_stored_draw_props;
 		oth.m_font = nullptr;
+		oth.m_stored_draw_props.reset();
 	}
 
 	bool Font::push_fallback(Font&& oth)
@@ -196,7 +204,7 @@ namespace AllegroCPP {
 		ALLEGRO_FONT* it = m_font;
 		ALLEGRO_FONT* test = nullptr;
 		while ((test = al_get_fallback_font(it))) it = test;
-		al_set_fallback_font(m_font, oth.m_font);
+		al_set_fallback_font(it, oth.m_font);
 		oth.m_font = nullptr;
 		return true;
 	}
@@ -204,15 +212,16 @@ namespace AllegroCPP {
 	Font Font::pop_fallback()
 	{
 		if (!m_font) throw std::runtime_error("This font is not loaded");
-		size_t falls = fallback_count();
-		if (falls == 0) throw std::runtime_error("No fallback to pop!");
 		ALLEGRO_FONT* it = m_font;
-		for (size_t p = 1; p < falls; ++p) it = al_get_fallback_font(it);
-		
-		ALLEGRO_FONT* ret = al_get_fallback_font(it);
-		al_set_fallback_font(it, nullptr);
+		ALLEGRO_FONT* test = nullptr;
+		while ((test = al_get_fallback_font(it)) != nullptr) {
+			if (al_get_fallback_font(test) == nullptr) { // it --fb--> test --fb--> == nullptr?
+				al_set_fallback_font(it, nullptr);
+				return Font(test);
+			}
+		}
 
-		return Font(ret);
+		return Font(nullptr);
 	}
 
 	size_t Font::fallback_count()
@@ -259,6 +268,27 @@ namespace AllegroCPP {
 		return m_font ? al_get_glyph_width(m_font, codepoint) : -1;
 	}
 
+	void Font::set_draw_property(font_prop prop)
+	{
+		if (std::holds_alternative<ALLEGRO_COLOR>(prop))					m_stored_draw_props._color = std::get<ALLEGRO_COLOR>(prop);
+		else if (std::holds_alternative<std::string>(prop))					m_stored_draw_props._string = std::get<std::string>(prop);
+		else if (std::holds_alternative<UTFstring>(prop))					m_stored_draw_props._string = std::get<UTFstring>(prop);
+		else if (std::holds_alternative<text_alignment>(prop))				m_stored_draw_props._align = std::get<text_alignment>(prop);
+		else if (std::holds_alternative<font_delimiter_justified>(prop))	m_stored_draw_props._justified_props = std::get<font_delimiter_justified>(prop);
+		else if (std::holds_alternative<font_multiline_b>(prop))			m_stored_draw_props._multiline = (std::get<font_multiline_b>(prop) == font_multiline_b::MULTILINE);
+		else if (std::holds_alternative<font_multiline_props>(prop))		m_stored_draw_props._multiline_props = std::get<font_multiline_props>(prop);
+	}
+
+	void Font::set_draw_properties(std::vector<font_prop> props)
+	{
+		for (const auto& i : props) set_draw_property(i);
+	}
+	
+	void Font::reset_draw_properties()
+	{
+		m_stored_draw_props.reset();
+	}
+
 	font_text_dimensions Font::get_dimensions(const char* str)
 	{
 		if (!m_font) return { -1,-1,-1,-1 };
@@ -296,126 +326,51 @@ namespace AllegroCPP {
 		return m_font ? al_get_glyph_advance(m_font, codepoint, codepoint2) : 0;
 	}
 
-	bool Font::draw(std::pair<float, float> target, std::variant<std::string, const ALLEGRO_USTR*> text, ALLEGRO_COLOR color, text_alignment align, std::optional<font_delimiter_justified> just_settings)
+	bool Font::draw(float target_x, float target_y, const UTFstring& str)
+	{
+		m_stored_draw_props._string = str;
+		return draw(target_x, target_y);
+	}
+
+	bool Font::draw(float target_x, float target_y)
 	{
 		if (!m_font) return false;
 
 		ALLEGRO_USTR_INFO __ustr_auto{};
-		const ALLEGRO_USTR* _str = (std::holds_alternative<std::string>(text) ? al_ref_cstr(&__ustr_auto, std::get<std::string>(text).c_str()) : std::get<const ALLEGRO_USTR*>(text));
+		const ALLEGRO_USTR* _str = m_stored_draw_props._string;
 
-		if (align == text_alignment::JUSTIFIED) { // JUST
-			if (!just_settings.has_value()) return false; // needs just_settings!
-			const auto& sett = just_settings.value();
-			al_draw_justified_ustr(m_font, color, target.first, sett.max_x, target.second, sett.diff, sett.extra_flags, _str);
+		if (_str == nullptr) return false;
+
+		if (m_stored_draw_props._multiline) {
+			const float max_width = 
+				m_stored_draw_props._multiline_props.max_width < 0.0f ? 
+					std::numeric_limits<float>::max() :
+					m_stored_draw_props._multiline_props.max_width;
+
+			const float line_height =
+				m_stored_draw_props._multiline_props.line_height < 0.0f ?
+					static_cast<float>(get_line_height()) * 1.15f :
+					m_stored_draw_props._multiline_props.line_height;
+
+
+			__multiline_font_draw_ustr _ref{ m_font, m_stored_draw_props._color, line_height, target_x, target_y, m_stored_draw_props._align, m_stored_draw_props._justified_props };
+			al_do_multiline_ustr(m_font, max_width, _str, &__do_text_ustr_multiline, &_ref);
 		}
-		else { // LEFT, CENTER, RIGHT
-			al_draw_ustr(m_font, color, target.first, target.second, static_cast<int>(align), _str);
+		else {
+			if (m_stored_draw_props._align == text_alignment::JUSTIFIED) 
+			{
+				const auto& sett = m_stored_draw_props._justified_props;
+				al_draw_justified_ustr(m_font, m_stored_draw_props._color, target_x, sett.max_x, target_y, sett.diff, sett.extra_flags, _str);
+			}
+			else
+			{
+				al_draw_ustr(m_font, m_stored_draw_props._color, target_x, target_y, static_cast<int>(m_stored_draw_props._align), _str);
+			}
 		}
 
 		return true;
 	}
 
-	bool Font::draw(float target_x, float target_y, std::variant<std::string, const ALLEGRO_USTR*> text, ALLEGRO_COLOR color, text_alignment align, std::optional<font_delimiter_justified> just_settings)
-	{
-		if (!m_font) return false;
-
-		ALLEGRO_USTR_INFO __ustr_auto{};
-		const ALLEGRO_USTR* _str = (std::holds_alternative<std::string>(text) ? al_ref_cstr(&__ustr_auto, std::get<std::string>(text).c_str()) : std::get<const ALLEGRO_USTR*>(text));
-
-		if (align == text_alignment::JUSTIFIED) { // JUST
-			if (!just_settings.has_value()) return false; // needs just_settings!
-			const auto& sett = just_settings.value();
-			al_draw_justified_ustr(m_font, color, target_x, sett.max_x, target_y, sett.diff, sett.extra_flags, _str);
-		}
-		else { // LEFT, CENTER, RIGHT
-			al_draw_ustr(m_font, color, target_x, target_y, static_cast<int>(align), _str);
-		}
-
-		return true;
-	}
-
-	//bool Font::drawf(std::pair<float, float> target, const std::string& text, ALLEGRO_COLOR color, text_alignment align, std::optional<font_delimiter_justified> just_settings, ...)
-	//{
-	//	if (!m_font) return false;
-	//
-	//	struct inline_destr_ustr { void operator()(ALLEGRO_USTR* b) { al_ustr_free(b); } };
-	//	std::unique_ptr<ALLEGRO_USTR, inline_destr_ustr> buf(al_ustr_new(""), inline_destr_ustr());
-	//
-	//	va_list ap;
-	//	va_start(ap, text.c_str());
-	//	al_ustr_vappendf(buf.get(), text.c_str(), ap);
-	//	va_end(ap);
-	//
-	//	if (align == text_alignment::JUSTIFIED) { // JUST
-	//		if (!just_settings.has_value()) return false; // needs just_settings!
-	//		const auto& sett = just_settings.value();
-	//		al_draw_justified_ustr(m_font, color, target.first, sett.max_x, target.second, sett.diff, sett.extra_flags, buf.get());
-	//	}
-	//	else { // LEFT, CENTER, RIGHT
-	//		al_draw_ustr(m_font, color, target.first, target.second, static_cast<int>(align), buf.get());
-	//	}
-	//
-	//	return true;
-	//}
-
-	bool Font::draw_multiline(std::pair<float, float> target, std::variant<std::string, const ALLEGRO_USTR*> text, float max_width, float line_height, ALLEGRO_COLOR color, text_alignment align, std::optional<font_delimiter_justified> just_settings)
-	{
-		if (!m_font) return false;
-		if (line_height < 0) line_height = static_cast<float>(get_line_height()) * 1.15f;
-		if (max_width < 0) max_width = std::numeric_limits<float>::max();
-
-		ALLEGRO_USTR_INFO __ustr_auto{};
-		const ALLEGRO_USTR* _str = (std::holds_alternative<std::string>(text) ? al_ref_cstr(&__ustr_auto, std::get<std::string>(text).c_str()) : std::get<const ALLEGRO_USTR*>(text));
-
-		__multiline_font_draw_ustr _ref{ m_font, color, line_height, target, align, just_settings };
-
-		al_do_multiline_ustr(m_font, max_width, _str, &__do_text_ustr_multiline, &_ref);
-
-		return true;
-	}
-
-	bool Font::draw_multiline(float target_x, float target_y, std::variant<std::string, const ALLEGRO_USTR*> text, float max_width, float line_height, ALLEGRO_COLOR color, text_alignment align, std::optional<font_delimiter_justified> just_settings)
-	{
-		if (!m_font) return false;
-		if (line_height < 0) line_height = static_cast<float>(get_line_height()) * 1.15f;
-		if (max_width < 0) max_width = std::numeric_limits<float>::max();
-
-		ALLEGRO_USTR_INFO __ustr_auto{};
-		const ALLEGRO_USTR* _str = (std::holds_alternative<std::string>(text) ? al_ref_cstr(&__ustr_auto, std::get<std::string>(text).c_str()) : std::get<const ALLEGRO_USTR*>(text));
-
-		__multiline_font_draw_ustr _ref{ m_font, color, line_height, { target_x, target_y }, align, just_settings };
-
-		al_do_multiline_ustr(m_font, max_width, _str, &__do_text_ustr_multiline, &_ref);
-
-		return true;
-	}
-
-	//bool Font::drawf_multiline(std::pair<float, float> target, const std::string& text, float max_width, float line_height, ALLEGRO_COLOR color, text_alignment align, std::optional<font_delimiter_justified> just_settings, ...)
-	//{
-	//	if (!m_font) return false;
-	//
-	//	struct inline_destr_ustr { void operator()(ALLEGRO_USTR* b) { al_ustr_free(b); } };
-	//	std::unique_ptr<ALLEGRO_USTR, inline_destr_ustr> buf(al_ustr_new(""), inline_destr_ustr());
-	//
-	//	va_list ap;
-	//	va_start(ap, text.c_str());
-	//	al_ustr_vappendf(buf.get(), text.c_str(), ap);
-	//	va_end(ap);
-	//
-	//	__multiline_font_draw_ustr _ref{ m_font, color, line_height, target, align, just_settings };
-	//
-	//	al_do_multiline_ustr(m_font, max_width, buf.get(), &__do_text_ustr_multiline, &_ref);
-	//
-	//	return true;
-	//}
-
-	bool Font::draw_glyph(std::pair<float, float> target, int codepoint, ALLEGRO_COLOR color)
-	{
-		if (!m_font) return false;
-
-		al_draw_glyph(m_font, color, target.first, target.second, codepoint);
-		return true;
-	}
 
 	bool Font::draw_glyph(float target_x, float target_y, int codepoint, ALLEGRO_COLOR color)
 	{
@@ -440,15 +395,15 @@ namespace AllegroCPP {
 	bool __do_text_ustr_multiline(int line_num, const ALLEGRO_USTR* line, void* extra)
 	{
 		__multiline_font_draw_ustr* s = (__multiline_font_draw_ustr*)extra;
-		const float y = s->target.second + (s->line_height * static_cast<float>(line_num));
+		const float y = s->target_y + (s->line_height * static_cast<float>(line_num));
 
 		if (s->align == text_alignment::JUSTIFIED) { // JUST
 			if (!s->delim_opt.has_value()) return false; // needs just_settings!
 			const auto& sett = s->delim_opt.value();
-			al_draw_justified_ustr(s->font, s->color, s->target.first, sett.max_x, y, sett.diff, sett.extra_flags, line);
+			al_draw_justified_ustr(s->font, s->color, s->target_x, sett.max_x, y, sett.diff, sett.extra_flags, line);
 		}
 		else { // LEFT, CENTER, RIGHT
-			al_draw_ustr(s->font, s->color, s->target.first, y, static_cast<int>(s->align), line);
+			al_draw_ustr(s->font, s->color, s->target_x, y, static_cast<int>(s->align), line);
 		}
 
 		return true;

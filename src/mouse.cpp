@@ -52,16 +52,10 @@ namespace AllegroCPP {
 		return m_state;
 	}
 
-	bool Mouse::set_mouse_pos(const int x, const int y, ALLEGRO_DISPLAY* d)
+	bool Mouse::set_mouse_pos(const int pos_x, const int pos_y, ALLEGRO_DISPLAY* d)
 	{
 		if (!d && !(d = al_get_current_display())) return false;
-		return al_set_mouse_xy(d, x, y);
-	}
-
-	bool Mouse::set_mouse_pos(const std::pair<int, int> xy, ALLEGRO_DISPLAY* d)
-	{
-		if (!d && !(d = al_get_current_display())) return false;
-		return al_set_mouse_xy(d, xy.first, xy.second);
+		return al_set_mouse_xy(d, pos_x, pos_y);
 	}
 
 	bool Mouse::set_mouse_pos_z(const int z)
@@ -133,11 +127,18 @@ namespace AllegroCPP {
 		return al_get_mouse_cursor_position(&x, &y);
 	}
 
-	std::pair<int, int> Mouse_cursor::get_pos()
+	int Mouse_cursor::get_pos_x()
 	{
-		int x{}, y{};
-		if (!get_pos(x, y)) return { -1, -1 };
-		return { x,y };
+		int x, y;
+		if (!al_get_mouse_cursor_position(&x, &y)) return 0;
+		return x;
+	}
+
+	int Mouse_cursor::get_pos_y()
+	{
+		int x, y;
+		if (!al_get_mouse_cursor_position(&x, &y)) return 0;
+		return y;
 	}
 
 	bool Mouse_cursor::hide(ALLEGRO_DISPLAY* display)

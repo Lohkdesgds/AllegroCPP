@@ -26,7 +26,7 @@ namespace AllegroCPP {
 		return m_bmp.get();
 	}
 
-	Bitmap::Bitmap(int size_x, int size_y, int flags, int format)
+	Bitmap::Bitmap(const int size_x, const int size_y, const int flags, const int format)
 	{
 		if (!al_is_system_installed()) al_init();
 		if (!al_is_image_addon_initialized()) al_init_image_addon();
@@ -40,7 +40,7 @@ namespace AllegroCPP {
 		m_bmp = std::shared_ptr<ALLEGRO_BITMAP>(nbmp, [](ALLEGRO_BITMAP* b) { al_destroy_bitmap(b); });
 	}
 
-	Bitmap::Bitmap(const Bitmap& oth, int subcut_x, int subcut_y, int subsize_x, int subsize_y, int flags, int format)
+	Bitmap::Bitmap(const Bitmap& oth, const int subcut_x, const int subcut_y, const int subsize_x, const int subsize_y, const int flags, const int format)
 		: m_parent(oth.m_bmp), m_stored_draw_props(oth.m_stored_draw_props)
 	{
 		if (!m_parent) throw std::invalid_argument("Bitmap parent was null!");
@@ -56,7 +56,7 @@ namespace AllegroCPP {
 		m_bmp = std::shared_ptr<ALLEGRO_BITMAP>(nbmp, [](ALLEGRO_BITMAP* b) { al_destroy_bitmap(b); });
 	}
 
-	Bitmap::Bitmap(const std::string& path, int flags, int format)
+	Bitmap::Bitmap(const std::string& path, const int flags, const int format)
 	{
 		if (path.empty()) throw std::invalid_argument("Path was empty!");
 		if (!al_is_system_installed()) al_init();
@@ -71,7 +71,7 @@ namespace AllegroCPP {
 		m_bmp = std::shared_ptr<ALLEGRO_BITMAP>(nbmp, [](ALLEGRO_BITMAP* b) { al_destroy_bitmap(b); });
 	}
 
-	Bitmap::Bitmap(std::shared_ptr<std::unique_ptr<ALLEGRO_FILE, std::function<void(ALLEGRO_FILE*)>>> file, int flags, int format, const std::string& fileextensionincludingdot)
+	Bitmap::Bitmap(std::shared_ptr<std::unique_ptr<ALLEGRO_FILE, std::function<void(ALLEGRO_FILE*)>>> file, const int flags, const int format, const std::string& fileextensionincludingdot)
 		: m_file(file)
 	{
 		if (!m_file) throw std::invalid_argument("File was null");
@@ -221,7 +221,7 @@ namespace AllegroCPP {
 		return get_for_draw() ? al_get_bitmap_width(get_for_draw()) : -1;
 	}
 
-	ALLEGRO_COLOR Bitmap::get_pixel(int pos_x, int pos_y) const
+	ALLEGRO_COLOR Bitmap::get_pixel(const int pos_x, const int pos_y) const
 	{
 		static const ALLEGRO_COLOR solid_white = al_map_rgb(255, 255, 255);
 		return get_for_draw() ? al_get_pixel(get_for_draw(), pos_x, pos_y) : solid_white;
@@ -254,14 +254,14 @@ namespace AllegroCPP {
 		return info;
 	}
 
-	bool Bitmap::reparent(int subcut_x, int subcut_y, int subsize_x, int subsize_y)
+	bool Bitmap::reparent(const int subcut_x, const int subcut_y, const int subsize_x, const int subsize_y)
 	{
 		if (!m_bmp || !m_parent) return false;
 		al_reparent_bitmap(get_for_draw(), m_parent.get(), subcut_x, subcut_y, subsize_x, subsize_y);
 		return true;
 	}
 
-	bool Bitmap::reparent(const Bitmap& oth, int subcut_x, int subcut_y, int subsize_x, int subsize_y)
+	bool Bitmap::reparent(const Bitmap& oth, const int subcut_x, const int subcut_y, const int subsize_x, const int subsize_y)
 	{
 		if (!m_bmp || !oth.m_bmp) return false;
 		m_parent = oth.m_bmp;
@@ -270,7 +270,7 @@ namespace AllegroCPP {
 		return true;
 	}
 
-	bool Bitmap::clear_to_color(ALLEGRO_COLOR color)
+	bool Bitmap::clear_to_color(const ALLEGRO_COLOR color)
 	{
 		if (!get_for_draw() || !m_parent || m_treat_ref_const) return false;
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
@@ -286,20 +286,23 @@ namespace AllegroCPP {
 		else if (std::holds_alternative<bitmap_rotate_transform>(prop)) m_stored_draw_props._transf = std::get<bitmap_rotate_transform>(prop);
 		else if (std::holds_alternative<ALLEGRO_COLOR>(prop)) m_stored_draw_props._color = std::get<ALLEGRO_COLOR>(prop);
 		else if (std::holds_alternative<bitmap_scale>(prop)) m_stored_draw_props._scale = std::get<bitmap_scale>(prop);
-		m_stored_draw_props._has_mod = true;
 	}
 
 	void Bitmap::set_draw_properties(std::vector<bitmap_prop> props)
 	{
 		for (const auto& i : props) set_draw_property(i);
 	}
+
+	void Bitmap::reset_draw_properties()
+	{
+		m_stored_draw_props.reset();
+	}
 	
-	bool Bitmap::draw(float target_x, float target_y, int flags, bool reset_props_to_default_automatically)
+	bool Bitmap::draw(const float target_x, const float target_y, const int flags)
 	{
 		auto* to_draw = get_for_draw();
 		if (!to_draw) return false;
 
-		if (reset_props_to_default_automatically && m_stored_draw_props._has_mod) m_stored_draw_props.reset();
 		m_stored_draw_props.check(to_draw);
 	
 		al_draw_tinted_scaled_rotated_bitmap_region(to_draw,
@@ -315,7 +318,7 @@ namespace AllegroCPP {
 		return true;
 	}
 
-	bool Bitmap::put_pixel(int pos_x, int pos_y, ALLEGRO_COLOR color, pixelrule rule)
+	bool Bitmap::put_pixel(const int pos_x, const int pos_y, const ALLEGRO_COLOR color, const pixelrule rule)
 	{
 		if (!get_for_draw() || m_treat_ref_const) return false;
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
@@ -342,7 +345,7 @@ namespace AllegroCPP {
 		return true;
 	}
 
-	bool Bitmap::set_clip_rectangle(int clipcut_x, int clipcut_y, int clipsize_x, int clipsize_y)
+	bool Bitmap::set_clip_rectangle(const int clipcut_x, const int clipcut_y, const int clipsize_x, const int clipsize_y)
 	{
 		if (!get_for_draw() || m_treat_ref_const) return false;
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
@@ -372,7 +375,7 @@ namespace AllegroCPP {
 		return true;
 	}
 
-	bool Bitmap::mask_to_alpha(ALLEGRO_COLOR color)
+	bool Bitmap::mask_to_alpha(const ALLEGRO_COLOR color)
 	{
 		if (!get_for_draw() || m_treat_ref_const) return false;
 		al_convert_mask_to_alpha(get_for_draw(), color);

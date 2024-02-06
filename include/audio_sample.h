@@ -25,14 +25,14 @@ namespace AllegroCPP {
 		Sample(const std::string&);
 		Sample(File_shareable_ptr);
 		Sample(File_shareable_ptr, const std::string&);
-		Sample(unsigned, const unsigned, ALLEGRO_AUDIO_DEPTH, ALLEGRO_CHANNEL_CONF);
+		Sample(const unsigned, const unsigned, const ALLEGRO_AUDIO_DEPTH, const ALLEGRO_CHANNEL_CONF);
 
 		bool load(const std::string&);
 		bool load(File_shareable_ptr);
 		bool load(File_shareable_ptr, const std::string&);
 		void destroy();
 
-		bool create(unsigned, const unsigned = 48000, ALLEGRO_AUDIO_DEPTH = ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF = ALLEGRO_CHANNEL_CONF_2);
+		bool create(const unsigned, const unsigned = 48000, const ALLEGRO_AUDIO_DEPTH = ALLEGRO_AUDIO_DEPTH_INT16, const ALLEGRO_CHANNEL_CONF = ALLEGRO_CHANNEL_CONF_2);
 
 		bool save(const std::string&);
 		bool save(File_shareable_ptr);

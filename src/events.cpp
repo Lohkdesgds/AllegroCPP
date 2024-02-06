@@ -122,12 +122,12 @@ namespace AllegroCPP {
 		return true;
 	}
 
-	bool Event_custom::emit(const char* val, int id, std::function<void(void)> trigger_on_del)
+	bool Event_custom::emit(const char* val, const int id, std::function<void(void)> trigger_on_del)
 	{
 		return emit(std::string(val), id, trigger_on_del);
 	}
 
-	bool Event_custom::emit(const std::string& val, int id, std::function<void(void)> trigger_on_del)
+	bool Event_custom::emit(const std::string& val, const int id, std::function<void(void)> trigger_on_del)
 	{
 		auto _ptr = std::unique_ptr<std::string>(new std::string(val.begin(), val.end()));
 		if (emit((void*)_ptr.get(), [](void* p) {std::default_delete<std::string>()((std::string*)p); }, id, trigger_on_del)) {
@@ -137,7 +137,7 @@ namespace AllegroCPP {
 		return false;
 	}
 
-	bool Event_custom::emit(const std::vector<char>& val, int id, std::function<void(void)> trigger_on_del)
+	bool Event_custom::emit(const std::vector<char>& val, const int id, std::function<void(void)> trigger_on_del)
 	{
 		auto _ptr = std::unique_ptr<std::vector<char>>(new std::vector<char>(val.begin(), val.end()));
 		if (emit((void*)_ptr.get(), [](void* p) {std::default_delete<std::vector<char>>()((std::vector<char>*)p); }, id, trigger_on_del)) {
@@ -147,7 +147,7 @@ namespace AllegroCPP {
 		return false;
 	}
 
-	bool Event_custom::emit(std::any val, int id, std::function<void(void)> trigger_on_del)
+	bool Event_custom::emit(std::any val, const int id, std::function<void(void)> trigger_on_del)
 	{
 		auto _ptr = std::unique_ptr<std::any>(new std::any(std::move(val)));
 		if (emit((void*)_ptr.get(), [](void* p) {std::default_delete<std::any>()((std::any*)p); }, id, trigger_on_del)) {
@@ -157,7 +157,7 @@ namespace AllegroCPP {
 		return false;
 	}
 
-	bool Event_custom::emit(void* data, std::function<void(void*)> dtor, int id, std::function<void(void)> trigger_on_del)
+	bool Event_custom::emit(void* data, std::function<void(void*)> dtor, const int id, std::function<void(void)> trigger_on_del)
 	{
 		if (!m_ev) return false;
 		if (!ALLEGRO_EVENT_TYPE_IS_USER(id)) throw std::invalid_argument("ID must be a USER_TYPE type to work (must follow macro ALLEGRO_EVENT_TYPE_IS_USER(X))");

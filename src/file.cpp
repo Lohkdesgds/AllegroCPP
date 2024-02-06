@@ -28,7 +28,7 @@ namespace AllegroCPP {
 		if (!(m_fp = make_shareable_file(al_fopen_interface(interfac, path.c_str(), mode.c_str()), [](ALLEGRO_FILE* f) { al_fclose(f); }))) throw std::runtime_error("Could not open file!");
 	}
 
-	File::File(int fd, const std::string& mode)
+	File::File(const int fd, const std::string& mode)
 	{
 		if (fd < 0 || mode.empty()) throw std::invalid_argument("FD or mode is empty!");
 		if (!al_is_system_installed()) al_init();		
@@ -89,12 +89,12 @@ namespace AllegroCPP {
 		m_fp = std::exchange(oth.m_fp, {});
 	}
 
-	size_t File::read(void* dat, size_t len)
+	size_t File::read(void* dat, const size_t len)
 	{
 		return m_fp ? al_fread(m_fp->get(), dat, len) : 0;
 	}
 
-	size_t File::write(const void* dat, size_t len)
+	size_t File::write(const void* dat, const size_t len)
 	{
 		return m_fp ? al_fwrite(m_fp->get(), dat, len) : 0;
 	}
@@ -109,7 +109,7 @@ namespace AllegroCPP {
 		return m_fp ? al_ftell((ALLEGRO_FILE*)m_fp->get()) : -1;
 	}
 
-	bool File::seek(int64_t offset, int whence)
+	bool File::seek(const int64_t offset, const int whence)
 	{
 		return m_fp ? al_fseek(m_fp->get(), offset, whence) : false;
 	}
@@ -129,7 +129,7 @@ namespace AllegroCPP {
 		return m_fp ? file_error_report{ al_ferrmsg((ALLEGRO_FILE*)m_fp->get()), al_ferror((ALLEGRO_FILE*)m_fp->get()) } : file_error_report{"null", 0};
 	}
 
-	int File::ungetc(int c)
+	int File::ungetc(const int c)
 	{
 		return m_fp ? al_fungetc(m_fp->get(), c) : -1;
 	}
@@ -144,7 +144,7 @@ namespace AllegroCPP {
 		return m_fp ? al_fgetc(m_fp->get()) : -1;
 	}
 
-	int File::putc(int c)
+	int File::putc(const int c)
 	{
 		return m_fp ? al_fputc(m_fp->get(), c) : -1;
 	}
@@ -545,7 +545,7 @@ namespace AllegroCPP {
 	}
 
 
-	std::string File::gets(size_t max)
+	std::string File::gets(const size_t max)
 	{
 		if (!m_fp) return {};
 		std::string str(max, '\0');
@@ -555,7 +555,7 @@ namespace AllegroCPP {
 		return str;
 	}
 
-	char* File::gets(char* const buf, size_t max)
+	char* File::gets(char* const buf, const size_t max)
 	{
 		return m_fp ? al_fgets(m_fp->get(), buf, max) : nullptr;
 	}
@@ -1057,7 +1057,7 @@ namespace AllegroCPP {
 			return !empty() && !has_error();
 		}
 		
-		std::string _FileSocket::gets(size_t max)
+		std::string _FileSocket::gets(const size_t max)
 		{
 			if (!m_fp) return {};
 			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp->get());
@@ -1080,7 +1080,7 @@ namespace AllegroCPP {
 			}
 		}
 
-		char* _FileSocket::gets(char* const buf, size_t max)
+		char* _FileSocket::gets(char* const buf, const size_t max)
 		{
 			if (!m_fp) return {};
 			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp->get());
@@ -1113,7 +1113,7 @@ namespace AllegroCPP {
 			return al_fwrite(m_fp->get(), str.data(), str.size()) == str.size();
 		}
 
-		void _FileSocket::set_broadcast(bool b)
+		void _FileSocket::set_broadcast(const bool b)
 		{
 			if (!m_fp) return;
 			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp->get());
@@ -1131,7 +1131,7 @@ namespace AllegroCPP {
 		set(absorb);
 	}
 
-	File_client::File_client(const std::string& addr, uint16_t port, int protocol, int family, bool broadcast)
+	File_client::File_client(const std::string& addr, const uint16_t port, const int protocol, const int family, const bool broadcast)
 	{
 		_socketmap::socket_config conf;
 		uint64_t len = sizeof(conf);
@@ -1150,7 +1150,7 @@ namespace AllegroCPP {
 		if (!m_fp) throw std::runtime_error("Could not create FileSocket");
 	}
 
-	File_client::File_client(const std::string& addr, uint16_t port, file_protocol protocol, file_family family, bool broadcast)
+	File_client::File_client(const std::string& addr, const uint16_t port, const file_protocol protocol, const file_family family, const bool broadcast)
 	{
 		_socketmap::socket_config conf;
 		uint64_t len = sizeof(conf);
@@ -1179,7 +1179,7 @@ namespace AllegroCPP {
 		this->_FileSocket::operator=(std::move(oth));
 	}
 
-	bool File_client::set_timeout_read(unsigned long ms)
+	bool File_client::set_timeout_read(const unsigned long ms)
 	{
 		if (!m_fp) return false;
 		_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp->get());
@@ -1191,7 +1191,7 @@ namespace AllegroCPP {
 		return sod->m_socks.size() > 0;
 	}
 
-	File_host::File_host(uint16_t port, int protocol, int family)
+	File_host::File_host(const uint16_t port, const int protocol, const int family)
 	{
 		if (family == PF_UNSPEC) {
 			File_host v4(port, protocol, PF_INET);
@@ -1216,7 +1216,7 @@ namespace AllegroCPP {
 		if (!m_fp) throw std::runtime_error("Could not create FileSocket");
 	}
 
-	File_host::File_host(uint16_t port, file_protocol protocol, file_family family)
+	File_host::File_host(const uint16_t port, const file_protocol protocol, const file_family family)
 	{
 		_socketmap::socket_config conf;
 		uint64_t len = sizeof(conf);
@@ -1261,7 +1261,7 @@ namespace AllegroCPP {
 		return true;
 	}
 
-	File_client File_host::listen(long timeout)
+	File_client File_host::listen(const long timeout)
 	{
 		if (!m_fp) throw std::runtime_error("Invalid state: null");
 		_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp->get());

@@ -137,7 +137,7 @@ int main()
 	log << "Creating display and stuff..." << std::endl;
 
 	Monitor_info moninfo;
-	Display disp({ moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f }, "Funny window", ALLEGRO_DIRECT3D_INTERNAL | ALLEGRO_RESIZABLE, /*display_undefined_position*/ Mouse_cursor::get_pos(), 0, { display_option{ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST} }, {true, false});
+	Display disp(moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f, "Funny window", ALLEGRO_DIRECT3D_INTERNAL | ALLEGRO_RESIZABLE, /*display_undefined_position*/ Mouse_cursor::get_pos_x(), Mouse_cursor::get_pos_y(), 0, {display_option{ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST}}, true, false);
 	Event_queue queue;
 	File_tmp tmp("LunarisTestXXXX.jpg");
 	File fpload(imgtest, "rb");
@@ -184,7 +184,7 @@ int main()
 
 	menn >> disp;
 
-	trans.scale({ zoomin, zoomin });
+	trans.scale(zoomin);
 	trans.use();
 
 	vertx
@@ -216,6 +216,9 @@ int main()
 	vid.set_draw_properties({ bitmap_scale{ 0.5f, 0.5f}, al_map_rgba_f(0.7f,0.7f,0.7f,0.4f) });
 	bmp.set_draw_properties({ bitmap_scale{ disp.get_width() * 0.5f / (bmp.get_width() * zoomin), disp.get_height() * 0.5f / (bmp.get_height() * zoomin) }, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) });
 	gif.set_draw_properties({ bitmap_scale{ 1.0f, 1.0f}, al_map_rgba_f(0.7f,0.7f,0.7f,0.6f) });
+
+	basicfont.set_draw_property(al_map_rgb(0, 255, 255));
+	basicfont.set_draw_property(font_multiline_b::MULTILINE);
 
 	{
 		const int x = 1 + vid.get_fps();
@@ -327,14 +330,12 @@ int main()
 
 		const uint64_t music_t = astream.get_played_samples() * 100ULL / static_cast<uint64_t>(astream.get_frequency());
 
-		basicfont.draw_multiline({ 0.5f,0.5f },
+		basicfont.draw( 0.5f, 0.5f,
 			"Fancy line - AllegroCPP test\n"
 			"FPS: " + std::to_string(static_cast<int>(_fps_cpy)) + "." + std::to_string(static_cast<int>(10000 * _fps_cpy) % 10000) + "\n"
 			"Frametime: " + std::to_string(_smooth_fps * 1e3) + " ms\n"
 			"Elapsed time: " + std::to_string(al_get_time() - _elap_calc) + " s\n"
-			"Music time: " + std::to_string(music_t / 100ULL) + "." + std::to_string(music_t % 100ULL) + " s | Samples: " + std::to_string(astream.get_played_samples())
-			,
-			-1.0f, -1.0f, al_map_rgb(0, 255, 255)
+			"Music time: " + std::to_string(music_t / 100ULL) + "." + std::to_string(music_t % 100ULL) + " s | Samples: " + std::to_string(astream.get_played_samples())			
 		);
 
 		vertx.draw();

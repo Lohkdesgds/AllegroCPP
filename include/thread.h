@@ -50,7 +50,7 @@ namespace AllegroCPP {
 		~Conditional();
 
 		void wait(Mutex&);
-		bool wait_until(Mutex&, double);
+		bool wait_until(Mutex&, const double);
 
 		void signal_one();
 		void signal_all();

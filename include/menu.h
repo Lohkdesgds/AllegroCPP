@@ -204,7 +204,7 @@ namespace AllegroCPP {
 		/// </summary>
 		/// <param name="{menu_flags}">Combo of flags.</param>
 		/// <returns>{Menu_each_default&amp;} Itself</returns>
-		Menu_each_default& set_flags(menu_flags);
+		Menu_each_default& set_flags(const menu_flags);
 
 		/// <summary>
 		/// <para>Set object flags.</para>

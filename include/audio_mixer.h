@@ -14,15 +14,15 @@ namespace AllegroCPP {
 
 		friend class Default_Mixer;
 	public:
-		Mixer(bool, int = 0);
-		Mixer(int = 0, unsigned = 48000, ALLEGRO_AUDIO_DEPTH = ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF = ALLEGRO_CHANNEL_CONF_2);
+		Mixer(const bool, const int = 0);
+		Mixer(const int = 0, const unsigned = 48000, const ALLEGRO_AUDIO_DEPTH = ALLEGRO_AUDIO_DEPTH_INT16, const ALLEGRO_CHANNEL_CONF = ALLEGRO_CHANNEL_CONF_2);
 		Mixer(const Mixer&) = delete;
 		void operator=(const Mixer&) = delete;
 		Mixer(Mixer&&);
 		void operator=(Mixer&&);
 		~Mixer();
 
-		bool create(unsigned, ALLEGRO_AUDIO_DEPTH = ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF = ALLEGRO_CHANNEL_CONF_2);
+		bool create(const unsigned, const ALLEGRO_AUDIO_DEPTH = ALLEGRO_AUDIO_DEPTH_INT16, const ALLEGRO_CHANNEL_CONF = ALLEGRO_CHANNEL_CONF_2);
 		void destroy();
 
 		void detach();
@@ -58,7 +58,7 @@ namespace AllegroCPP {
 		using Mixer::create;
 		using Mixer::destroy;
 	public:
-		Default_Mixer(int = 0);
+		Default_Mixer(const int = 0);
 		~Default_Mixer();
 
 		void set_default(Mixer&&);

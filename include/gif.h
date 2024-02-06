@@ -84,7 +84,7 @@ namespace AllegroCPP {
 		/// <param name="{int}">Flags</param>
 		/// <param name="{int}">Format</param>
 		/// <returns>{bool} True if success.</returns>
-        GIF(const std::string&, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
+        GIF(const std::string&, const int flags = ALLEGRO_VIDEO_BITMAP, const int format = 0);
 
 		/// <summary>
 		/// <para>Load a gif from file directly.</para>
@@ -100,7 +100,7 @@ namespace AllegroCPP {
 		/// <param name="{int}">Flags</param>
 		/// <param name="{int}">Format</param>
 		/// <returns>{bool} True if success.</returns>
-		bool load(const std::string&, int flags = ALLEGRO_VIDEO_BITMAP, int format = 0);
+		bool load(const std::string&, const int flags = ALLEGRO_VIDEO_BITMAP, const int format = 0);
 
 		/// <summary>
 		/// <para>Load a gif from file directly.</para>

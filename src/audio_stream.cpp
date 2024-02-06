@@ -36,7 +36,7 @@ namespace AllegroCPP {
 		if (!load(fp, ext, sample_count, samples)) throw std::invalid_argument("Cannot load audio stream from file.");
 	}
 
-	Audio_stream::Audio_stream(const size_t frag_count, const unsigned frag_samples, const unsigned freq, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF conf)
+	Audio_stream::Audio_stream(const size_t frag_count, const unsigned frag_samples, const unsigned freq, const ALLEGRO_AUDIO_DEPTH depth, const ALLEGRO_CHANNEL_CONF conf)
 	{
 		__audio_allegro_start(0);
 		if (!create(frag_count, frag_samples, freq, depth, conf)) throw std::invalid_argument("Cannot create audio stream.");
@@ -62,7 +62,7 @@ namespace AllegroCPP {
 		return (m_stream = al_load_audio_stream_f(fp->get(), ext.c_str(), sample_count, samples));
 	}
 
-	bool Audio_stream::create(const size_t frag_count, const unsigned frag_samples, const unsigned freq, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF conf)
+	bool Audio_stream::create(const size_t frag_count, const unsigned frag_samples, const unsigned freq, const ALLEGRO_AUDIO_DEPTH depth, const ALLEGRO_CHANNEL_CONF conf)
 	{
 		destroy();
 		return (m_stream = al_create_audio_stream(frag_count, frag_samples, freq, depth, conf));

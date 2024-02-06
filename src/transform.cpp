@@ -52,7 +52,7 @@ namespace AllegroCPP {
 		al_transpose_transform(&m_t);
 	}
 
-	int Transform::check_inverse(float tolerance)
+	int Transform::check_inverse(const float tolerance)
 	{
 		return al_check_inverse(&m_t, tolerance);
 	}
@@ -62,9 +62,9 @@ namespace AllegroCPP {
 		al_identity_transform(&m_t);
 	}
 
-	void Transform::build(std::pair<float, float> pos, std::pair<float, float> scale, float theta)
+	void Transform::build(const float pos_x, const float pos_y, const float scale_x, const float scale_y, float theta)
 	{
-		al_build_transform(&m_t, pos.first, pos.second, scale.first, scale.second, theta);
+		al_build_transform(&m_t, pos_x, pos_y, scale_x, scale_y, theta);
 	}
 
 	void Transform::build_camera(transform_position3d pos, transform_position3d look, transform_position3d up)
@@ -72,19 +72,24 @@ namespace AllegroCPP {
 		al_build_camera_transform(&m_t, pos.x, pos.y, pos.z, look.x, look.y, look.z, up.x, up.y, up.z);
 	}
 
-	void Transform::translate(std::pair<float, float> post)
+	void Transform::translate(const float post_x, const float post_y)
 	{
-		al_translate_transform(&m_t, post.first, post.second);
+		al_translate_transform(&m_t, post_x, post_y);
 	}
 
-	void Transform::rotate(float thetat)
+	void Transform::rotate(const float thetat)
 	{
 		al_rotate_transform(&m_t, thetat);
 	}
 
-	void Transform::scale(std::pair<float, float> scalet)
+	void Transform::scale(const float scale)
 	{
-		al_scale_transform(&m_t, scalet.first, scalet.second);
+		al_scale_transform(&m_t, scale, scale);
+	}
+
+	void Transform::scale(const float scale_x, const float scale_y)
+	{
+		al_scale_transform(&m_t, scale_x, scale_y);
 	}
 
 	void Transform::transform_coordinates(float& x, float& y)
@@ -112,37 +117,37 @@ namespace AllegroCPP {
 		al_compose_transform(&m_t, &oth.m_t);
 	}
 
-	void Transform::orthographic_transform(float left, float top, float n, float right, float bottom, float f)
+	void Transform::orthographic_transform(const float left, const float top, const float n, const float right, const float bottom, const float f)
 	{
 		al_orthographic_transform(&m_t, left, top, n, right, bottom, f);
 	}
 
-	void Transform::perspective_transform(float left, float top, float n, float right, float bottom, float f)
+	void Transform::perspective_transform(const float left, const float top, const float n, const float right, const float bottom, const float f)
 	{
 		al_perspective_transform(&m_t, left, top, n, right, bottom, f);
 	}
 
-	void Transform::translate(transform_position3d post)
+	void Transform::translate(const transform_position3d post)
 	{
 		al_translate_transform_3d(&m_t, post.x, post.y, post.z);
 	}
 
-	void Transform::scale(transform_position3d scalet)
+	void Transform::scale(const transform_position3d scalet)
 	{
 		al_scale_transform_3d(&m_t, scalet.x, scalet.y, scalet.z);
 	}
 
-	void Transform::rotate(transform_position3d rotpos, float thetat)
+	void Transform::rotate(const transform_position3d rotpos, const float thetat)
 	{
 		al_rotate_transform_3d(&m_t, rotpos.x, rotpos.y, rotpos.z, thetat);
 	}
 
-	void Transform::horizontal_shear(float theta)
+	void Transform::horizontal_shear(const float theta)
 	{
 		al_horizontal_shear_transform(&m_t, theta);
 	}
 
-	void Transform::vertical_shear(float theta)
+	void Transform::vertical_shear(const float theta)
 	{
 		al_vertical_shear_transform(&m_t, theta);
 	}

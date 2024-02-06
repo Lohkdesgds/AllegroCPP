@@ -6,12 +6,12 @@ namespace AllegroCPP {
 
 	extern void __audio_allegro_start(int);
 
-	Mixer::Mixer(bool start, int sp)
+	Mixer::Mixer(const bool start, const int sp)
 	{
 		if (start) __audio_allegro_start(sp);
 	}
 
-	Mixer::Mixer(int samplestart, unsigned freq, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF conf)
+	Mixer::Mixer(const int samplestart, const unsigned freq, const ALLEGRO_AUDIO_DEPTH depth, const ALLEGRO_CHANNEL_CONF conf)
 	{
 		__audio_allegro_start(samplestart);
 		if (!create(freq, depth, conf)) throw std::invalid_argument("Could not create Mixer.");
@@ -33,7 +33,7 @@ namespace AllegroCPP {
 		destroy();
 	}
 
-	bool Mixer::create(unsigned freq, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF conf)
+	bool Mixer::create(const unsigned freq, const ALLEGRO_AUDIO_DEPTH depth, const ALLEGRO_CHANNEL_CONF conf)
 	{
 		destroy();
 		return (m_mixer = al_create_mixer(freq, depth, conf));
@@ -170,7 +170,7 @@ namespace AllegroCPP {
 		return m_mixer;
 	}
 
-	Default_Mixer::Default_Mixer(int samplestart)
+	Default_Mixer::Default_Mixer(const int samplestart)
 	{
 		__audio_allegro_start(samplestart);
 		if (!(m_mixer = al_get_default_mixer())) {
