@@ -1,4 +1,4 @@
-#include <Graphics.h>
+﻿#include <Graphics.h>
 #include <Audio.h>
 #include <System.h>
 
@@ -7,6 +7,10 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+
+#include <windows.h>
+#include <Richedit.h>
+#include <shellapi.h>
 
 #undef min
 #undef max
@@ -220,6 +224,165 @@ int main()
 	basicfont.set_draw_property(al_map_rgb(0, 255, 255));
 	basicfont.set_draw_property(font_multiline_b::MULTILINE);
 
+	/*
+	Certainly! To enable drag-and-drop functionality in your **C++ GUI** application, you can follow these steps:
+
+1. **Register the Window for Drag-and-Drop**:
+   - Use the `RegisterDragDrop` function to register your window as a target for OLE drag-and-drop operations³.
+   - Pass the window handle (`HWND`) and an instance of `IDropTarget` (which you'll implement) to this function.
+
+2. **Handle the WM_DROPFILES Message**:
+   - When a file is dropped onto your window, the system sends the `WM_DROPFILES` message to the window.
+   - You need to handle this message in your window procedure (`WndProc`).
+   - Extract the dropped file information from the `HDROP` structure provided in the `wParam` parameter of the message⁴.
+   - Process the file path as needed.
+
+3. **Subclass the Static Control**:
+   - In your `WndProc`, create a static control (e.g., using `CreateWindowEx`) where users can drop files.
+   - Subclass the static control by setting a custom window procedure (`StaticWndProc`) for it.
+   - In the `StaticWndProc`, handle the `WM_DROPFILES` message to receive file paths.
+
+Here's an example snippet to get you started:
+
+```cpp
+#include <windows.h>
+
+LRESULT CALLBACK StaticWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
+{
+    switch (uMsg)
+    {
+        case WM_NCDESTROY:
+            RemoveWindowSubclass(hwnd, &StaticWndProc, uIdSubclass);
+            break;
+
+        case WM_DROPFILES:
+            // Handle the dropped file(s) here
+            MessageBox(hwnd, L"File(s) dragged!", L"Title", MB_OK | MB_ICONINFORMATION);
+            break;
+    }
+    return DefSubclassProc(hwnd, uMsg, wParam, lParam);
+}
+
+LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+        case WM_CREATE:
+        {
+            // Create a static control for drag-and-drop
+            HWND hStatic = CreateWindowEx(
+                WS_EX_ACCEPTFILES,
+                L"static",
+                L"Drag and drop your file to this area",
+                WS_VISIBLE | WS_CHILD,
+                20,  // x
+                20,  // y
+                120, // w
+                60,  // h
+                hwnd, // parent window
+                (HMENU)1, // unique label
+                NULL,
+                NULL);
+
+            // Subclass the static control
+            SetWindowSubclass(hStatic, &StaticWndProc, 0, 0);
+            break;
+        }
+
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            break;
+
+        default:
+            return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+    return 0;
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+    // Register your window class and create the main window
+    // ...
+
+    // Message loop
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0) > 0)
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    return msg.wParam;
+}
+```
+
+Remember to adapt this code to your specific application and UI framework. Good luck with your drag-and-drop implementation! 🚀
+
+Origem: conversa com o Bing, 06/02/2024
+(1) RegisterDragDrop function (ole2.h) - Win32 apps | Microsoft Learn. https://learn.microsoft.com/en-us/windows/win32/api/ole2/nf-ole2-registerdragdrop.
+(2) WM_DROPFILES message (Winuser.h) - Win32 apps | Microsoft Learn. https://learn.microsoft.com/en-us/windows/win32/shell/wm-dropfiles.
+(3) windows - Drag&drop event (WM_DROPFILES) in C++ GUI - Stack Overflow. https://stackoverflow.com/questions/51204851/dragdrop-event-wm-dropfiles-in-c-gui.
+(4) How do I implement dragging a window using its client area?. https://stackoverflow.com/questions/7773771/how-do-i-implement-dragging-a-window-using-its-client-area.
+	*/
+
+/*	static HWND hwnd = disp.get_window_handler();
+
+	{
+		DragAcceptFiles(hwnd, true);
+
+		DWORD eventMask = SendMessage(hwnd, EM_GETEVENTMASK, 0, 0);
+		eventMask |= ENM_DROPFILES;
+		SendMessage(hwnd, EM_SETEVENTMASK, 0, eventMask);
+
+		SetWindowsHookExW(WH_GETMESSAGE, [](int code, WPARAM wParam, LPARAM lParam) -> LRESULT {
+			printf_s("Event: %d\n", code);
+			if (code != WM_DROPFILES) 
+				return DefWindowProc(hwnd, code, wParam, lParam);
+
+			HDROP hDropInfo = (HDROP)wParam;
+			char sItem[MAX_PATH]{};
+			for (int i = 0; DragQueryFileA(hDropInfo, i, (LPSTR)sItem, sizeof(sItem)); i++)
+			{
+				const auto attr = GetFileAttributesA(sItem);
+				if (attr & FILE_ATTRIBUTE_NORMAL)
+				{
+					printf_s("File: %s\n", sItem);
+				}
+
+			}
+			DragFinish(hDropInfo);
+			return 0;			
+		}, GetModuleHandle(NULL), GetCurrentThreadId());
+	}*/
+
+	//hread thrcpypaste([&] {
+	//
+	//	while (disp.valid()) {
+	//		MSG msg = { };
+	//		while (GetMessage(&msg, hwnd, 0, 0) > 0)
+	//		{
+	//			if (msg.message == WM_DROPFILES) {
+	//				HDROP hDropInfo = (HDROP)msg.wParam;
+	//				char sItem[MAX_PATH]{};
+	//				for (int i = 0; DragQueryFileA(hDropInfo, i, (LPSTR)sItem, sizeof(sItem)); i++)
+	//				{
+	//					const auto attr = GetFileAttributesA(sItem);
+	//					if (attr & FILE_ATTRIBUTE_NORMAL)
+	//					{
+	//						printf_s("File: %s\n", sItem);
+	//					}
+	//
+	//				}
+	//				DragFinish(hDropInfo);
+	//			}
+	//			TranslateMessage(&msg);
+	//			DispatchMessage(&msg);
+	//		}
+	//	}
+	//
+	//	return false;
+	//);
+
 	{
 		const int x = 1 + vid.get_fps();
 		const int y = 1 + 1.0 / gif.get_interval_average();
@@ -344,6 +507,8 @@ int main()
 	}
 
 	log << "Destroying stuff..." << std::endl;
+
+	//thrcpypaste.join();
 
 	astream.set_playing(false);
 

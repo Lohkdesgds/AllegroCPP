@@ -420,6 +420,7 @@ namespace AllegroCPP {
 		if (m_disp && m) al_set_display_menu(m_disp.get(), m);
 	}
 
+#ifdef _WIN32
 	bool Display::set_icon_from_resource(const int id)
 	{
 		HICON icon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(id), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
@@ -432,5 +433,11 @@ namespace AllegroCPP {
 		}
 		return false;
 	}
+
+	HWND Display::get_window_handler()
+	{
+		return m_disp.get() ? al_get_win_window_handle(m_disp.get()) : nullptr;
+	}
+#endif
 
 }

@@ -10,6 +10,10 @@
 #include <string>
 #include <memory>
 
+#ifdef _WIN32
+#include <allegro5/allegro_windows.h>
+#endif
+
 #undef max
 #undef min
 
@@ -114,7 +118,9 @@ namespace AllegroCPP {
 		bool get_blender(int& op, int& src, int& dst, int& alpha_op, int& alpha_src, int& alpha_dst);
 
 		void operator<<(ALLEGRO_MENU*);
-
+#ifdef _WIN32
 		bool set_icon_from_resource(const int id);
+		HWND get_window_handler();
+#endif
 	};
 }
