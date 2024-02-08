@@ -10,12 +10,16 @@
 #include <string>
 #include <memory>
 
+#ifdef _WIN32
+#include <allegro5/allegro_windows.h>
+#endif
+
 #undef max
 #undef min
 
 namespace AllegroCPP {
 
-	constexpr std::pair<int, int> display_undefined_position = { std::numeric_limits<int>::min(), std::numeric_limits<int>::min() };
+	constexpr int display_undefined_position[2] = { std::numeric_limits<int>::min(), std::numeric_limits<int>::min() };
 
 	struct display_option {
 		int option;
@@ -26,7 +30,10 @@ namespace AllegroCPP {
 	class Display {
 		std::shared_ptr<ALLEGRO_DISPLAY> m_disp;
 	public:
-		Display(std::pair<int, int> size, const std::string& windowname, int flags = 0, std::pair<int, int> pos = display_undefined_position, int refresh_rate = 0, std::vector<display_option> options = {}, const std::pair<bool, bool> center_display_on_posxy = { false, false });
+		Display(const int size_x, const int size_y, const std::string& windowname, const int flags = 0,
+			const int pos_x = display_undefined_position[0], const int pos_y = display_undefined_position[1],
+			const int refresh_rate = 0, const std::vector<display_option> options = {},
+			const bool centered_on_pos_x = false, const bool centered_on_pos_y = false);
 		~Display();
 
 		Display(const Display&) = delete;
@@ -34,7 +41,10 @@ namespace AllegroCPP {
 		void operator=(const Display&) = delete;
 		void operator=(Display&&) noexcept;
 
-		bool create(std::pair<int, int> size, const std::string& windowname, int flags = 0, std::pair<int, int> pos = display_undefined_position, int refresh_rate = 0, std::vector<display_option> options = {}, const std::pair<bool, bool> center_display_on_posxy = { false, false });
+		bool create(const int size_x, const int size_y, const std::string& windowname, const int flags = 0,
+			const int pos_x = display_undefined_position[0], const int pos_y = display_undefined_position[1],
+			const int refresh_rate = 0, const std::vector<display_option> options = {},
+			const bool centered_on_pos_x = false, const bool centered_on_pos_y = false);
 		void destroy();
 
 		bool empty() const;
@@ -50,24 +60,24 @@ namespace AllegroCPP {
 		std::weak_ptr<ALLEGRO_DISPLAY> get_display_ref();
 
 		bool flip();
-		bool update_region(std::pair<int, int>, std::pair<int, int>);
+		bool update_region(const int pos_x, const int pos_y, const int width, const int height);
 		void wait_for_vsync() const;
 
 		int get_width() const;
 		int get_height() const;
-		bool resize(std::pair<int, int>);
+		bool resize(const int width, const int height);
 		void acknowledge_resize();
 
-		std::pair<int, int> get_position() const;
-		bool set_position(std::pair<int, int>);
-		bool get_constraints(int& minx, int& miny, int& maxx, int& maxy) const;
-		bool set_constraints(std::pair<int, int> min, std::pair<int, int> max);
+		bool get_position(int& x, int& y) const;
+		bool set_position(const int pos_x, const int pos_y);
+		bool get_constraints(int& min_x, int& min_y, int& max_x, int& max_y) const;
+		bool set_constraints(const int min_x, const int min_y, const int max_x, const int max_y);
 		bool apply_constraints(bool);
 
 		int get_flags() const;
-		bool set_flag(int, bool);
-		int get_option(int) const;
-		bool set_option(int, int);
+		bool set_flag(const int, const bool);
+		int get_option(const int) const;
+		bool set_option(const int, const int);
 
 		int get_format() const;
 		int get_orientation() const;
@@ -81,7 +91,7 @@ namespace AllegroCPP {
 		bool acknowledge_drawing_halt();
 		bool acknowledge_drawing_resume();
 
-		static void inhibit_screensaver(bool);
+		static void inhibit_screensaver(const bool);
 
 		bool get_has_clipboard_text() const;
 		std::string get_clipboard_text() const;
@@ -90,25 +100,27 @@ namespace AllegroCPP {
 
 		bool set_as_target();
 
-		bool set_clip_rectangle(std::pair<int, int> clipcut, std::pair<int, int> clipsize);
-		bool get_clip_rectangle(int& posx, int& posy, int& width, int& height) const;
+		bool set_clip_rectangle(const int pos_x, const int pos_y, const int width, const int height);
+		bool get_clip_rectangle(int& pos_x, int& pos_y, int& width, int& height) const;
 		bool reset_clip_rectangle();
 
 		const ALLEGRO_TRANSFORM* get_current_transform() const;
 		const ALLEGRO_TRANSFORM* get_current_inverse_transform() const;
 		const ALLEGRO_TRANSFORM* get_current_projection_transform() const;
 
-		bool clear_to_color(ALLEGRO_COLOR = al_map_rgb(0,0,0));
+		bool clear_to_color(const ALLEGRO_COLOR = al_map_rgb(0,0,0));
 
-		bool set_blend_color(ALLEGRO_COLOR);
-		bool set_blender(int op, int src, int dst);
-		bool set_blender(int op, int src, int dst, int alpha_op, int alpha_src, int alpha_dst);
+		bool set_blend_color(const ALLEGRO_COLOR);
+		bool set_blender(const int op, const int src, const int dst);
+		bool set_blender(const int op, const int src, const int dst, const int alpha_op, const int alpha_src, const int alpha_dst);
 		bool get_blend_color(ALLEGRO_COLOR&);
 		bool get_blender(int& op, int& src, int& dst);
 		bool get_blender(int& op, int& src, int& dst, int& alpha_op, int& alpha_src, int& alpha_dst);
 
 		void operator<<(ALLEGRO_MENU*);
-
+#ifdef _WIN32
 		bool set_icon_from_resource(const int id);
+		HWND get_window_handler();
+#endif
 	};
 }

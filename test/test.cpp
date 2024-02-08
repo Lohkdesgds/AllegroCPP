@@ -1,4 +1,4 @@
-#include <Graphics.h>
+﻿#include <Graphics.h>
 #include <Audio.h>
 #include <System.h>
 
@@ -8,12 +8,18 @@
 #include <string>
 #include <sstream>
 
+#include <windows.h>
+#include <Richedit.h>
+#include <shellapi.h>
+
 #undef min
 #undef max
 
 using namespace AllegroCPP;
 
 const std::string imgtest = "test.jpg";
+const std::string gif_path = "gif.gif";
+const std::string video_path = "video.ogv";
 const std::string msktest = "music.ogg";
 
 void err_handler(char const* expr, char const* file, int line, char const* func)
@@ -135,7 +141,12 @@ int main()
 	log << "Creating display and stuff..." << std::endl;
 
 	Monitor_info moninfo;
-	Display disp({ moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f }, "Funny window", ALLEGRO_DIRECT3D_INTERNAL | ALLEGRO_RESIZABLE, /*display_undefined_position*/ Mouse_cursor::get_pos(), 0, { display_option{ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST} }, {true, false});
+	Display disp(moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f, "Funny window", ALLEGRO_DIRECT3D_INTERNAL | ALLEGRO_RESIZABLE, /*display_undefined_position*/ Mouse_cursor::get_pos_x(), Mouse_cursor::get_pos_y(), 0, {display_option{ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST}}, true, false);
+
+	// make it clean
+	disp.clear_to_color();
+	disp.flip();
+
 	Event_queue queue;
 	File_tmp tmp("LunarisTestXXXX.jpg");
 	File fpload(imgtest, "rb");
@@ -146,8 +157,9 @@ int main()
 		tmp.seek(0, ALLEGRO_SEEK_SET);
 	}
 
-	GIF gif("cat.gif");
+	GIF gif(gif_path);
 	Bitmap bmp(tmp, 1024, 0, ".jpg");
+	std::vector<Bitmap> dynamic_load_drop;
 	Font basicfont;
 	Transform trans;
 	Timer tima(1.0 / 30);
@@ -157,21 +169,27 @@ int main()
 		})
 	});
 	Voice voice;
-	Mixer mixer;
+	Mixer mixer, vid_mixer, oth_mixer;
 	Audio_stream astream(msktest, 4, 1 << 14);
 	Vertexes vertx;
-	Video vid("video.ogv");
+	Video vid(video_path);
+	Mouse fancy_mouse;
 
+	Event_drag_and_drop dnd(disp);
+
+	mixer << vid_mixer;
+	mixer << oth_mixer;
 	voice << mixer;
-	mixer << astream;
+	oth_mixer << astream;
 
 	astream.set_playing(false);
 	astream.set_playmode(ALLEGRO_PLAYMODE_LOOP);
-	astream.set_gain(0.01f);
+	astream.set_gain(0.05f);
 
 	log << "Preparing stuff..." << std::endl;
 
 	queue << disp;
+	queue << dnd;
 	queue << tima;
 	queue << Event_keyboard();
 	queue << menn;
@@ -180,7 +198,7 @@ int main()
 
 	menn >> disp;
 
-	trans.scale({ zoomin, zoomin });
+	trans.scale(zoomin);
 	trans.use();
 
 	vertx
@@ -202,9 +220,45 @@ int main()
 
 	log << "Running." << std::endl;
 
+
 	astream.set_playing(true);
-	vid.start(mixer);
+	vid.start(vid_mixer);
 	vid.set_playing(true);
+
+	vid_mixer.set_gain(0.008f);
+
+	vid.set_draw_properties({ 
+		bitmap_scale{ 0.5f, 0.5f},
+		al_map_rgba_f(0.7f,0.7f,0.7f,0.4f)
+	});
+	bmp.set_draw_properties({
+		bitmap_scale{ disp.get_width() * 0.5f / (bmp.get_width() * zoomin), disp.get_height() * 0.5f / (bmp.get_height() * zoomin) },
+		al_map_rgba_f(0.7f,0.7f,0.7f,0.7f)
+	});
+	gif.set_draw_properties({ 
+		bitmap_position_and_flags{ 0, 0, 0 },
+		bitmap_scale{ 1.0f, 1.0f },
+		al_map_rgba_f(0.7f,0.7f,0.7f,0.6f)
+	});
+
+	basicfont.set_draw_property(al_map_rgb(0, 255, 255));
+	basicfont.set_draw_property(font_multiline_b::MULTILINE);
+
+
+	{
+		const int x = 1 + vid.get_fps();
+		const int y = 1 + 1.0 / gif.get_interval_average();
+		int gcd = 1;
+		int lcm = 0;
+		
+		for (int i = 1; i <= x && i <= y; ++i) {
+			if (x % i == 0 && y % i == 0) {
+				gcd = i;
+			}
+		}
+		lcm = (x * y) / gcd;
+		tima.set_speed(1.0 / lcm);
+	}
 
 	for(bool runn = true; runn;)
 	{
@@ -254,6 +308,28 @@ int main()
 			case ALLEGRO_EVENT_KEY_DOWN:
 				if (ev.get().keyboard.keycode == ALLEGRO_KEY_ESCAPE) runn = false;
 				continue;
+			case 1024: // DRAG AND DROP
+			{
+				Drop_event mev(ev);
+				fancy_mouse.update();
+
+				loggin << "Dropped file: " << mev.c_str() << std::endl;
+
+				const int xx = fancy_mouse.get_axis(Mouse::axis::X_AXIS);
+				const int yy = fancy_mouse.get_axis(Mouse::axis::Y_AXIS);
+
+				Bitmap t_bmp(mev.c_str());
+				if (t_bmp) {
+					t_bmp.set_draw_properties({						
+						bitmap_position_and_flags { static_cast<float>(xx) / 2, static_cast<float>(yy) / 2, 0},
+						bitmap_scale{ 0.08f, 0.08f },
+						bitmap_rotate_transform{ 0.5f * t_bmp.get_width(), 0.5f * t_bmp.get_height(), static_cast<float>(0.2f * cos(al_get_time())) }
+					});
+					dynamic_load_drop.push_back(std::move(t_bmp));
+				}
+
+			}
+				break;
 			//case ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT:
 			//	loggin << "Got slice:\n";
 			//	//{
@@ -275,21 +351,14 @@ int main()
 		//	al_draw_scaled_bitmap(frame, 0, 0, sw, sh, 120, 120, dw, dh, 0);
 		//}
 
-		vid.draw(
-			{ 0.5f * (disp.get_width() - vid.get_width()), 0.5f * (disp.get_height() - vid.get_height()) },
-			{ bitmap_scale{ 0.5f, 0.5f}, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) }
-		);
 
-		bmp.draw(
-			{ disp.get_width() * 0.125f, disp.get_height() * 0.125f },
-			{ bitmap_scale{ disp.get_width() * 0.5f / (bmp.get_width() * zoomin), disp.get_height() * 0.5f / (bmp.get_height() * zoomin) }, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) }
-		);
+		bmp.draw(disp.get_width() * 0.125f, disp.get_height() * 0.125f);
 
-		gif.draw(
-			{ 0, 0 },
-			{ bitmap_scale{ 1.0f, 1.0f}, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) }
-		);
+		gif.draw();
 
+		vid.draw(0.5f * (disp.get_width() - vid.get_width()), 0.5f * (disp.get_height() - vid.get_height()));
+
+		for (const auto& i : dynamic_load_drop) i.draw();
 
 		{
 			const double __cst = (fabs(al_get_time() - _last) + 1e-100);
@@ -302,15 +371,16 @@ int main()
 		}
 
 		const uint64_t music_t = astream.get_played_samples() * 100ULL / static_cast<uint64_t>(astream.get_frequency());
+		
+		fancy_mouse.update();
 
-		basicfont.draw_multiline({ 0.5f,0.5f },
+		basicfont.draw( 0.5f, 0.5f,
 			"Fancy line - AllegroCPP test\n"
 			"FPS: " + std::to_string(static_cast<int>(_fps_cpy)) + "." + std::to_string(static_cast<int>(10000 * _fps_cpy) % 10000) + "\n"
 			"Frametime: " + std::to_string(_smooth_fps * 1e3) + " ms\n"
 			"Elapsed time: " + std::to_string(al_get_time() - _elap_calc) + " s\n"
-			"Music time: " + std::to_string(music_t / 100ULL) + "." + std::to_string(music_t % 100ULL) + " s | Samples: " + std::to_string(astream.get_played_samples())
-			,
-			-1.0f, -1.0f, al_map_rgb(0, 255, 255)
+			"Music time: " + std::to_string(music_t / 100ULL) + "." + std::to_string(music_t % 100ULL) + " s | Samples: " + std::to_string(astream.get_played_samples()) + "\n"
+			"Mouse XY: " + std::to_string(fancy_mouse.get_axis(Mouse::axis::X_AXIS)) + ", " + std::to_string(fancy_mouse.get_axis(Mouse::axis::Y_AXIS)) + (fancy_mouse.is_out_of_screen() ? " (out of screen)" : "")
 		);
 
 		vertx.draw();
@@ -320,12 +390,16 @@ int main()
 
 	log << "Destroying stuff..." << std::endl;
 
+	//thrcpypaste.join();
+
 	astream.set_playing(false);
 
 	disp.destroy();
 	tima.stop();
 
 	astream.destroy();
+	oth_mixer.destroy();
+	vid_mixer.destroy();
 	mixer.destroy();
 	voice.destroy();
 
@@ -400,6 +474,40 @@ int main()
 
 		keep = false;
 	}
+
+	log << "Testing broadcast..." << std::endl;
+
+	bool bc_good = false;
+
+	Thread thrr2([&] {
+
+		File_host fh(5000, file_protocol::UDP);
+		while (1) {
+			auto cl = fh.listen(10000);
+			char buf[256]{};
+			size_t readd = cl.read(buf, 256);
+
+			std::cout << "Read from UDP broadcast: " << buf << std::endl;
+			if (std::string(buf) == "IT WORKED") break;
+		}
+		bc_good = true;
+
+		return false;
+	});
+
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	{
+		File_client cli("255.255.255.255", 5000, file_protocol::UDP);
+		cli.set_broadcast(true);
+
+		cli << "Broadcast 1 2 3...";
+		cli << "IT WORKED";
+
+		while (!bc_good) std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		thrr2.join();
+	}
+
 
 	log << "Ended successfully." << std::endl;
 

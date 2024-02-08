@@ -86,6 +86,8 @@ namespace AllegroCPP {
 		using Bitmap::get_height;
 		using Bitmap::get_pixel;
 		using Bitmap::draw;
+		using Bitmap::set_draw_property;
+		using Bitmap::set_draw_properties;
 	};
 
 }

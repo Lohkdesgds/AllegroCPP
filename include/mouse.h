@@ -9,6 +9,7 @@ namespace AllegroCPP {
 
 	class Mouse {
 		ALLEGRO_MOUSE_STATE m_state{};
+		bool m_out_of_screen = false;
 	public:
 		enum class axis { X_AXIS, Y_AXIS, Z_AXIS };
 
@@ -21,14 +22,14 @@ namespace AllegroCPP {
 
 		int get_axis(const axis&) const;
 		int get_axis(const int) const;
+		bool is_out_of_screen() const;
 
 		// index starts at 1 in this case
 		bool get_button_down(const int) const;
 
 		ALLEGRO_MOUSE_STATE get() const;
 
-		static bool set_mouse_pos(const int, const int, ALLEGRO_DISPLAY* = nullptr);
-		static bool set_mouse_pos(const std::pair<int, int>, ALLEGRO_DISPLAY* = nullptr);
+		static bool set_mouse_pos(const int pos_x, const int pos_y, ALLEGRO_DISPLAY* = nullptr);
 		static bool set_mouse_pos_z(const int);
 		static bool set_mouse_pos_w(const int);
 		static bool set_mouse_axis(const axis&, const int);
@@ -52,7 +53,8 @@ namespace AllegroCPP {
 
 		// real screen pos, not related to display
 		static bool get_pos(int& x, int& y);
-		static std::pair<int, int> get_pos();
+		static int get_pos_x();
+		static int get_pos_y();
 
 		static bool hide(ALLEGRO_DISPLAY* display = nullptr);
 		static bool show(ALLEGRO_DISPLAY* display = nullptr);

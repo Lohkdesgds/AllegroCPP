@@ -92,7 +92,7 @@ namespace AllegroCPP {
 	public:
 		File(const std::string& path, const std::string& mode = "wb+");
 		File(const std::string& path, const ALLEGRO_FILE_INTERFACE* interfac, const std::string& mode = "wb+");
-		File(int fd, const std::string& mode = "wb+");
+		File(const int fd, const std::string& mode = "wb+");
 		File(File& fp, size_t slice_initial_size, const std::string& mode);
 		virtual ~File();
 
@@ -107,18 +107,18 @@ namespace AllegroCPP {
 		void operator=(const File&) = delete;
 		void operator=(File&&) noexcept;
 
-		size_t read(void*, size_t);
-		size_t write(const void*, size_t);
+		size_t read(void*, const size_t);
+		size_t write(const void*, const size_t);
 		bool flush();
 		int64_t tell() const;
-		bool seek(int64_t offset, int whence);
+		bool seek(const int64_t offset, const int whence);
 		bool eof() const;
 		bool has_error() const;
 		file_error_report get_error() const;
-		int ungetc(int);
+		int ungetc(const int);
 		int64_t size() const;
 		int getc();
-		int putc(int);
+		int putc(const int);
 		int printformat(const char* format, ...);
 		int vprintformat(const char* format, va_list args);
 
@@ -166,8 +166,8 @@ namespace AllegroCPP {
 		File& operator>>(double& val);
 		File& operator>>(long double& val);
 
-		virtual std::string gets(size_t);
-		virtual char* gets(char* const buf, size_t max);
+		virtual std::string gets(const size_t);
+		virtual char* gets(char* const buf, const size_t max);
 		std::shared_ptr<ALLEGRO_USTR> get_ustr(); // autofree
 		virtual bool puts(char const* str);
 		virtual bool puts(const std::string&);
@@ -251,6 +251,7 @@ namespace AllegroCPP {
 			int family;
 			uint16_t port = 0;
 			bool host;
+			bool opt_broadcast;
 		};
 
 		// socket_config* and &(sizeof(socket_config)) (as uint64_t)
@@ -327,11 +328,14 @@ namespace AllegroCPP {
 			using File::operator<<;
 			using File::operator>>;
 
-			std::string gets(size_t);
-			char* gets(char* const buf, size_t max);
+			std::string gets(const size_t);
+			char* gets(char* const buf, const size_t max);
 
 			bool puts(char const* str);
 			bool puts(const std::string&);
+
+			// udp only
+			void set_broadcast(const bool);
 		};
 	}
 
@@ -345,23 +349,23 @@ namespace AllegroCPP {
 
 		File_client(_socketmap::socket_user_data* absorb);
 	public:
-		File_client(const std::string& addr, uint16_t port, int protocol, int family = PF_UNSPEC);
-		File_client(const std::string& addr, uint16_t port, file_protocol protocol = file_protocol::TCP, file_family family = file_family::ANY);
+		File_client(const std::string& addr, const uint16_t port, const int protocol, const int family = PF_UNSPEC, const bool broadcast = false);
+		File_client(const std::string& addr, const uint16_t port, const file_protocol protocol = file_protocol::TCP, const file_family family = file_family::ANY, const bool broadcast = false);
 
 		File_client(const File_client&) = delete;
 		File_client(File_client&&) noexcept;
 		void operator=(const File_client&) = delete;
 		void operator=(File_client&&) noexcept;
 
-		bool set_timeout_read(unsigned long ms);
+		bool set_timeout_read(const unsigned long ms);
 	};
 
 	class File_host : public _socketmap::_FileSocket {
 		using _FileSocket::write; // hide
 		using _FileSocket::read; // hide
 	public:
-		File_host(uint16_t port, int protocol, int family = PF_UNSPEC);
-		File_host(uint16_t port, file_protocol protocol = file_protocol::TCP, file_family family = file_family::ANY);
+		File_host(const uint16_t port, const int protocol, const int family = PF_UNSPEC);
+		File_host(const uint16_t port, const file_protocol protocol = file_protocol::TCP, const file_family family = file_family::ANY);
 
 		File_host(const File_host&) = delete;
 		File_host(File_host&&) noexcept;
@@ -370,7 +374,7 @@ namespace AllegroCPP {
 
 		bool combine(File_host&&);
 
-		File_client listen(long timeout = 500);
+		File_client listen(const long timeout = 500);
 	};
 
 #endif // ALLEGROCPP_DISABLE_FILESOCKET

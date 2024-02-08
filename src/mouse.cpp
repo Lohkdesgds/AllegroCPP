@@ -6,12 +6,24 @@ namespace AllegroCPP {
 	{
 		if (!al_is_system_installed()) al_init();
 		if (!al_is_mouse_installed()) al_install_mouse();
-		al_get_mouse_state(&m_state);
+		update();
 	}
 
 	void Mouse::update()
 	{
 		al_get_mouse_state(&m_state);
+
+		// more robust tracking, get info out of screen too (relative to screen)
+		if (auto* dsp = al_get_current_display(); dsp) {
+			al_get_mouse_cursor_position(&m_state.x, &m_state.y);
+			int dx = 0, dy = 0;
+			al_get_window_position(dsp, &dx, &dy);
+			m_state.x -= dx;
+			m_state.y -= dy;
+
+			m_out_of_screen = m_state.x < 0 || m_state.y < 0 || m_state.x >= al_get_display_width(dsp) || m_state.y >= al_get_display_height(dsp);
+		}
+		else m_out_of_screen = false; // not supported
 	}
 
 	unsigned int Mouse::get_num_axes()
@@ -42,6 +54,11 @@ namespace AllegroCPP {
 		return al_get_mouse_state_axis(&m_state, axis);
 	}
 
+	bool Mouse::is_out_of_screen() const
+	{
+		return m_out_of_screen;
+	}
+
 	bool Mouse::get_button_down(const int btn) const
 	{
 		return al_mouse_button_down(&m_state, btn);
@@ -52,16 +69,10 @@ namespace AllegroCPP {
 		return m_state;
 	}
 
-	bool Mouse::set_mouse_pos(const int x, const int y, ALLEGRO_DISPLAY* d)
+	bool Mouse::set_mouse_pos(const int pos_x, const int pos_y, ALLEGRO_DISPLAY* d)
 	{
 		if (!d && !(d = al_get_current_display())) return false;
-		return al_set_mouse_xy(d, x, y);
-	}
-
-	bool Mouse::set_mouse_pos(const std::pair<int, int> xy, ALLEGRO_DISPLAY* d)
-	{
-		if (!d && !(d = al_get_current_display())) return false;
-		return al_set_mouse_xy(d, xy.first, xy.second);
+		return al_set_mouse_xy(d, pos_x, pos_y);
 	}
 
 	bool Mouse::set_mouse_pos_z(const int z)
@@ -133,11 +144,18 @@ namespace AllegroCPP {
 		return al_get_mouse_cursor_position(&x, &y);
 	}
 
-	std::pair<int, int> Mouse_cursor::get_pos()
+	int Mouse_cursor::get_pos_x()
 	{
-		int x{}, y{};
-		if (!get_pos(x, y)) return { -1, -1 };
-		return { x,y };
+		int x, y;
+		if (!al_get_mouse_cursor_position(&x, &y)) return 0;
+		return x;
+	}
+
+	int Mouse_cursor::get_pos_y()
+	{
+		int x, y;
+		if (!al_get_mouse_cursor_position(&x, &y)) return 0;
+		return y;
 	}
 
 	bool Mouse_cursor::hide(ALLEGRO_DISPLAY* display)

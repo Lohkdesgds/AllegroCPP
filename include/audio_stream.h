@@ -4,8 +4,6 @@
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_audio.h>
 
-#include <stdexcept>
-#include <memory>
 #include <functional>
 
 #include "../include/file.h"
@@ -24,13 +22,13 @@ namespace AllegroCPP {
 		Audio_stream(const std::string&, const size_t = 4, const unsigned = 2048);
 		Audio_stream(File_shareable_ptr, const size_t = 4, const unsigned = 2048);
 		Audio_stream(File_shareable_ptr, const std::string&, const size_t = 4, const unsigned = 2048);
-		Audio_stream(const size_t, const unsigned, const unsigned, ALLEGRO_AUDIO_DEPTH, ALLEGRO_CHANNEL_CONF);
+		Audio_stream(const size_t, const unsigned, const unsigned, const ALLEGRO_AUDIO_DEPTH, const ALLEGRO_CHANNEL_CONF);
 
 		bool load(const std::string&, const size_t = 4, const unsigned = 2048);
 		bool load(File_shareable_ptr, const size_t = 4, const unsigned = 2048);
 		bool load(File_shareable_ptr, const std::string&, const size_t = 4, const unsigned = 2048);
 
-		bool create(const size_t, const unsigned, const unsigned, ALLEGRO_AUDIO_DEPTH, ALLEGRO_CHANNEL_CONF);
+		bool create(const size_t, const unsigned, const unsigned, const ALLEGRO_AUDIO_DEPTH, const ALLEGRO_CHANNEL_CONF);
 
 		ALLEGRO_EVENT_SOURCE* get_event_source() const;
 		operator ALLEGRO_EVENT_SOURCE* () const;

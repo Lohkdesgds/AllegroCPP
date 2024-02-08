@@ -577,7 +577,7 @@ namespace AllegroCPP {
         m_anim = std::exchange(oth.m_anim, nullptr);
     }
 
-    GIF::GIF(const std::string& path, int flags, int format)
+    GIF::GIF(const std::string& path, const int flags, const int format)
     {
         if (!load(path, flags, format))
             throw std::runtime_error("Cannot load GIF!");
@@ -589,7 +589,7 @@ namespace AllegroCPP {
             throw std::runtime_error("Cannot load GIF from FILE!");
     }
 
-    bool GIF::load(const std::string& path, int flags, int format)
+    bool GIF::load(const std::string& path, const int flags, const int format)
     {
         if (!al_is_system_installed()) al_init();
 

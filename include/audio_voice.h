@@ -4,8 +4,6 @@
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_audio.h>
 
-#include <stdexcept>
-
 namespace AllegroCPP {
 
 	class Default_Voice;
@@ -16,15 +14,15 @@ namespace AllegroCPP {
 
 		friend class Default_Voice;
 	public:
-		Voice(bool, int = 0);
-		Voice(int = 0, unsigned = 48000, ALLEGRO_AUDIO_DEPTH = ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF = ALLEGRO_CHANNEL_CONF_2);
+		Voice(const bool, const int = 0);
+		Voice(const int = 0, const unsigned = 48000, const ALLEGRO_AUDIO_DEPTH = ALLEGRO_AUDIO_DEPTH_INT16, const ALLEGRO_CHANNEL_CONF = ALLEGRO_CHANNEL_CONF_2);
 		Voice(const Voice&) = delete;
 		void operator=(const Voice&) = delete;
 		Voice(Voice&&);
 		void operator=(Voice&&);
 		~Voice();
 
-		bool create(unsigned, ALLEGRO_AUDIO_DEPTH = ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF = ALLEGRO_CHANNEL_CONF_2);
+		bool create(const unsigned, const ALLEGRO_AUDIO_DEPTH = ALLEGRO_AUDIO_DEPTH_INT16, const ALLEGRO_CHANNEL_CONF = ALLEGRO_CHANNEL_CONF_2);
 		void destroy();
 
 		void detach();
@@ -57,7 +55,7 @@ namespace AllegroCPP {
 		using Voice::create;
 		using Voice::destroy;
 	public:
-		Default_Voice(int = 0);
+		Default_Voice(const int = 0);
 		~Default_Voice();
 
 		void set_default(Voice&&);

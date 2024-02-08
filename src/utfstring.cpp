@@ -472,4 +472,14 @@ namespace AllegroCPP {
 	{
 		return m_string ? al_cstr(m_string.get()) : "";
 	}
+
+	const ALLEGRO_USTR* UTFstring::u_str() const
+	{
+		return m_string.get();
+	}
+
+	UTFstring::operator const ALLEGRO_USTR* () const
+	{
+		return m_string.get();
+	}
 }

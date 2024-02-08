@@ -42,9 +42,9 @@ namespace AllegroCPP {
 		void set_drive(const std::string&) const;
 
 		void append(const std::string&);
-		void insert(int, const std::string&);
-		void replace(int, const std::string&);
-		void remove(int);
+		void insert(const int, const std::string&);
+		void replace(const int, const std::string&);
+		void remove(const int);
 
 		// remove last directory component, if any
 		void drop_tail();

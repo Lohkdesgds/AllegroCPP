@@ -116,17 +116,17 @@ namespace AllegroCPP {
 		if (m_path && str.length()) al_append_path_component(m_path, str.c_str());
 	}
 
-	void Path::insert(int pos, const std::string& str)
+	void Path::insert(const int pos, const std::string& str)
 	{
 		if (m_path && str.length()) al_insert_path_component(m_path, pos, str.c_str());
 	}
 
-	void Path::replace(int pos, const std::string& str)
+	void Path::replace(const int pos, const std::string& str)
 	{
 		if (m_path && str.length()) al_replace_path_component(m_path, pos, str.c_str());
 	}
 
-	void Path::remove(int pos)
+	void Path::remove(const int pos)
 	{
 		if (m_path) al_remove_path_component(m_path, pos);
 	}

@@ -146,5 +146,8 @@ namespace AllegroCPP {
 
 		std::string c_str() const;
 		operator std::string() const;
+
+		const ALLEGRO_USTR* u_str() const;
+		operator const ALLEGRO_USTR*() const;
 	};
 }

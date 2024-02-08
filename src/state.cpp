@@ -20,7 +20,7 @@ namespace AllegroCPP {
 		}
 	}
 
-	void State::store(int flags)
+	void State::store(const int flags)
 	{
 		if (m_state) delete m_state;
 		m_state = new ALLEGRO_STATE{};

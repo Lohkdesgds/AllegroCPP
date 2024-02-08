@@ -12,8 +12,8 @@ namespace AllegroCPP {
 		ALLEGRO_LOCKED_REGION* m_ptr = nullptr;
 		int m_format, m_flags;
 	public:
-		Locked_region(ALLEGRO_BITMAP* bmp, int format = ALLEGRO_LOCK_READWRITE, int flags = ALLEGRO_PIXEL_FORMAT_ANY);
-		Locked_region(ALLEGRO_BITMAP* bmp, std::pair<int,int> pos, std::pair<int,int> size, int format = ALLEGRO_LOCK_READWRITE, int flags = ALLEGRO_PIXEL_FORMAT_ANY);
+		Locked_region(ALLEGRO_BITMAP* bmp, const int format = ALLEGRO_LOCK_READWRITE, const int flags = ALLEGRO_PIXEL_FORMAT_ANY);
+		Locked_region(ALLEGRO_BITMAP* bmp, const int pos_x, const int pos_y, const int width, const int height, const int format = ALLEGRO_LOCK_READWRITE, const int flags = ALLEGRO_PIXEL_FORMAT_ANY);
 		~Locked_region();
 
 		Locked_region(const Locked_region&) = delete;
@@ -33,8 +33,8 @@ namespace AllegroCPP {
 		int get_pitch() const;
 		int get_pixel_size() const;
 
-		bool put_pixel(std::pair<int, int> pos, ALLEGRO_COLOR color);
-		bool put_blended_pixel(std::pair<int, int> pos, ALLEGRO_COLOR color);
+		bool put_pixel(const int pos_x, const int pos_y, const ALLEGRO_COLOR color);
+		bool put_blended_pixel(const int pos_x, const int pos_y, const ALLEGRO_COLOR color);
 	};
 
 }

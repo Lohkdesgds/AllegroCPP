@@ -18,7 +18,7 @@ namespace AllegroCPP {
 		State() = default;
 		~State();
 
-		void store(int flags);
+		void store(const int flags);
 		void restore();
 	};	
 

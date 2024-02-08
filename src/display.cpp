@@ -1,10 +1,16 @@
 #include "../include/display.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#include <Richedit.h>
+#include <unordered_map>
+#endif
+
 namespace AllegroCPP {
 
-	Display::Display(std::pair<int, int> size, const std::string& windowname, int flags, std::pair<int, int> pos, int refresh_rate, std::vector<display_option> options, const std::pair<bool, bool> center_display_on_posxy)
+	Display::Display(const int size_x, const int size_y, const std::string& windowname, const int flags, const int pos_x, const int pos_y, const int refresh_rate, const std::vector<display_option> options, const bool centered_on_pos_x, const bool centered_on_pos_y)
 	{
-		if (!create(size, windowname, flags, pos, refresh_rate, options, center_display_on_posxy)) throw std::runtime_error("Failed creating display!");
+		if (!create(size_x, size_y, windowname, flags, pos_x, pos_y, refresh_rate, options, centered_on_pos_x, centered_on_pos_y)) throw std::runtime_error("Failed creating display!");
 	}
 
 	Display::~Display()
@@ -24,20 +30,20 @@ namespace AllegroCPP {
 		oth.m_disp.reset();
 	}
 
-	bool Display::create(std::pair<int, int> size, const std::string& windowname, int flags, std::pair<int, int> pos, int refresh_rate, std::vector<display_option> options, const std::pair<bool, bool> center_display_on_posxy)
+	bool Display::create(const int size_x, const int size_y, const std::string& windowname, const int flags, const int pos_x, const int pos_y, const int refresh_rate, const std::vector<display_option> options, const bool centered_on_pos_x, const bool centered_on_pos_y)
 	{
 		if (!al_is_system_installed()) al_init();
 		if (m_disp) destroy();
 
 		if (flags >= 0) al_set_new_display_flags(flags);
-		if (pos != display_undefined_position) al_set_new_window_position(center_display_on_posxy.first ? (pos.first - 0.5f * size.first) : pos.first, center_display_on_posxy.second ? (pos.second - 0.5f * size.second) : pos.second);
+		if (pos_x != display_undefined_position[0] && pos_y != display_undefined_position[1]) al_set_new_window_position(centered_on_pos_x ? (pos_x - 0.5f * size_x) : pos_x, centered_on_pos_y ? (pos_y - 0.5f * size_y) : pos_y);
 		if (refresh_rate >= 0) al_set_new_display_refresh_rate(refresh_rate);
 		for (const auto& i : options) al_set_new_display_option(i.option, i.value, i.importance);
 		al_set_new_window_title(windowname.substr(0, ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE).c_str());
 
-		return (m_disp = std::shared_ptr<ALLEGRO_DISPLAY>(al_create_display(size.first, size.second),
+		return (m_disp = std::shared_ptr<ALLEGRO_DISPLAY>(al_create_display(size_x, size_y),
 			[](ALLEGRO_DISPLAY* d) {al_set_display_menu(d, nullptr); al_destroy_display(d); })
-			).get();
+		).get();
 	}
 
 	void Display::destroy()
@@ -103,11 +109,11 @@ namespace AllegroCPP {
 		return true;
 	}
 
-	bool Display::update_region(std::pair<int, int> pos, std::pair<int, int> size)
+	bool Display::update_region(const int pos_x, const int pos_y, const int width, const int height)
 	{
 		if (!m_disp) return false;
 		if (al_get_current_display() != m_disp.get()) al_set_target_backbuffer(m_disp.get());
-		al_update_display_region(pos.first, pos.second, size.first, size.second);
+		al_update_display_region(pos_x, pos_y, width, height);
 		return true;
 	}
 
@@ -128,10 +134,10 @@ namespace AllegroCPP {
 		return m_disp ? al_get_display_height(m_disp.get()) : -1;
 	}
 
-	bool Display::resize(std::pair<int, int> size)
+	bool Display::resize(const int width, const int height)
 	{
 		if (!m_disp) return false;
-		if (!al_resize_display(m_disp.get(), size.first, size.second)) return false;
+		if (!al_resize_display(m_disp.get(), width, height)) return false;
 		return true;
 	}
 
@@ -140,36 +146,35 @@ namespace AllegroCPP {
 		if (m_disp) al_acknowledge_resize(m_disp.get());
 	}
 
-	std::pair<int, int> Display::get_position() const
-	{
-		if (!m_disp) return display_undefined_position;
-		std::pair<int, int> pos;
-		al_get_window_position(m_disp.get(), &pos.first, &pos.second);
-		return pos;
-	}
-
-	bool Display::set_position(std::pair<int, int> pos)
+	bool Display::get_position(int& x, int& y) const
 	{
 		if (!m_disp) return false;
-		al_set_window_position(m_disp.get(), pos.first, pos.second);
+		al_get_window_position(m_disp.get(), &x, &y);
 		return true;
 	}
 
-	bool Display::get_constraints(int& minx, int& miny, int& maxx, int& maxy) const
+	bool Display::set_position(const int pos_x, const int pos_y)
 	{
 		if (!m_disp) return false;
-		al_get_window_constraints(m_disp.get(), &minx, &miny, &maxx, &maxy);
+		al_set_window_position(m_disp.get(), pos_x, pos_y);
 		return true;
 	}
 
-	bool Display::set_constraints(std::pair<int, int> min, std::pair<int, int> max)
+	bool Display::get_constraints(int& min_x, int& min_y, int& max_x, int& max_y) const
 	{
 		if (!m_disp) return false;
-		al_set_window_constraints(m_disp.get(), min.first, min.second, max.first, max.second);
+		al_get_window_constraints(m_disp.get(), &min_x, &min_y, &max_x, &max_y);
 		return true;
 	}
 
-	bool Display::apply_constraints(bool enab)
+	bool Display::set_constraints(const int min_x, const int min_y, const int max_x, const int max_y)
+	{
+		if (!m_disp) return false;
+		al_set_window_constraints(m_disp.get(), min_x, min_y, max_x, max_y);
+		return true;
+	}
+
+	bool Display::apply_constraints(const bool enab)
 	{
 		if (!m_disp) return false;
 		al_apply_window_constraints(m_disp.get(), enab);
@@ -181,18 +186,18 @@ namespace AllegroCPP {
 		return m_disp ? al_get_display_flags(m_disp.get()) : -1;
 	}
 
-	bool Display::set_flag(int flag, bool enabled)
+	bool Display::set_flag(const int flag, const bool enabled)
 	{
 		if (!m_disp) return false;
 		return al_set_display_flag(m_disp.get(), flag, enabled);
 	}
 
-	int Display::get_option(int opt) const
+	int Display::get_option(const int opt) const
 	{
 		return m_disp ? al_get_display_option(m_disp.get(), opt) : -1;
 	}
 
-	bool Display::set_option(int opt, int val)
+	bool Display::set_option(const int opt, const int val)
 	{
 		if (!m_disp.get()) return false;
 		al_set_display_option(m_disp.get(), opt, val);
@@ -249,7 +254,7 @@ namespace AllegroCPP {
 		return true;
 	}
 
-	void Display::inhibit_screensaver(bool inhibit)
+	void Display::inhibit_screensaver(const bool inhibit)
 	{
 		al_inhibit_screensaver(inhibit);
 	}
@@ -286,22 +291,22 @@ namespace AllegroCPP {
 		return true;
 	}
 
-	bool Display::set_clip_rectangle(std::pair<int, int> clipcut, std::pair<int, int> clipsize)
+	bool Display::set_clip_rectangle(const int pos_x, const int pos_y, const int width, const int height)
 	{
 		if (!m_disp) return false;
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
 		al_set_target_backbuffer(m_disp.get());
-		al_set_clipping_rectangle(clipcut.first, clipcut.second, clipsize.first, clipsize.second);
+		al_set_clipping_rectangle(pos_x, pos_y, width, height);
 		al_set_target_bitmap(oldtarg);
 		return true;
 	}
 
-	bool Display::get_clip_rectangle(int& posx, int& posy, int& width, int& height) const
+	bool Display::get_clip_rectangle(int& pos_x, int& pos_y, int& width, int& height) const
 	{
 		if (!m_disp) return false;
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
 		al_set_target_backbuffer(m_disp.get());
-		al_get_clipping_rectangle(&posx, &posy, &width, &height);
+		al_get_clipping_rectangle(&pos_x, &pos_y, &width, &height);
 		al_set_target_bitmap(oldtarg);
 		return true;
 	}
@@ -346,7 +351,7 @@ namespace AllegroCPP {
 		return currt;
 	}
 
-	bool Display::clear_to_color(ALLEGRO_COLOR color)
+	bool Display::clear_to_color(const ALLEGRO_COLOR color)
 	{
 		if (!m_disp) return false;
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
@@ -356,7 +361,7 @@ namespace AllegroCPP {
 		return true;
 	}
 
-	bool Display::set_blend_color(ALLEGRO_COLOR color)
+	bool Display::set_blend_color(const ALLEGRO_COLOR color)
 	{
 		if (!m_disp) return false;
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
@@ -366,7 +371,7 @@ namespace AllegroCPP {
 		return true;
 	}
 
-	bool Display::set_blender(int op, int src, int dst)
+	bool Display::set_blender(const int op, const int src, const int dst)
 	{
 		if (!m_disp) return false;
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
@@ -376,7 +381,7 @@ namespace AllegroCPP {
 		return true;
 	}
 
-	bool Display::set_blender(int op, int src, int dst, int alpha_op, int alpha_src, int alpha_dst)
+	bool Display::set_blender(const int op, const int src, const int dst, const int alpha_op, const int alpha_src, const int alpha_dst)
 	{
 		if (!m_disp) return false;
 		ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
@@ -421,6 +426,7 @@ namespace AllegroCPP {
 		if (m_disp && m) al_set_display_menu(m_disp.get(), m);
 	}
 
+#ifdef _WIN32
 	bool Display::set_icon_from_resource(const int id)
 	{
 		HICON icon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(id), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
@@ -433,5 +439,11 @@ namespace AllegroCPP {
 		}
 		return false;
 	}
+
+	HWND Display::get_window_handler()
+	{
+		return m_disp.get() ? al_get_win_window_handle(m_disp.get()) : nullptr;
+	}
+#endif
 
 }

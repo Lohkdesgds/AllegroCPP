@@ -112,7 +112,7 @@ namespace AllegroCPP {
 		al_wait_cond(m_cnd, mtx);
 	}
 
-	bool Conditional::wait_until(Mutex& mtx, double time_sec)
+	bool Conditional::wait_until(Mutex& mtx, const double time_sec)
 	{
 		Timeout to(time_sec);
 		return al_wait_cond_until(m_cnd, mtx, to) == 0; // 0 == success...

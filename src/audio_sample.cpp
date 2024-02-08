@@ -1,5 +1,7 @@
 #include "../include/audio_sample.h"
 
+#include <stdexcept>
+
 namespace AllegroCPP {
 	
 	extern void __audio_allegro_start(int);
@@ -34,7 +36,7 @@ namespace AllegroCPP {
 		if (!load(fp, ext)) throw std::invalid_argument("Invalid file for sample load");
 	}
 
-	Sample::Sample(unsigned samples, const unsigned freq, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF conf)
+	Sample::Sample(unsigned samples, const unsigned freq, const ALLEGRO_AUDIO_DEPTH depth, const ALLEGRO_CHANNEL_CONF conf)
 	{
 		__audio_allegro_start(0);
 		if (!(create(samples, freq, depth, conf))) throw std::invalid_argument("Cannot create sample with those settings!");
@@ -70,7 +72,7 @@ namespace AllegroCPP {
 		}
 	}
 
-	bool Sample::create(unsigned samples, const unsigned freq, ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF conf)
+	bool Sample::create(const unsigned samples, const unsigned freq, const ALLEGRO_AUDIO_DEPTH depth, const ALLEGRO_CHANNEL_CONF conf)
 	{
 		destroy();
 

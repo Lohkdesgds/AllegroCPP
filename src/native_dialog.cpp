@@ -8,11 +8,11 @@
 #define BADGM(X) (!X)
 #endif
 
-#define MAKEDAY(onfail) \
+#define MAKEDAY(...) \
 tm tm;\
 time_t t = time(0);\
 if (BADGM(GMTIM(&t, &tm))) {\
-	return onfail;\
+	return __VA_ARGS__;\
 }
 
 namespace AllegroCPP {
