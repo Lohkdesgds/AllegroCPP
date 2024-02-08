@@ -1,5 +1,11 @@
 #include "../include/display.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#include <Richedit.h>
+#include <unordered_map>
+#endif
+
 namespace AllegroCPP {
 
 	Display::Display(const int size_x, const int size_y, const std::string& windowname, const int flags, const int pos_x, const int pos_y, const int refresh_rate, const std::vector<display_option> options, const bool centered_on_pos_x, const bool centered_on_pos_y)

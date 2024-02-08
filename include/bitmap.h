@@ -28,8 +28,12 @@ namespace AllegroCPP {
 		ALLEGRO_BITMAP* parent = nullptr;
 		int offx, offy, width, height;
 	};
+	struct bitmap_position_and_flags {
+		float target_x, target_y;
+		int flags = 0;
+	};
 
-	using bitmap_prop = std::variant<bitmap_cut, bitmap_rotate_transform, ALLEGRO_COLOR, bitmap_scale>;
+	using bitmap_prop = std::variant<bitmap_cut, bitmap_rotate_transform, ALLEGRO_COLOR, bitmap_scale, bitmap_position_and_flags>;
 
 	class Bitmap {
 	public:
@@ -44,12 +48,13 @@ namespace AllegroCPP {
 		friend Bitmap make_const_bitmap_of(ALLEGRO_BITMAP*);
 
 		struct draw_props {
-			bitmap_cut _cut = bitmap_cut{ 0, 0, 0, 0 };
+			mutable bitmap_cut _cut = bitmap_cut{ 0, 0, 0, 0 };
 			bitmap_rotate_transform _transf = bitmap_rotate_transform{ 0.0f, 0.0f, 0.0f };
 			ALLEGRO_COLOR _color = al_map_rgb(255, 255, 255);
 			bitmap_scale _scale = bitmap_scale{ 1.0f, 1.0f };
+			bitmap_position_and_flags _pos_and_flag = {};
 			
-			void check(ALLEGRO_BITMAP*);
+			void check(ALLEGRO_BITMAP*) const;
 			void reset();
 		};
 		draw_props m_stored_draw_props;
@@ -97,6 +102,7 @@ namespace AllegroCPP {
 		virtual void set_draw_properties(std::vector<bitmap_prop> props);
 		virtual void reset_draw_properties();
 
+		virtual bool draw() const;
 		virtual bool draw(const float target_x, const float target_y, const int flags = 0);
 		
 		virtual bool put_pixel(const int pos_x, const int pos_y, const ALLEGRO_COLOR color, const pixelrule rule = pixelrule::DEFAULT);

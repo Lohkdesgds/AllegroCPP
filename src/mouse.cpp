@@ -6,12 +6,24 @@ namespace AllegroCPP {
 	{
 		if (!al_is_system_installed()) al_init();
 		if (!al_is_mouse_installed()) al_install_mouse();
-		al_get_mouse_state(&m_state);
+		update();
 	}
 
 	void Mouse::update()
 	{
 		al_get_mouse_state(&m_state);
+
+		// more robust tracking, get info out of screen too (relative to screen)
+		if (auto* dsp = al_get_current_display(); dsp) {
+			al_get_mouse_cursor_position(&m_state.x, &m_state.y);
+			int dx = 0, dy = 0;
+			al_get_window_position(dsp, &dx, &dy);
+			m_state.x -= dx;
+			m_state.y -= dy;
+
+			m_out_of_screen = m_state.x < 0 || m_state.y < 0 || m_state.x >= al_get_display_width(dsp) || m_state.y >= al_get_display_height(dsp);
+		}
+		else m_out_of_screen = false; // not supported
 	}
 
 	unsigned int Mouse::get_num_axes()
@@ -40,6 +52,11 @@ namespace AllegroCPP {
 	int Mouse::get_axis(const int axis) const
 	{
 		return al_get_mouse_state_axis(&m_state, axis);
+	}
+
+	bool Mouse::is_out_of_screen() const
+	{
+		return m_out_of_screen;
 	}
 
 	bool Mouse::get_button_down(const int btn) const

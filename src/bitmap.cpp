@@ -8,7 +8,7 @@ namespace AllegroCPP {
 		if (!treat_as_const) throw std::runtime_error("Invalid setup of const ref of bitmap");
 	}
 
-	void Bitmap::draw_props::check(ALLEGRO_BITMAP* b)
+	void Bitmap::draw_props::check(ALLEGRO_BITMAP* b) const
 	{
 		if (_cut.width == 0 || _cut.height == 0) {
 			_cut.width = al_get_bitmap_width(b);
@@ -286,6 +286,7 @@ namespace AllegroCPP {
 		else if (std::holds_alternative<bitmap_rotate_transform>(prop)) m_stored_draw_props._transf = std::get<bitmap_rotate_transform>(prop);
 		else if (std::holds_alternative<ALLEGRO_COLOR>(prop)) m_stored_draw_props._color = std::get<ALLEGRO_COLOR>(prop);
 		else if (std::holds_alternative<bitmap_scale>(prop)) m_stored_draw_props._scale = std::get<bitmap_scale>(prop);
+		else if (std::holds_alternative<bitmap_position_and_flags>(prop)) m_stored_draw_props._pos_and_flag = std::get<bitmap_position_and_flags>(prop);
 	}
 
 	void Bitmap::set_draw_properties(std::vector<bitmap_prop> props)
@@ -297,25 +298,34 @@ namespace AllegroCPP {
 	{
 		m_stored_draw_props.reset();
 	}
-	
-	bool Bitmap::draw(const float target_x, const float target_y, const int flags)
+
+	bool Bitmap::draw() const
 	{
 		auto* to_draw = get_for_draw();
 		if (!to_draw) return false;
 
 		m_stored_draw_props.check(to_draw);
-	
+
 		al_draw_tinted_scaled_rotated_bitmap_region(to_draw,
 			m_stored_draw_props._cut.posx, m_stored_draw_props._cut.posy, m_stored_draw_props._cut.width, m_stored_draw_props._cut.height,
 			m_stored_draw_props._color,
 			m_stored_draw_props._transf.centerx, m_stored_draw_props._transf.centery,
-			target_x, target_y,
+			m_stored_draw_props._pos_and_flag.target_x, m_stored_draw_props._pos_and_flag.target_y,
 			m_stored_draw_props._scale.scalex, m_stored_draw_props._scale.scaley,
 			m_stored_draw_props._transf.rotationrad,
-			flags
+			m_stored_draw_props._pos_and_flag.flags
 		);
-	
+
 		return true;
+	}
+	
+	bool Bitmap::draw(const float target_x, const float target_y, const int flags)
+	{
+		m_stored_draw_props._pos_and_flag.target_x = target_x;
+		m_stored_draw_props._pos_and_flag.target_y = target_y;
+		m_stored_draw_props._pos_and_flag.flags = flags;
+
+		return draw();
 	}
 
 	bool Bitmap::put_pixel(const int pos_x, const int pos_y, const ALLEGRO_COLOR color, const pixelrule rule)

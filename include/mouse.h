@@ -9,6 +9,7 @@ namespace AllegroCPP {
 
 	class Mouse {
 		ALLEGRO_MOUSE_STATE m_state{};
+		bool m_out_of_screen = false;
 	public:
 		enum class axis { X_AXIS, Y_AXIS, Z_AXIS };
 
@@ -21,6 +22,7 @@ namespace AllegroCPP {
 
 		int get_axis(const axis&) const;
 		int get_axis(const int) const;
+		bool is_out_of_screen() const;
 
 		// index starts at 1 in this case
 		bool get_button_down(const int) const;

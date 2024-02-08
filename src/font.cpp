@@ -277,6 +277,7 @@ namespace AllegroCPP {
 		else if (std::holds_alternative<font_delimiter_justified>(prop))	m_stored_draw_props._justified_props = std::get<font_delimiter_justified>(prop);
 		else if (std::holds_alternative<font_multiline_b>(prop))			m_stored_draw_props._multiline = (std::get<font_multiline_b>(prop) == font_multiline_b::MULTILINE);
 		else if (std::holds_alternative<font_multiline_props>(prop))		m_stored_draw_props._multiline_props = std::get<font_multiline_props>(prop);
+		else if (std::holds_alternative<font_position>(prop))		m_stored_draw_props._pos = std::get<font_position>(prop);
 	}
 
 	void Font::set_draw_properties(std::vector<font_prop> props)
@@ -326,13 +327,7 @@ namespace AllegroCPP {
 		return m_font ? al_get_glyph_advance(m_font, codepoint, codepoint2) : 0;
 	}
 
-	bool Font::draw(float target_x, float target_y, const UTFstring& str)
-	{
-		m_stored_draw_props._string = str;
-		return draw(target_x, target_y);
-	}
-
-	bool Font::draw(float target_x, float target_y)
+	bool Font::draw() const
 	{
 		if (!m_font) return false;
 
@@ -342,33 +337,48 @@ namespace AllegroCPP {
 		if (_str == nullptr) return false;
 
 		if (m_stored_draw_props._multiline) {
-			const float max_width = 
-				m_stored_draw_props._multiline_props.max_width < 0.0f ? 
-					std::numeric_limits<float>::max() :
-					m_stored_draw_props._multiline_props.max_width;
+			const float max_width =
+				m_stored_draw_props._multiline_props.max_width < 0.0f ?
+				std::numeric_limits<float>::max() :
+				m_stored_draw_props._multiline_props.max_width;
 
 			const float line_height =
 				m_stored_draw_props._multiline_props.line_height < 0.0f ?
-					static_cast<float>(get_line_height()) * 1.15f :
-					m_stored_draw_props._multiline_props.line_height;
+				static_cast<float>(get_line_height()) * 1.15f :
+				m_stored_draw_props._multiline_props.line_height;
 
 
-			__multiline_font_draw_ustr _ref{ m_font, m_stored_draw_props._color, line_height, target_x, target_y, m_stored_draw_props._align, m_stored_draw_props._justified_props };
+			__multiline_font_draw_ustr _ref{ m_font, m_stored_draw_props._color, line_height, m_stored_draw_props._pos.target_x, m_stored_draw_props._pos.target_y, m_stored_draw_props._align, m_stored_draw_props._justified_props };
 			al_do_multiline_ustr(m_font, max_width, _str, &__do_text_ustr_multiline, &_ref);
 		}
 		else {
-			if (m_stored_draw_props._align == text_alignment::JUSTIFIED) 
+			if (m_stored_draw_props._align == text_alignment::JUSTIFIED)
 			{
 				const auto& sett = m_stored_draw_props._justified_props;
-				al_draw_justified_ustr(m_font, m_stored_draw_props._color, target_x, sett.max_x, target_y, sett.diff, sett.extra_flags, _str);
+				al_draw_justified_ustr(m_font, m_stored_draw_props._color, m_stored_draw_props._pos.target_x, sett.max_x, m_stored_draw_props._pos.target_y, sett.diff, sett.extra_flags, _str);
 			}
 			else
 			{
-				al_draw_ustr(m_font, m_stored_draw_props._color, target_x, target_y, static_cast<int>(m_stored_draw_props._align), _str);
+				al_draw_ustr(m_font, m_stored_draw_props._color, m_stored_draw_props._pos.target_x, m_stored_draw_props._pos.target_y, static_cast<int>(m_stored_draw_props._align), _str);
 			}
 		}
 
 		return true;
+	}
+
+	bool Font::draw(float target_x, float target_y, const UTFstring& str)
+	{
+		m_stored_draw_props._string = str;
+		m_stored_draw_props._pos.target_x = target_x;
+		m_stored_draw_props._pos.target_y = target_y;
+		return draw();
+	}
+
+	bool Font::draw(float target_x, float target_y)
+	{
+		m_stored_draw_props._pos.target_x = target_x;
+		m_stored_draw_props._pos.target_y = target_y;
+		return draw();
 	}
 
 

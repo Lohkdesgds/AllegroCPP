@@ -37,9 +37,12 @@ namespace AllegroCPP {
 		float max_width = -1.0f;
 		float line_height = -1.0f;
 	};
+	struct font_position {
+		float target_x, target_y;
+	};
 	enum class font_multiline_b {NO_MULTILINE, MULTILINE};
 
-	using font_prop = std::variant<ALLEGRO_COLOR, std::string, UTFstring, text_alignment, font_delimiter_justified, font_multiline_b, font_multiline_props>;
+	using font_prop = std::variant<ALLEGRO_COLOR, std::string, UTFstring, text_alignment, font_delimiter_justified, font_multiline_b, font_multiline_props, font_position>;
 
 	class Font {
 		ALLEGRO_FONT* m_font = nullptr;
@@ -50,6 +53,7 @@ namespace AllegroCPP {
 			text_alignment _align = text_alignment::LEFT;
 			font_delimiter_justified _justified_props = {};
 			font_multiline_props _multiline_props = {};
+			font_position _pos = {};
 			bool _multiline = false;
 
 			void reset();
@@ -104,6 +108,7 @@ namespace AllegroCPP {
 		void set_draw_properties(std::vector<font_prop> props);
 		void reset_draw_properties();
 
+		bool draw() const;
 		bool draw(float target_x, float target_y, const UTFstring&);
 		bool draw(float target_x, float target_y);
 

@@ -142,6 +142,11 @@ int main()
 
 	Monitor_info moninfo;
 	Display disp(moninfo.get_width() * 0.8f, moninfo.get_height() * 0.8f, "Funny window", ALLEGRO_DIRECT3D_INTERNAL | ALLEGRO_RESIZABLE, /*display_undefined_position*/ Mouse_cursor::get_pos_x(), Mouse_cursor::get_pos_y(), 0, {display_option{ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST}}, true, false);
+
+	// make it clean
+	disp.clear_to_color();
+	disp.flip();
+
 	Event_queue queue;
 	File_tmp tmp("LunarisTestXXXX.jpg");
 	File fpload(imgtest, "rb");
@@ -154,6 +159,7 @@ int main()
 
 	GIF gif(gif_path);
 	Bitmap bmp(tmp, 1024, 0, ".jpg");
+	std::vector<Bitmap> dynamic_load_drop;
 	Font basicfont;
 	Transform trans;
 	Timer tima(1.0 / 30);
@@ -167,6 +173,9 @@ int main()
 	Audio_stream astream(msktest, 4, 1 << 14);
 	Vertexes vertx;
 	Video vid(video_path);
+	Mouse fancy_mouse;
+
+	Event_drag_and_drop dnd(disp);
 
 	mixer << vid_mixer;
 	mixer << oth_mixer;
@@ -175,11 +184,12 @@ int main()
 
 	astream.set_playing(false);
 	astream.set_playmode(ALLEGRO_PLAYMODE_LOOP);
-	astream.set_gain(0.01f);
+	astream.set_gain(0.05f);
 
 	log << "Preparing stuff..." << std::endl;
 
 	queue << disp;
+	queue << dnd;
 	queue << tima;
 	queue << Event_keyboard();
 	queue << menn;
@@ -215,173 +225,25 @@ int main()
 	vid.start(vid_mixer);
 	vid.set_playing(true);
 
-	vid_mixer.set_gain(0.01f);
+	vid_mixer.set_gain(0.008f);
 
-	vid.set_draw_properties({ bitmap_scale{ 0.5f, 0.5f}, al_map_rgba_f(0.7f,0.7f,0.7f,0.4f) });
-	bmp.set_draw_properties({ bitmap_scale{ disp.get_width() * 0.5f / (bmp.get_width() * zoomin), disp.get_height() * 0.5f / (bmp.get_height() * zoomin) }, al_map_rgba_f(0.7f,0.7f,0.7f,0.7f) });
-	gif.set_draw_properties({ bitmap_scale{ 1.0f, 1.0f}, al_map_rgba_f(0.7f,0.7f,0.7f,0.6f) });
+	vid.set_draw_properties({ 
+		bitmap_scale{ 0.5f, 0.5f},
+		al_map_rgba_f(0.7f,0.7f,0.7f,0.4f)
+	});
+	bmp.set_draw_properties({
+		bitmap_scale{ disp.get_width() * 0.5f / (bmp.get_width() * zoomin), disp.get_height() * 0.5f / (bmp.get_height() * zoomin) },
+		al_map_rgba_f(0.7f,0.7f,0.7f,0.7f)
+	});
+	gif.set_draw_properties({ 
+		bitmap_position_and_flags{ 0, 0, 0 },
+		bitmap_scale{ 1.0f, 1.0f },
+		al_map_rgba_f(0.7f,0.7f,0.7f,0.6f)
+	});
 
 	basicfont.set_draw_property(al_map_rgb(0, 255, 255));
 	basicfont.set_draw_property(font_multiline_b::MULTILINE);
 
-	/*
-	Certainly! To enable drag-and-drop functionality in your **C++ GUI** application, you can follow these steps:
-
-1. **Register the Window for Drag-and-Drop**:
-   - Use the `RegisterDragDrop` function to register your window as a target for OLE drag-and-drop operations³.
-   - Pass the window handle (`HWND`) and an instance of `IDropTarget` (which you'll implement) to this function.
-
-2. **Handle the WM_DROPFILES Message**:
-   - When a file is dropped onto your window, the system sends the `WM_DROPFILES` message to the window.
-   - You need to handle this message in your window procedure (`WndProc`).
-   - Extract the dropped file information from the `HDROP` structure provided in the `wParam` parameter of the message⁴.
-   - Process the file path as needed.
-
-3. **Subclass the Static Control**:
-   - In your `WndProc`, create a static control (e.g., using `CreateWindowEx`) where users can drop files.
-   - Subclass the static control by setting a custom window procedure (`StaticWndProc`) for it.
-   - In the `StaticWndProc`, handle the `WM_DROPFILES` message to receive file paths.
-
-Here's an example snippet to get you started:
-
-```cpp
-#include <windows.h>
-
-LRESULT CALLBACK StaticWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
-{
-    switch (uMsg)
-    {
-        case WM_NCDESTROY:
-            RemoveWindowSubclass(hwnd, &StaticWndProc, uIdSubclass);
-            break;
-
-        case WM_DROPFILES:
-            // Handle the dropped file(s) here
-            MessageBox(hwnd, L"File(s) dragged!", L"Title", MB_OK | MB_ICONINFORMATION);
-            break;
-    }
-    return DefSubclassProc(hwnd, uMsg, wParam, lParam);
-}
-
-LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    switch (uMsg)
-    {
-        case WM_CREATE:
-        {
-            // Create a static control for drag-and-drop
-            HWND hStatic = CreateWindowEx(
-                WS_EX_ACCEPTFILES,
-                L"static",
-                L"Drag and drop your file to this area",
-                WS_VISIBLE | WS_CHILD,
-                20,  // x
-                20,  // y
-                120, // w
-                60,  // h
-                hwnd, // parent window
-                (HMENU)1, // unique label
-                NULL,
-                NULL);
-
-            // Subclass the static control
-            SetWindowSubclass(hStatic, &StaticWndProc, 0, 0);
-            break;
-        }
-
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            break;
-
-        default:
-            return DefWindowProc(hwnd, uMsg, wParam, lParam);
-    }
-    return 0;
-}
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
-{
-    // Register your window class and create the main window
-    // ...
-
-    // Message loop
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0) > 0)
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-    return msg.wParam;
-}
-```
-
-Remember to adapt this code to your specific application and UI framework. Good luck with your drag-and-drop implementation! 🚀
-
-Origem: conversa com o Bing, 06/02/2024
-(1) RegisterDragDrop function (ole2.h) - Win32 apps | Microsoft Learn. https://learn.microsoft.com/en-us/windows/win32/api/ole2/nf-ole2-registerdragdrop.
-(2) WM_DROPFILES message (Winuser.h) - Win32 apps | Microsoft Learn. https://learn.microsoft.com/en-us/windows/win32/shell/wm-dropfiles.
-(3) windows - Drag&drop event (WM_DROPFILES) in C++ GUI - Stack Overflow. https://stackoverflow.com/questions/51204851/dragdrop-event-wm-dropfiles-in-c-gui.
-(4) How do I implement dragging a window using its client area?. https://stackoverflow.com/questions/7773771/how-do-i-implement-dragging-a-window-using-its-client-area.
-	*/
-
-/*	static HWND hwnd = disp.get_window_handler();
-
-	{
-		DragAcceptFiles(hwnd, true);
-
-		DWORD eventMask = SendMessage(hwnd, EM_GETEVENTMASK, 0, 0);
-		eventMask |= ENM_DROPFILES;
-		SendMessage(hwnd, EM_SETEVENTMASK, 0, eventMask);
-
-		SetWindowsHookExW(WH_GETMESSAGE, [](int code, WPARAM wParam, LPARAM lParam) -> LRESULT {
-			printf_s("Event: %d\n", code);
-			if (code != WM_DROPFILES) 
-				return DefWindowProc(hwnd, code, wParam, lParam);
-
-			HDROP hDropInfo = (HDROP)wParam;
-			char sItem[MAX_PATH]{};
-			for (int i = 0; DragQueryFileA(hDropInfo, i, (LPSTR)sItem, sizeof(sItem)); i++)
-			{
-				const auto attr = GetFileAttributesA(sItem);
-				if (attr & FILE_ATTRIBUTE_NORMAL)
-				{
-					printf_s("File: %s\n", sItem);
-				}
-
-			}
-			DragFinish(hDropInfo);
-			return 0;			
-		}, GetModuleHandle(NULL), GetCurrentThreadId());
-	}*/
-
-	//hread thrcpypaste([&] {
-	//
-	//	while (disp.valid()) {
-	//		MSG msg = { };
-	//		while (GetMessage(&msg, hwnd, 0, 0) > 0)
-	//		{
-	//			if (msg.message == WM_DROPFILES) {
-	//				HDROP hDropInfo = (HDROP)msg.wParam;
-	//				char sItem[MAX_PATH]{};
-	//				for (int i = 0; DragQueryFileA(hDropInfo, i, (LPSTR)sItem, sizeof(sItem)); i++)
-	//				{
-	//					const auto attr = GetFileAttributesA(sItem);
-	//					if (attr & FILE_ATTRIBUTE_NORMAL)
-	//					{
-	//						printf_s("File: %s\n", sItem);
-	//					}
-	//
-	//				}
-	//				DragFinish(hDropInfo);
-	//			}
-	//			TranslateMessage(&msg);
-	//			DispatchMessage(&msg);
-	//		}
-	//	}
-	//
-	//	return false;
-	//);
 
 	{
 		const int x = 1 + vid.get_fps();
@@ -446,6 +308,28 @@ Origem: conversa com o Bing, 06/02/2024
 			case ALLEGRO_EVENT_KEY_DOWN:
 				if (ev.get().keyboard.keycode == ALLEGRO_KEY_ESCAPE) runn = false;
 				continue;
+			case 1024: // DRAG AND DROP
+			{
+				Drop_event mev(ev);
+				fancy_mouse.update();
+
+				loggin << "Dropped file: " << mev.c_str() << std::endl;
+
+				const int xx = fancy_mouse.get_axis(Mouse::axis::X_AXIS);
+				const int yy = fancy_mouse.get_axis(Mouse::axis::Y_AXIS);
+
+				Bitmap t_bmp(mev.c_str());
+				if (t_bmp) {
+					t_bmp.set_draw_properties({						
+						bitmap_position_and_flags { static_cast<float>(xx) / 2, static_cast<float>(yy) / 2, 0},
+						bitmap_scale{ 0.08f, 0.08f },
+						bitmap_rotate_transform{ 0.5f * t_bmp.get_width(), 0.5f * t_bmp.get_height(), static_cast<float>(0.2f * cos(al_get_time())) }
+					});
+					dynamic_load_drop.push_back(std::move(t_bmp));
+				}
+
+			}
+				break;
 			//case ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT:
 			//	loggin << "Got slice:\n";
 			//	//{
@@ -468,18 +352,13 @@ Origem: conversa com o Bing, 06/02/2024
 		//}
 
 
-		bmp.draw(
-			disp.get_width() * 0.125f, disp.get_height() * 0.125f
-		);
+		bmp.draw(disp.get_width() * 0.125f, disp.get_height() * 0.125f);
 
-		gif.draw(
-			0, 0
-		);
+		gif.draw();
 
-		vid.draw(
-			0.5f * (disp.get_width() - vid.get_width()), 0.5f * (disp.get_height() - vid.get_height())
-		);
+		vid.draw(0.5f * (disp.get_width() - vid.get_width()), 0.5f * (disp.get_height() - vid.get_height()));
 
+		for (const auto& i : dynamic_load_drop) i.draw();
 
 		{
 			const double __cst = (fabs(al_get_time() - _last) + 1e-100);
@@ -492,13 +371,16 @@ Origem: conversa com o Bing, 06/02/2024
 		}
 
 		const uint64_t music_t = astream.get_played_samples() * 100ULL / static_cast<uint64_t>(astream.get_frequency());
+		
+		fancy_mouse.update();
 
 		basicfont.draw( 0.5f, 0.5f,
 			"Fancy line - AllegroCPP test\n"
 			"FPS: " + std::to_string(static_cast<int>(_fps_cpy)) + "." + std::to_string(static_cast<int>(10000 * _fps_cpy) % 10000) + "\n"
 			"Frametime: " + std::to_string(_smooth_fps * 1e3) + " ms\n"
 			"Elapsed time: " + std::to_string(al_get_time() - _elap_calc) + " s\n"
-			"Music time: " + std::to_string(music_t / 100ULL) + "." + std::to_string(music_t % 100ULL) + " s | Samples: " + std::to_string(astream.get_played_samples())			
+			"Music time: " + std::to_string(music_t / 100ULL) + "." + std::to_string(music_t % 100ULL) + " s | Samples: " + std::to_string(astream.get_played_samples()) + "\n"
+			"Mouse XY: " + std::to_string(fancy_mouse.get_axis(Mouse::axis::X_AXIS)) + ", " + std::to_string(fancy_mouse.get_axis(Mouse::axis::Y_AXIS)) + (fancy_mouse.is_out_of_screen() ? " (out of screen)" : "")
 		);
 
 		vertx.draw();
