@@ -1,4 +1,4 @@
-#include "audio_sample_instance.h"
+#include "../include/audio_sample_instance.h"
 
 #include <stdexcept>
 #include <memory>
