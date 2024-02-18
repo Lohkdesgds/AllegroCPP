@@ -219,90 +219,57 @@ namespace AllegroCPP {
 
 	Text_log& Text_log::operator<<(short val)
 	{
-		std::stringstream ss(val);
-		const auto str = ss.str();
-		this->write(str.data(), str.size());
-		return *this;
+		return *this << std::to_string(val);
 	}
 
 	Text_log& Text_log::operator<<(unsigned short val)
 	{
-		std::stringstream ss(val);
-		const auto str = ss.str();
-		this->write(str.data(), str.size());
-		return *this;
+		return *this << std::to_string(val);
 	}
 
 	Text_log& Text_log::operator<<(int val)
 	{
-		std::stringstream ss(val);
-		const auto str = ss.str();
-		this->write(str.data(), str.size());
-		return *this;
+		return *this << std::to_string(val);
 	}
 
 	Text_log& Text_log::operator<<(unsigned int val)
 	{
-		std::stringstream ss(val);
-		const auto str = ss.str();
-		this->write(str.data(), str.size());
-		return *this;
+		return *this << std::to_string(val);
 	}
 
 	Text_log& Text_log::operator<<(long val)
 	{
-		std::stringstream ss(val);
-		const auto str = ss.str();
-		this->write(str.data(), str.size());
-		return *this;
+		return *this << std::to_string(val);
 	}
 
 	Text_log& Text_log::operator<<(unsigned long val)
 	{
-		std::stringstream ss(val);
-		const auto str = ss.str();
-		this->write(str.data(), str.size());
-		return *this;
+		return *this << std::to_string(val);
 	}
 
 	Text_log& Text_log::operator<<(long long val)
 	{
-		std::stringstream ss(val);
-		const auto str = ss.str();
-		this->write(str.data(), str.size());
-		return *this;
+		return *this << std::to_string(val);
 	}
 
 	Text_log& Text_log::operator<<(unsigned long long val)
 	{
-		std::stringstream ss(val);
-		const auto str = ss.str();
-		this->write(str.data(), str.size());
-		return *this;
+		return *this << std::to_string(val);
 	}
 
 	Text_log& Text_log::operator<<(float val)
 	{
-		std::stringstream ss(val);
-		const auto str = ss.str();
-		this->write(str.data(), str.size());
-		return *this;
+		return *this << std::to_string(val);
 	}
 
 	Text_log& Text_log::operator<<(double val)
 	{
-		std::stringstream ss(val);
-		const auto str = ss.str();
-		this->write(str.data(), str.size());
-		return *this;
+		return *this << std::to_string(val);
 	}
 
 	Text_log& Text_log::operator<<(long double val)
 	{
-		std::stringstream ss(val);
-		const auto str = ss.str();
-		this->write(str.data(), str.size());
-		return *this;
+		return *this << std::to_string(val);
 	}
 
 	Text_log& Text_log::operator<<(std::streambuf* sb)
