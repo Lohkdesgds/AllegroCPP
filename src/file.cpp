@@ -235,8 +235,7 @@ namespace AllegroCPP {
 	File& File::operator<<(short val)
 	{
 		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
-		std::stringstream ss(val);
-		const auto str = ss.str();
+		const auto str = std::to_string(val);
 		this->write(str.data(), str.size());
 		return *this;
 	}
@@ -244,8 +243,7 @@ namespace AllegroCPP {
 	File& File::operator<<(unsigned short val)
 	{
 		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
-		std::stringstream ss(val);
-		const auto str = ss.str();
+		const auto str = std::to_string(val);
 		this->write(str.data(), str.size());
 		return *this;
 	}
@@ -253,8 +251,7 @@ namespace AllegroCPP {
 	File& File::operator<<(int val)
 	{
 		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
-		std::stringstream ss(val);
-		const auto str = ss.str();
+		const auto str = std::to_string(val);
 		this->write(str.data(), str.size());
 		return *this;
 	}
@@ -262,8 +259,7 @@ namespace AllegroCPP {
 	File& File::operator<<(unsigned int val)
 	{
 		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
-		std::stringstream ss(val);
-		const auto str = ss.str();
+		const auto str = std::to_string(val);
 		this->write(str.data(), str.size());
 		return *this;
 	}
@@ -271,8 +267,7 @@ namespace AllegroCPP {
 	File& File::operator<<(long val)
 	{
 		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
-		std::stringstream ss(val);
-		const auto str = ss.str();
+		const auto str = std::to_string(val);
 		this->write(str.data(), str.size());
 		return *this;
 	}
@@ -280,8 +275,7 @@ namespace AllegroCPP {
 	File& File::operator<<(unsigned long val)
 	{
 		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
-		std::stringstream ss(val);
-		const auto str = ss.str();
+		const auto str = std::to_string(val);
 		this->write(str.data(), str.size());
 		return *this;
 	}
@@ -289,8 +283,7 @@ namespace AllegroCPP {
 	File& File::operator<<(long long val)
 	{
 		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
-		std::stringstream ss(val);
-		const auto str = ss.str();
+		const auto str = std::to_string(val);
 		this->write(str.data(), str.size());
 		return *this;
 	}
@@ -298,8 +291,7 @@ namespace AllegroCPP {
 	File& File::operator<<(unsigned long long val)
 	{
 		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
-		std::stringstream ss(val);
-		const auto str = ss.str();
+		const auto str = std::to_string(val);
 		this->write(str.data(), str.size());
 		return *this;
 	}
@@ -307,8 +299,7 @@ namespace AllegroCPP {
 	File& File::operator<<(float val)
 	{
 		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
-		std::stringstream ss(val);
-		const auto str = ss.str();
+		const auto str = std::to_string(val);
 		this->write(str.data(), str.size());
 		return *this;
 	}
@@ -316,8 +307,7 @@ namespace AllegroCPP {
 	File& File::operator<<(double val)
 	{
 		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
-		std::stringstream ss(val);
-		const auto str = ss.str();
+		const auto str = std::to_string(val);
 		this->write(str.data(), str.size());
 		return *this;
 	}
@@ -325,8 +315,7 @@ namespace AllegroCPP {
 	File& File::operator<<(long double val)
 	{
 		if (!m_fp) throw std::runtime_error("Can't write on null/empty file!");
-		std::stringstream ss(val);
-		const auto str = ss.str();
+		const auto str = std::to_string(val);
 		this->write(str.data(), str.size());
 		return *this;
 	}
@@ -653,6 +642,33 @@ namespace AllegroCPP {
 
 	namespace _socketmap {
 
+		non_implemented::non_implemented(const char* s) : m_msg(s)
+		{}
+		non_implemented::non_implemented(const std::string& s) : m_msg(s)
+		{}
+
+		const char* non_implemented::what() const 
+		{
+			return m_msg.c_str();
+		}
+
+		socket_user_data::_eachsock::_eachsock(SocketType a, SocketAddrInfo b, socket_type c)
+			: sock(a), info(b), type(c)
+		{
+		}
+
+		bool socket_user_data::has_host() const
+		{
+			for (const auto& i : m_socks) { if (i.type == socket_type::TCP_HOST || i.type == socket_type::UDP_HOST) return true; }
+			return false;
+		}
+
+		void socket_user_data::close_auto()
+		{
+			for (auto& i : m_socks) { if (i.type != socket_type::UDP_HOST_CLIENT) closeSocket(i.sock); }
+			m_socks.clear();
+		}
+
 		void* sock_open(const char* nadd, const char* plen)
 		{
 			const socket_config* __conf = (socket_config*)nadd;
@@ -667,6 +683,8 @@ namespace AllegroCPP {
 			if (!sud) { throw std::bad_alloc(); }
 
 			sud->badflag = 0;
+			sud->original_addr = theconf.addr;
+			sud->original_port = theconf.port;
 			socket_type type = theconf.host ? (theconf.protocol == SOCK_STREAM ? socket_type::TCP_HOST : socket_type::UDP_HOST) : (theconf.protocol == SOCK_STREAM ? socket_type::TCP_CLIENT : socket_type::UDP_CLIENT);
 
 			SocketAddrInfo* AddrInfo = nullptr;
@@ -868,16 +886,19 @@ namespace AllegroCPP {
 
 		bool sock_flush(ALLEGRO_FILE* fp)
 		{
+			throw non_implemented("Flush was not implemented for Sockets.");
 			return false; // invalid operation
 		}
 
 		int64_t sock_tell(ALLEGRO_FILE* fp)
 		{
+			throw non_implemented("Tell was not implemented for Sockets.");
 			return 0; // invalid operation
 		}
 
 		bool sock_seek(ALLEGRO_FILE* fp, int64_t offset, int whence)
 		{
+			throw non_implemented("Seek was not implemented for Sockets.");
 			return false; // invalid operation
 		}
 
@@ -890,7 +911,7 @@ namespace AllegroCPP {
 		int sock_error(ALLEGRO_FILE* fp)
 		{
 			socket_user_data* sud = (socket_user_data*)al_get_file_userdata(fp);
-			return (!sud || sud->badflag != 0);
+			return sud ? sud->badflag : 1;
 		}
 
 		const char* sock_errmsg(ALLEGRO_FILE* fp)
@@ -917,6 +938,7 @@ namespace AllegroCPP {
 
 		int sock_ungetc(ALLEGRO_FILE* fp, int c)
 		{
+			throw non_implemented("Ungetc was not implemented for Sockets.");
 			return 0; // invalid operation
 		}
 
@@ -980,23 +1002,6 @@ namespace AllegroCPP {
 #endif
 		}
 
-		socket_user_data::_eachsock::_eachsock(SocketType a, SocketAddrInfo b, socket_type c)
-			: sock(a), info(b), type(c)
-		{
-		}
-
-		bool socket_user_data::has_host() const
-		{
-			for (const auto& i : m_socks) { if (i.type == socket_type::TCP_HOST || i.type == socket_type::UDP_HOST) return true; }
-			return false;
-		}
-
-		void socket_user_data::close_auto()
-		{
-			for (auto& i : m_socks) { if (i.type != socket_type::UDP_HOST_CLIENT) closeSocket(i.sock); }
-			m_socks.clear();
-		}
-
 #ifdef _WIN32 
 		_FileSocket::_winsock_start _FileSocket::__winsock;
 
@@ -1049,12 +1054,22 @@ namespace AllegroCPP {
 
 		bool _FileSocket::valid() const
 		{
-			return !empty() && !has_error();
+			return !has_error();
+		}
+
+		const std::string& _FileSocket::get_filepath() const
+		{
+			if (!m_fp) {
+				static std::string empty;
+				return empty;
+			}
+			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp->get());
+			return sod->original_addr;
 		}
 
 		_FileSocket::operator bool() const
 		{
-			return !empty() && !has_error();
+			return !has_error();
 		}
 		
 		std::string _FileSocket::gets(const size_t max)
@@ -1086,7 +1101,6 @@ namespace AllegroCPP {
 			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp->get());
 			if (!sod || sod->badflag || sod->has_host()) return {};
 			auto& curr = sod->m_socks[0];
-			int res = 0;
 			switch (curr.type) {
 			case socket_type::TCP_CLIENT:
 				return this->File::gets(buf, max);
@@ -1099,6 +1113,28 @@ namespace AllegroCPP {
 			default:
 				return {};
 			}
+		}
+
+		std::shared_ptr<ALLEGRO_USTR> _FileSocket::get_ustr()
+		{
+			// std::shared_ptr<ALLEGRO_USTR>(al_fget_ustr(m_fp->get()), [](ALLEGRO_USTR* u) { al_ustr_free(u); });
+
+			if (!m_fp) return {};
+			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp->get());
+			if (!sod || sod->badflag || sod->has_host()) return {};
+			auto& curr = sod->m_socks[0];
+			// hopefully packet is 128 * N (reads of 128)
+			return this->File::get_ustr();
+
+			//switch (curr.type) {
+			//case socket_type::TCP_CLIENT:
+			//	return this->File::get_ustr();
+			//case socket_type::UDP_CLIENT:
+			//case socket_type::UDP_HOST_CLIENT:
+			//	throw std::runtime_error("Operation not available for UDP. Sorry.");
+			//default:
+			//	return {};
+			//}
 		}
 
 		bool _FileSocket::puts(char const* str)

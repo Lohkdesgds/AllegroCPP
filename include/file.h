@@ -96,83 +96,84 @@ namespace AllegroCPP {
 		File(File& fp, size_t slice_initial_size, const std::string& mode);
 		virtual ~File();
 
-		bool empty() const;
-		bool valid() const;
-		operator bool() const;
-		operator ALLEGRO_FILE* ();
-		operator File_shareable_ptr() const;
+		virtual bool empty() const;
+		virtual bool valid() const;
+		virtual operator bool() const;
+		virtual operator ALLEGRO_FILE* ();
+		virtual operator File_shareable_ptr() const;
 
 		File(const File&) = delete;
 		File(File&&) noexcept;
 		void operator=(const File&) = delete;
-		void operator=(File&&) noexcept;
+		virtual void operator=(File&&) noexcept;
 
-		size_t read(void*, const size_t);
-		size_t write(const void*, const size_t);
-		bool flush();
-		int64_t tell() const;
-		bool seek(const int64_t offset, const int whence);
-		bool eof() const;
-		bool has_error() const;
-		file_error_report get_error() const;
-		int ungetc(const int);
-		int64_t size() const;
-		int getc();
-		int putc(const int);
-		int printformat(const char* format, ...);
-		int vprintformat(const char* format, va_list args);
+		virtual size_t read(void*, const size_t);
+		virtual size_t write(const void*, const size_t);
+		virtual bool flush();
+		virtual int64_t tell() const;
+		virtual bool seek(const int64_t offset, const int whence);
+		virtual bool eof() const;
+		virtual bool has_error() const;
+		virtual file_error_report get_error() const;
+		virtual int ungetc(const int);
+		virtual int64_t size() const;
+		virtual int getc();
+		virtual int putc(const int);
+		virtual int printformat(const char* format, ...);
+		virtual int vprintformat(const char* format, va_list args);
 
-		int16_t read16le();
-		int16_t read16be();
-		size_t write16le(int16_t);
-		size_t write16be(int16_t);
-		int32_t read32le();
-		int32_t read32be();
-		size_t write32le(int32_t);
-		size_t write32be(int32_t);
+		virtual int16_t read16le();
+		virtual int16_t read16be();
+		virtual size_t write16le(int16_t);
+		virtual size_t write16be(int16_t);
+		virtual int32_t read32le();
+		virtual int32_t read32be();
+		virtual size_t write32le(int32_t);
+		virtual size_t write32be(int32_t);
 
-		File& operator<<(const char* val);
-		File& operator<<(const std::string& val);
-		File& operator<<(const std::vector<char>& val);
-		File& operator<<(bool val);
-		File& operator<<(short val);
-		File& operator<<(unsigned short val);
-		File& operator<<(int val);
-		File& operator<<(unsigned int val);
-		File& operator<<(long val);
-		File& operator<<(unsigned long val);
-		File& operator<<(long long val);
-		File& operator<<(unsigned long long val);
-		File& operator<<(float val);
-		File& operator<<(double val);
-		File& operator<<(long double val);
-		File& operator<<(std::streambuf* sb);
-		File& operator<<(std::ostream& (*pf)(std::ostream&));
-		File& operator<<(std::ios& (*pf)(std::ios&));
-		File& operator<<(std::ios_base& (*pf)(std::ios_base&));
+		virtual File& operator<<(const char* val);
+		virtual File& operator<<(const std::string& val);
+		virtual File& operator<<(const std::vector<char>& val);
+		virtual File& operator<<(bool val);
+		virtual File& operator<<(short val);
+		virtual File& operator<<(unsigned short val);
+		virtual File& operator<<(int val);
+		virtual File& operator<<(unsigned int val);
+		virtual File& operator<<(long val);
+		virtual File& operator<<(unsigned long val);
+		virtual File& operator<<(long long val);
+		virtual File& operator<<(unsigned long long val);
+		virtual File& operator<<(float val);
+		virtual File& operator<<(double val);
+		virtual File& operator<<(long double val);
+		virtual File& operator<<(std::streambuf* sb);
+		virtual File& operator<<(std::ostream& (*pf)(std::ostream&));
+		virtual File& operator<<(std::ios& (*pf)(std::ios&));
+		virtual File& operator<<(std::ios_base& (*pf)(std::ios_base&));
 
-		File& operator>>(std::string& val);
-		File& operator>>(std::vector<char>& val);
-		File& operator>>(bool& val);
-		File& operator>>(short& val);
-		File& operator>>(unsigned short& val);
-		File& operator>>(int& val);
-		File& operator>>(unsigned int& val);
-		File& operator>>(long& val);
-		File& operator>>(unsigned long& val);
-		File& operator>>(long long& val);
-		File& operator>>(unsigned long long& val);
-		File& operator>>(float& val);
-		File& operator>>(double& val);
-		File& operator>>(long double& val);
+		virtual File& operator>>(std::string& val);
+		virtual File& operator>>(std::vector<char>& val);
+		virtual File& operator>>(bool& val);
+		virtual File& operator>>(short& val);
+		virtual File& operator>>(unsigned short& val);
+		virtual File& operator>>(int& val);
+		virtual File& operator>>(unsigned int& val);
+		virtual File& operator>>(long& val);
+		virtual File& operator>>(unsigned long& val);
+		virtual File& operator>>(long long& val);
+		virtual File& operator>>(unsigned long long& val);
+		virtual File& operator>>(float& val);
+		virtual File& operator>>(double& val);
+		virtual File& operator>>(long double& val);
 
 		virtual std::string gets(const size_t);
 		virtual char* gets(char* const buf, const size_t max);
-		std::shared_ptr<ALLEGRO_USTR> get_ustr(); // autofree
+		// https://github.com/liballeg/allegro5/blob/edcc50e85036e95474a31a7c75089b6b7653a4e5/src/file.c#L457
+		virtual std::shared_ptr<ALLEGRO_USTR> get_ustr(); // autofree
 		virtual bool puts(char const* str);
 		virtual bool puts(const std::string&);
 
-		const std::string& get_filepath() const;
+		virtual const std::string& get_filepath() const;
 
 		// Reset internal ALLEGRO_FILE*. Valid only if not a memory file (else throw)
 		//ALLEGRO_FILE* drop();
@@ -207,6 +208,15 @@ namespace AllegroCPP {
 #ifndef ALLEGROCPP_DISABLE_FILESOCKET
 	namespace _socketmap {
 
+		class non_implemented : public std::exception {
+			std::string m_msg;
+		public:
+			non_implemented(const char*);
+			non_implemented(const std::string&);
+			
+			virtual const char* what() const;
+		};
+
 		enum class socket_errors : int32_t {
 			SOCKET_INVALID				= 1 << 0,
 			RECV_FAILED					= 1 << 1,
@@ -235,6 +245,8 @@ namespace AllegroCPP {
 			};
 			std::vector<_eachsock> m_socks; // SocketAddrInfo for UDP has last recv all the time.
 			int32_t badflag = 0;
+			std::string original_addr;
+			uint16_t original_port;
 			bool has_host() const;
 			void close_auto();
 		};
@@ -291,7 +303,7 @@ namespace AllegroCPP {
 		   sock_size
 		};
 
-		class _FileSocket : protected File {
+		class _FileSocket : public File {
 #ifdef _WIN32 
 			struct _winsock_start { WSADATA wsaData = WSADATA(); _winsock_start(); ~_winsock_start(); };
 			static _winsock_start __winsock;
@@ -311,6 +323,8 @@ namespace AllegroCPP {
 			bool valid() const;
 			operator bool() const;
 
+			const std::string& get_filepath() const;
+
 			using File::operator=;
 
 			using File::operator ALLEGRO_FILE*;
@@ -324,12 +338,21 @@ namespace AllegroCPP {
 			using File::putc;
 			using File::printformat;
 			using File::vprintformat;
+			using File::read16le;
+			using File::read16be;
+			using File::write16le;
+			using File::write16be;
+			using File::read32le;
+			using File::read32be;
+			using File::write32le;
+			using File::write32be;
 
 			using File::operator<<;
 			using File::operator>>;
 
 			std::string gets(const size_t);
 			char* gets(char* const buf, const size_t max);
+			std::shared_ptr<ALLEGRO_USTR> get_ustr();
 
 			bool puts(char const* str);
 			bool puts(const std::string&);
