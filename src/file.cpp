@@ -570,6 +570,12 @@ namespace AllegroCPP {
 		return m_curr_path;
 	}
 
+	File File::clone_for_read() const
+	{
+		const auto& path = get_filepath();
+		return File(path, "rb");
+	}
+
 	//ALLEGRO_FILE* File::drop()
 	//{
 	//	ALLEGRO_FILE* nf = m_fp;
@@ -1317,5 +1323,76 @@ namespace AllegroCPP {
 		return File_client(nsud.ptr);
 	}
 
+#ifdef _WIN32
+	File_memory file_load_resource_name_in_memory(int defined_name, const char* type_name)
+	{
+		HRSRC myResource = ::FindResourceA(NULL, MAKEINTRESOURCEA(defined_name), type_name);
+		if (!myResource) throw std::runtime_error("Cannot find resource!");
+
+		DWORD myResourceSize = ::SizeofResource(NULL, myResource); // bytes
+		HGLOBAL myResourceData = ::LoadResource(NULL, myResource);
+		if (!myResourceData) throw std::runtime_error("Resource is empty?!");
+
+		char* pMyBinaryData = (char*) ::LockResource(myResourceData);
+
+		File_memory ofp(myResourceSize);
+		if (!ofp) {
+			UnlockResource(myResourceData);
+			throw std::runtime_error("Cannot alloc memory for resource load!");
+		}
+
+		ofp.write(pMyBinaryData, myResourceSize);
+
+		UnlockResource(myResourceData);
+
+		ofp.seek(0, ALLEGRO_SEEK_SET);
+		return ofp;
+	}
+
+	File_tmp file_load_resource_name_to_temp_file(int defined_name, const char* type_name)
+	{
+		File_tmp ofp;
+		if (!ofp) return ofp;
+
+		HRSRC myResource = ::FindResourceA(NULL, MAKEINTRESOURCEA(defined_name), type_name);
+		if (!myResource) throw std::runtime_error("Cannot find resource!");
+
+		DWORD myResourceSize = ::SizeofResource(NULL, myResource); // bytes
+		HGLOBAL myResourceData = ::LoadResource(NULL, myResource);
+		if (!myResourceData) throw std::runtime_error("Resource is empty?!");
+
+		char* pMyBinaryData = (char*) ::LockResource(myResourceData);
+
+		ofp.write(pMyBinaryData, myResourceSize);
+
+		UnlockResource(myResourceData);
+
+		ofp.seek(0, ALLEGRO_SEEK_SET);
+		return ofp;
+	}
+
+	File file_load_resource_name_to_file(const char* file_name, int defined_name, const char* type_name)
+	{
+		File ofp(file_name);
+		if (!ofp) return ofp;
+
+		HRSRC myResource = ::FindResourceA(NULL, MAKEINTRESOURCEA(defined_name), type_name);
+		if (!myResource) throw std::runtime_error("Cannot find resource!");
+
+		DWORD myResourceSize = ::SizeofResource(NULL, myResource); // bytes
+		HGLOBAL myResourceData = ::LoadResource(NULL, myResource);
+		if (!myResourceData) throw std::runtime_error("Resource is empty?!");
+
+		char* pMyBinaryData = (char*) ::LockResource(myResourceData);
+
+		ofp.write(pMyBinaryData, myResourceSize);
+
+		UnlockResource(myResourceData);
+
+		ofp.seek(0, ALLEGRO_SEEK_SET);
+		return ofp;
+	}
+
+#endif
 
 }

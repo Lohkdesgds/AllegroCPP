@@ -11,6 +11,7 @@ namespace AllegroCPP {
 		std::shared_ptr<ALLEGRO_USTR> m_string;
 	public:
 		UTFstring();
+		UTFstring(const char*);
 		UTFstring(const std::string&);
 		UTFstring(const uint16_t* const);
 		UTFstring(const UTFstring&);

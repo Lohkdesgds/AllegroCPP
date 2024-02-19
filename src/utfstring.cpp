@@ -8,6 +8,12 @@ namespace AllegroCPP {
 		m_string = std::shared_ptr<ALLEGRO_USTR>(al_ustr_new(""), [](ALLEGRO_USTR* s) {al_ustr_free(s); });
 	}
 
+	UTFstring::UTFstring(const char* str)
+	{
+		if (!al_is_system_installed()) al_init();
+		m_string = std::shared_ptr<ALLEGRO_USTR>(al_ustr_new_from_buffer(str, strlen(str)), [](ALLEGRO_USTR* s) {al_ustr_free(s); });
+	}
+
 	UTFstring::UTFstring(const std::string& str)
 	{
 		if (!al_is_system_installed()) al_init();

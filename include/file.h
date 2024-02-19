@@ -177,6 +177,8 @@ namespace AllegroCPP {
 
 		// Reset internal ALLEGRO_FILE*. Valid only if not a memory file (else throw)
 		//ALLEGRO_FILE* drop();
+
+		File clone_for_read() const;
 	};
 
 	class File_tmp : public File {
@@ -401,4 +403,10 @@ namespace AllegroCPP {
 	};
 
 #endif // ALLEGROCPP_DISABLE_FILESOCKET
+
+#ifdef _WIN32
+	File_memory file_load_resource_name_in_memory(int defined_name, const char* type_name);
+	File_tmp file_load_resource_name_to_temp_file(int defined_name, const char* type_name);
+	File file_load_resource_name_to_file(const char* file_name, int defined_name, const char* type_name);
+#endif
 }

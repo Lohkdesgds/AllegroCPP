@@ -83,8 +83,8 @@ namespace AllegroCPP {
 		const std::string& fpnam = ttffile.get_filepath();
 		if (fpnam.empty()) throw std::invalid_argument("File has no path!");
 
-		// file.drop = drops handle
-		if (!(m_font = al_load_ttf_font_f(((File_shareable_ptr&)ttffile)->release(), fpnam.c_str(), resolution, flags))) {
+		File_shareable_ptr drop = ttffile;
+		if (!(m_font = al_load_ttf_font_f(drop->release(), fpnam.c_str(), resolution, flags))) {
 			throw std::runtime_error("Cannot load ttf font file");
 		}
 	}
@@ -99,8 +99,8 @@ namespace AllegroCPP {
 		const std::string& fpnam = ttffile.get_filepath();
 		if (fpnam.empty()) throw std::invalid_argument("File has no path!");
 
-		// file.drop = drops handle
-		if (!(m_font = al_load_ttf_font_stretch_f(((File_shareable_ptr&)ttffile)->release(), fpnam.c_str(), resolution_x, resolution_y, flags))) {
+		File_shareable_ptr drop = ttffile;
+		if (!(m_font = al_load_ttf_font_stretch_f(drop->release(), fpnam.c_str(), resolution_x, resolution_y, flags))) {
 			throw std::runtime_error("Cannot load ttf font file");
 		}
 	}
