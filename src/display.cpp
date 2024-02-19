@@ -444,6 +444,78 @@ namespace AllegroCPP {
 	{
 		return m_disp.get() ? al_get_win_window_handle(m_disp.get()) : nullptr;
 	}
+
+	/* source of functions here (adapted): https://stackoverflow.com/questions/45971548/setlayeredwindowattributes-not-working-on-windows-8-c */
+
+	//void display_error(DWORD error)
+	//{
+	//	char buf[100];
+	//	wsprintfA(buf, "Error %u!", error);
+	//	MessageBoxA(NULL, buf, 0, 0); // Ideally you would pass a window handle here but I don't know if your handle is actually valid
+	//}
+
+	bool window_fix_transparent_color(HWND window_handle, bool enable)
+	{
+		DWORD error;
+
+		// get the window flags to see if RGB color transparency is supported.
+		SetLastError(0);
+		LONG_PTR ExStyle = GetWindowLongPtr(window_handle, GWL_EXSTYLE);
+		if (ExStyle == 0)
+		{
+			error = GetLastError();
+			if (error != 0) return false;
+		}
+
+		if ((ExStyle & WS_EX_LAYERED) == 0)
+		{
+			if (!enable) return true;
+
+			// set the window flags to support RGB color transparency.
+			SetLastError(0);
+			if (!SetWindowLongPtr(window_handle, GWL_EXSTYLE, ExStyle | WS_EX_LAYERED))
+			{
+				error = GetLastError();
+				if (error != 0) return false;
+			}
+		}
+		else {
+			if (enable) return true;
+
+			// unset the window flags to support RGB color transparency.
+			SetLastError(0);
+			if (!SetWindowLongPtr(window_handle, GWL_EXSTYLE, ExStyle & (~WS_EX_LAYERED)))
+			{
+				error = GetLastError();
+				if (error != 0) return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool window_set_transparent_color(HWND window_handle, BYTE red, BYTE green, BYTE blue)
+	{
+		// sets the RGB color to be transparent for the specified window.
+		return SetLayeredWindowAttributes(window_handle, RGB(red, green, blue), 255, LWA_COLORKEY);
+	}
+
+
+
+	bool Display::make_window_masked(ALLEGRO_COLOR mask)
+	{
+		auto hwnd = get_window_handler();
+
+		return window_fix_transparent_color(hwnd, true) &&
+			window_set_transparent_color(hwnd, static_cast<BYTE>(mask.r * 255.0f), static_cast<BYTE>(mask.g * 255.0f), static_cast<BYTE>(mask.b * 255.0f));
+	}
+
+	bool Display::unmake_window_masked()
+	{
+		auto hwnd = get_window_handler();
+
+		return window_fix_transparent_color(hwnd, false);
+	}
 #endif
 
 }

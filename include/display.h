@@ -121,6 +121,9 @@ namespace AllegroCPP {
 #ifdef _WIN32
 		bool set_icon_from_resource(const int id);
 		HWND get_window_handler();
+
+		bool make_window_masked(ALLEGRO_COLOR);
+		bool unmake_window_masked();
 #endif
 	};
 }
