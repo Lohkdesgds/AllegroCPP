@@ -1349,9 +1349,9 @@ namespace AllegroCPP {
 		return ofp;
 	}
 
-	File_tmp file_load_resource_name_to_temp_file(int defined_name, const char* type_name)
+	File_tmp file_load_resource_name_to_temp_file(int defined_name, const char* type_name, const std::string& file_extension_including_dot)
 	{
-		File_tmp ofp;
+		File_tmp ofp("XXXXXXXXX" + file_extension_including_dot);
 		if (!ofp) return ofp;
 
 		HRSRC myResource = ::FindResourceA(NULL, MAKEINTRESOURCEA(defined_name), type_name);
@@ -1364,6 +1364,7 @@ namespace AllegroCPP {
 		char* pMyBinaryData = (char*) ::LockResource(myResourceData);
 
 		ofp.write(pMyBinaryData, myResourceSize);
+		ofp.flush();
 
 		UnlockResource(myResourceData);
 
@@ -1386,6 +1387,7 @@ namespace AllegroCPP {
 		char* pMyBinaryData = (char*) ::LockResource(myResourceData);
 
 		ofp.write(pMyBinaryData, myResourceSize);
+		ofp.flush();
 
 		UnlockResource(myResourceData);
 

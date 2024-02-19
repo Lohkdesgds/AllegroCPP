@@ -406,7 +406,7 @@ namespace AllegroCPP {
 
 #ifdef _WIN32
 	File_memory file_load_resource_name_in_memory(int defined_name, const char* type_name);
-	File_tmp file_load_resource_name_to_temp_file(int defined_name, const char* type_name);
+	File_tmp file_load_resource_name_to_temp_file(int defined_name, const char* type_name, const std::string& file_extension_including_dot = ".tmp");
 	File file_load_resource_name_to_file(const char* file_name, int defined_name, const char* type_name);
 #endif
 }
