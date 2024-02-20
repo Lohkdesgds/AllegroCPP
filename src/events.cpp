@@ -219,7 +219,7 @@ namespace AllegroCPP {
 			const auto attr = GetFileAttributesA(sItem);
 			if (attr & FILE_ATTRIBUTE_NORMAL || attr & FILE_ATTRIBUTE_ARCHIVE)
 			{
-				printf_s("File: %s\n", sItem);
+				//printf_s("File: %s\n", sItem);
 
 				this->emit(std::string(sItem), m_custom_id);
 			}
