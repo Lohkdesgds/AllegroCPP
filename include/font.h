@@ -45,7 +45,8 @@ namespace AllegroCPP {
 	using font_prop = std::variant<ALLEGRO_COLOR, std::string, UTFstring, text_alignment, font_delimiter_justified, font_multiline_b, font_multiline_props, font_position>;
 
 	class Font {
-		ALLEGRO_FONT* m_font = nullptr;
+	public:
+		std::shared_ptr<ALLEGRO_FONT> m_font;
 
 		struct draw_props {
 			UTFstring _string;
@@ -62,10 +63,11 @@ namespace AllegroCPP {
 
 		bool _load_autotype(const std::string& pth, const int res_x, const int res_y, int flg);
 
-		void _clean_fonts(); // include fallback popping
-		std::vector<ALLEGRO_FONT*> _list_fonts(); // from this to next fallback until null (has m_font)
+		//void _clean_fonts(); // include fallback popping
+		//std::vector<ALLEGRO_FONT*> _list_fonts(); // from this to next fallback until null (has m_font)
 
 		Font(ALLEGRO_FONT* eat);
+		Font(std::shared_ptr<ALLEGRO_FONT> dup, draw_props prop);
 	public:
 		Font(const int resolution, const std::string& path, const int flags = 0);
 		Font(const int resolution_x, const int resolution_y, const std::string& ttfpath, const int flags = 0);
@@ -75,50 +77,52 @@ namespace AllegroCPP {
 		Font(const std::string& glyphpath, const std::vector<font_ranges_pair> ranges);
 		Font(const std::string& bmppath, const int flags = 0);
 		Font();
-		~Font();
 
-		bool empty() const;
-		bool valid() const;
-		operator bool() const;
-		operator ALLEGRO_FONT* ();
+		virtual bool empty() const;
+		virtual bool valid() const;
+		virtual operator bool() const;
+		virtual operator ALLEGRO_FONT* ();
 
 		Font(const Font&) = delete;
 		Font(Font&&) noexcept;
 		void operator=(const Font&) = delete;
 		void operator=(Font&&) noexcept;
 
-		bool push_fallback(Font&&);
-		Font pop_fallback();
-		size_t fallback_count();
+		virtual void destroy();
+		virtual Font make_ref() const;
 
-		int get_line_height() const;
-		int get_ascent() const;
-		int get_descent() const;
-		int get_width(const char*);
-		int get_width(const std::string&);
-		int get_width(ALLEGRO_USTR const*);
-		int get_glyph_width(int codepoint);
-		font_text_dimensions get_dimensions(const char*);
-		font_text_dimensions get_dimensions(const std::string&);
-		font_text_dimensions get_dimensions(ALLEGRO_USTR const*);
-		font_text_dimensions get_glyph_dimensions(int codepoint);
-		int get_glypth_advance(int codepoint, int codepoint2 = ALLEGRO_NO_KERNING);
+		virtual bool push_fallback(Font&&);
+		virtual Font pop_fallback();
+		virtual size_t fallback_count() const;
 
-		void set_draw_property(font_prop prop);
-		void set_draw_properties(std::vector<font_prop> props);
-		void reset_draw_properties();
+		virtual int get_line_height() const;
+		virtual int get_ascent() const;
+		virtual int get_descent() const;
+		virtual int get_width(const char*);
+		virtual int get_width(const std::string&);
+		virtual int get_width(ALLEGRO_USTR const*);
+		virtual int get_glyph_width(int codepoint);
+		virtual font_text_dimensions get_dimensions(const char*);
+		virtual font_text_dimensions get_dimensions(const std::string&);
+		virtual font_text_dimensions get_dimensions(ALLEGRO_USTR const*);
+		virtual font_text_dimensions get_glyph_dimensions(int codepoint);
+		virtual int get_glypth_advance(int codepoint, int codepoint2 = ALLEGRO_NO_KERNING);
 
-		bool draw() const;
-		bool draw(float target_x, float target_y, const UTFstring&);
-		bool draw(float target_x, float target_y);
+		virtual void set_draw_property(font_prop prop);
+		virtual void set_draw_properties(std::vector<font_prop> props);
+		virtual void reset_draw_properties();
 
-		bool draw_glyph(float target_x, float target_y, int codepoint, ALLEGRO_COLOR color = al_map_rgb(255, 255, 255));
+		virtual bool draw() const;
+		virtual bool draw(float target_x, float target_y, const UTFstring&);
+		virtual bool draw(float target_x, float target_y);
 
-		std::vector<font_ranges_pair> get_ranges(int max = -1);
+		virtual bool draw_glyph(float target_x, float target_y, int codepoint, ALLEGRO_COLOR color = al_map_rgb(255, 255, 255));
+
+		virtual std::vector<font_ranges_pair> get_ranges(int max = -1);
 	};
 
 	struct __multiline_font_draw_ustr {
-		const ALLEGRO_FONT* font;
+		const std::shared_ptr<ALLEGRO_FONT> font;
 		const ALLEGRO_COLOR& color;
 		const float& line_height;
 		const float& target_x;

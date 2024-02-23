@@ -66,7 +66,7 @@ namespace AllegroCPP {
 		Bitmap(const Bitmap&, const int subcut_x, const int subcut_y, const int subsize_x, const int subsize_y, const int flags = ALLEGRO_VIDEO_BITMAP, const int format = 0);
 		Bitmap(const std::string& path, const int flags = ALLEGRO_VIDEO_BITMAP, const int format = 0);
 		Bitmap(std::shared_ptr<std::unique_ptr<ALLEGRO_FILE, std::function<void(ALLEGRO_FILE*)>>> file, const int flags = ALLEGRO_VIDEO_BITMAP, const int format = 0, const std::string& fileextensionincludingdot = {});
-		~Bitmap();
+		virtual ~Bitmap();
 
 		Bitmap(const Bitmap&); // clone
 		Bitmap(Bitmap&&) noexcept; // move
