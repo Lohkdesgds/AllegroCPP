@@ -576,6 +576,11 @@ namespace AllegroCPP {
 		return File(path, "rb");
 	}
 
+	void File::close()
+	{
+		m_fp.reset();
+	}
+
 	//ALLEGRO_FILE* File::drop()
 	//{
 	//	ALLEGRO_FILE* nf = m_fp;
@@ -648,6 +653,22 @@ namespace AllegroCPP {
 
 	namespace _socketmap {
 
+		static std::string addrInfoToIP(SocketAddrInfo* pai) {
+			if (pai->ai_family == AF_INET) {
+				struct sockaddr_in* psai = (struct sockaddr_in*)pai->ai_addr;
+				char ip[INET_ADDRSTRLEN];
+				if (inet_ntop(pai->ai_family,  &(psai->sin_addr), ip, INET_ADDRSTRLEN) != NULL)
+					return std::string(ip);
+			}
+			else if (pai->ai_family == AF_INET6) {
+				struct sockaddr_in6* psai = (struct sockaddr_in6*)pai->ai_addr;
+				char ip[INET6_ADDRSTRLEN];
+				if (inet_ntop(pai->ai_family, &(psai->sin6_addr), ip, INET6_ADDRSTRLEN) != NULL)
+					return std::string(ip);
+			}
+			return "";
+		};
+
 		non_implemented::non_implemented(const char* s) : m_msg(s)
 		{}
 		non_implemented::non_implemented(const std::string& s) : m_msg(s)
@@ -658,8 +679,8 @@ namespace AllegroCPP {
 			return m_msg.c_str();
 		}
 
-		socket_user_data::_eachsock::_eachsock(SocketType a, SocketAddrInfo b, socket_type c)
-			: sock(a), info(b), type(c)
+		socket_user_data::_eachsock::_eachsock(SocketType a, SocketAddrInfo b, socket_type c, std::string d)
+			: sock(a), info(b), type(c), src_ip(d)
 		{
 		}
 
@@ -740,7 +761,7 @@ namespace AllegroCPP {
 						}
 					}
 
-					sud->m_socks.push_back({ sock, *AI, type });
+					sud->m_socks.push_back({ sock, *AI, type, addrInfoToIP(AI) });
 				}
 				else {
 					if (::connect(sock, AI->ai_addr, (int)AI->ai_addrlen) == SocketError) {
@@ -760,9 +781,10 @@ namespace AllegroCPP {
 					}
 
 					SocketAddrInfo cpy = *AI;
-					freeaddrinfo(AddrInfo);
 
-					sud->m_socks.push_back({ sock, cpy, type });
+					sud->m_socks.push_back({ sock, cpy, type, addrInfoToIP(AI) });
+
+					freeaddrinfo(AddrInfo);
 					return sud;
 				}
 
@@ -806,7 +828,7 @@ namespace AllegroCPP {
 					SocketType accep = ::accept(ittrg->sock, (sockaddr*)&trigginfo, &_temp_len);
 					if (!SocketGood(accep)) { sud->badflag |= static_cast<int32_t>(socket_errors::RECV_FAILED); return 0; }
 
-					oths.ptr->m_socks.push_back({ accep, trigginfo, socket_type::TCP_CLIENT });
+					oths.ptr->m_socks.push_back({ accep, trigginfo, socket_type::TCP_CLIENT, ittrg->src_ip });
 					oths.ptr->badflag = 0;
 					res = sizeof(socket_user_data);
 				}
@@ -824,7 +846,7 @@ namespace AllegroCPP {
 					}
 					else if (res == 0) { return 0; } // empty packet?
 					else { // res > 0 or not SocketBUFFERSMALL (expected if package is > 1 because hackz)
-						oths.ptr->m_socks.push_back({ ittrg->sock, trigginfo, socket_type::UDP_HOST_CLIENT });
+						oths.ptr->m_socks.push_back({ ittrg->sock, trigginfo, socket_type::UDP_HOST_CLIENT, ittrg->src_ip });
 						oths.ptr->badflag = 0;
 						res = sizeof(socket_user_data);
 					}
@@ -1070,7 +1092,18 @@ namespace AllegroCPP {
 				return empty;
 			}
 			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp->get());
-			return sod->original_addr;
+			return sod->original_addr.length() == 0 ? get_ipaddr_of(0) : sod->original_addr;
+		}
+
+		const std::string& _FileSocket::get_ipaddr_of(size_t off) const
+		{
+			static std::string empty;
+			if (!m_fp) {
+				return empty;
+			}
+			_socketmap::socket_user_data* sod = (_socketmap::socket_user_data*)al_get_file_userdata(m_fp->get());
+			if (sod->m_socks.size() <= off) return empty;
+			return sod->m_socks[off].src_ip;
 		}
 
 		_FileSocket::operator bool() const

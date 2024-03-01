@@ -179,6 +179,8 @@ namespace AllegroCPP {
 		//ALLEGRO_FILE* drop();
 
 		File clone_for_read() const;
+
+		void close();
 	};
 
 	class File_tmp : public File {
@@ -243,7 +245,8 @@ namespace AllegroCPP {
 				SocketType sock = SocketInvalid;
 				SocketAddrInfo info{};
 				socket_type type = socket_type::INVALID; // UDP_HOST_CLIENT is the only one that DOES NOT CLOSE SOCKET!
-				_eachsock(SocketType, SocketAddrInfo, socket_type);
+				std::string src_ip;
+				_eachsock(SocketType, SocketAddrInfo, socket_type, std::string);
 			};
 			std::vector<_eachsock> m_socks; // SocketAddrInfo for UDP has last recv all the time.
 			int32_t badflag = 0;
@@ -326,6 +329,7 @@ namespace AllegroCPP {
 			operator bool() const;
 
 			const std::string& get_filepath() const;
+			const std::string& get_ipaddr_of(size_t = 0) const;
 
 			using File::operator=;
 
