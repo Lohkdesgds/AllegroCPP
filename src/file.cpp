@@ -116,7 +116,7 @@ namespace AllegroCPP {
 
 	bool File::eof() const
 	{
-		return m_fp ? (al_feof((ALLEGRO_FILE*)m_fp->get()) || al_ferror((ALLEGRO_FILE*)m_fp->get()) != 0) : true;
+		return m_fp ? al_feof((ALLEGRO_FILE*)m_fp->get()) : true;
 	}
 
 	bool File::has_error() const
@@ -774,11 +774,6 @@ namespace AllegroCPP {
 						setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char*)&enabled, sizeof(enabled));
 					}
 
-					{	// no blocking
-						u_long u = 1;
-						ioctlSocket(sock, FIONBIO, &u);
-					}
-
 					if (AI == nullptr) {
 						sud->badflag |= static_cast<int32_t>(socket_errors::GETADDR_FAILED);
 						freeaddrinfo(AddrInfo);
@@ -833,11 +828,6 @@ namespace AllegroCPP {
 					SocketType accep = ::accept(ittrg->sock, (sockaddr*)&trigginfo, &_temp_len);
 					if (!SocketGood(accep)) { sud->badflag |= static_cast<int32_t>(socket_errors::RECV_FAILED); return 0; }
 
-					{	// no blocking
-						u_long u = 1;
-						ioctlSocket(accep, FIONBIO, &u);
-					}
-
 					oths.ptr->m_socks.push_back({ accep, trigginfo, socket_type::TCP_CLIENT, ittrg->src_ip });
 					oths.ptr->badflag = 0;
 					res = sizeof(socket_user_data);
@@ -856,10 +846,6 @@ namespace AllegroCPP {
 					}
 					else if (res == 0) { return 0; } // empty packet?
 					else { // res > 0 or not SocketBUFFERSMALL (expected if package is > 1 because hackz)
-						{	// no blocking
-							u_long u = 1;
-							ioctlSocket(ittrg->sock, FIONBIO, &u);
-						}
 						oths.ptr->m_socks.push_back({ ittrg->sock, trigginfo, socket_type::UDP_HOST_CLIENT, ittrg->src_ip });
 						oths.ptr->badflag = 0;
 						res = sizeof(socket_user_data);
@@ -875,24 +861,12 @@ namespace AllegroCPP {
 			else {
 				auto& curr = sud->m_socks[0];
 
-				{
-					int err = 0;
-					socklen_t len = sizeof(err);
-					if (getsockopt(curr.sock, SOL_SOCKET, SO_ERROR, (char*)&err, &len) != 0 || err != 0)
-					{
-						sud->badflag |= static_cast<int32_t>(socket_errors::SOCKET_HAD_ERROR);
-						return 0;
-					}
-				}
-
 				switch (curr.type) {
 				case socket_type::TCP_CLIENT:
-				{
 					res = ::recv(curr.sock, (char*)ptr, static_cast<int>(size), 0);
 					if (res < 0) { sud->badflag |= static_cast<int32_t>(socket_errors::RECV_FAILED); }
 					else if (res == 0) { sud->badflag |= static_cast<int32_t>(socket_errors::CLOSED); }
-				}
-				break;
+					break;
 				case socket_type::UDP_CLIENT:
 				case socket_type::UDP_HOST_CLIENT:
 				{
@@ -901,7 +875,7 @@ namespace AllegroCPP {
 					if (res < 0) { sud->badflag |= static_cast<int32_t>(socket_errors::RECV_FAILED); }
 					else if (res == 0) { sud->badflag |= static_cast<int32_t>(socket_errors::CLOSED); }
 				}
-				break;
+					break;
 				default:
 					sud->badflag |= static_cast<int32_t>(socket_errors::SOCKET_INVALID);
 					return 0;
@@ -919,16 +893,6 @@ namespace AllegroCPP {
 			int res = 0;
 
 			auto& curr = sud->m_socks[0];
-
-			{
-				int err = 0;
-				socklen_t len = sizeof(err);
-				if (getsockopt(curr.sock, SOL_SOCKET, SO_ERROR, (char*)&err, &len) != 0 || err != 0)
-				{
-					sud->badflag |= static_cast<int32_t>(socket_errors::SOCKET_HAD_ERROR);
-					return 0;
-				}
-			}
 
 			switch (curr.type) {
 			case socket_type::TCP_CLIENT:
@@ -969,7 +933,7 @@ namespace AllegroCPP {
 		bool sock_eof(ALLEGRO_FILE* fp)
 		{
 			socket_user_data* sud = (socket_user_data*)al_get_file_userdata(fp);
-			return (!sud || sud->m_socks.empty() || sud->badflag > 0);
+			return (!sud || sud->m_socks.empty());
 		}
 
 		int sock_error(ALLEGRO_FILE* fp)

@@ -229,8 +229,7 @@ namespace AllegroCPP {
 			ADDR_CANT_FIND				= 1 << 4,
 			MODE_WAS_INVALID			= 1 << 5,
 			HOST_PTR_RECV_FAIL			= 1 << 6,
-			SOCKET_HAD_ERROR			= 1 << 7,
-			CLOSED						= 1 << 8
+			CLOSED						= 1 << 7
 		};
 		enum class socket_type : uint8_t {
 			INVALID,
