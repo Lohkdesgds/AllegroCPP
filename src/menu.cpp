@@ -1,4 +1,6 @@
-#include "../include/menu.h"
+#include "menu.h"
+
+#include <mutex>
 
 namespace AllegroCPP {
 

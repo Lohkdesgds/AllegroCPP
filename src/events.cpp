@@ -1,4 +1,4 @@
-#include "../include/events.h"
+#include "events.h"
 
 #ifdef _WIN32
 #include <windows.h>

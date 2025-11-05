@@ -1,4 +1,7 @@
-#include "../include/gif.h"
+#include "gif.h"
+
+#include <utility>
+#include <cmath>
 
 namespace AllegroCPP {
     

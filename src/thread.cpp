@@ -1,4 +1,6 @@
-#include "../include/thread.h"
+#include "thread.h"
+
+#include <utility>
 
 namespace AllegroCPP {
 

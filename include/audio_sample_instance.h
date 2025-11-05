@@ -4,7 +4,7 @@
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_audio.h>
 
-#include "../include/audio_sample.h"
+#include "audio_sample.h"
 
 namespace AllegroCPP {
 

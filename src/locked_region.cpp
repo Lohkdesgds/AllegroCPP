@@ -1,4 +1,4 @@
-#include "../include/locked_region.h"
+#include "locked_region.h"
 
 namespace AllegroCPP {
 

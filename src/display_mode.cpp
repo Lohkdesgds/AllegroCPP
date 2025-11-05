@@ -1,4 +1,4 @@
-#include "../include/display_mode.h"
+#include "display_mode.h"
 
 namespace AllegroCPP {
 

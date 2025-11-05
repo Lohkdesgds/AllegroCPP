@@ -1,4 +1,4 @@
-#include "../include/audio_sample.h"
+#include "audio_sample.h"
 
 #include <stdexcept>
 

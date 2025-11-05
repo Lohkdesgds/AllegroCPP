@@ -1,10 +1,13 @@
-#include "../include/display.h"
+#include "display.h"
 
 #ifdef _WIN32
 #include <windows.h>
 #include <Richedit.h>
-#include <unordered_map>
 #endif
+
+#include <unordered_map>
+#include <utility>
+#include <algorithm>
 
 namespace AllegroCPP {
 
@@ -32,16 +35,35 @@ namespace AllegroCPP {
 
 	bool Display::create(const int size_x, const int size_y, const std::string& windowname, const int flags, const int pos_x, const int pos_y, const int refresh_rate, const std::vector<display_option> options, const bool centered_on_pos_x, const bool centered_on_pos_y)
 	{
-		if (!al_is_system_installed()) al_init();
-		if (m_disp) destroy();
+		if (!al_is_system_installed())
+			al_init();
 
-		if (flags >= 0) al_set_new_display_flags(flags);
-		if (pos_x != display_undefined_position[0] && pos_y != display_undefined_position[1]) al_set_new_window_position(centered_on_pos_x ? (pos_x - 0.5f * size_x) : pos_x, centered_on_pos_y ? (pos_y - 0.5f * size_y) : pos_y);
-		if (refresh_rate >= 0) al_set_new_display_refresh_rate(refresh_rate);
-		for (const auto& i : options) al_set_new_display_option(i.option, i.value, i.importance);
-		al_set_new_window_title(windowname.substr(0, ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE).c_str());
+		if (m_disp)
+			destroy();
 
-		return (m_disp = std::shared_ptr<ALLEGRO_DISPLAY>(al_create_display(size_x, size_y),
+		if (flags >= 0) {
+			al_set_new_display_flags(flags);
+		}
+
+		if (pos_x != display_undefined_position[0] && pos_y != display_undefined_position[1]) {
+			al_set_new_window_position(centered_on_pos_x ? (pos_x - 0.5f * size_x) : pos_x, centered_on_pos_y ? (pos_y - 0.5f * size_y) : pos_y);
+		}
+
+		if (refresh_rate > 0) {
+			al_set_new_display_refresh_rate(refresh_rate);
+		}
+
+		for (const auto& i : options) {
+			al_set_new_display_option(i.option, i.value, i.importance);
+		}
+
+		const auto new_windowname = windowname.substr(0, ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE);
+
+		al_set_new_window_title(new_windowname.c_str());
+
+		auto new_display = al_create_display(size_x, size_y);
+
+		return (m_disp = std::shared_ptr<ALLEGRO_DISPLAY>(new_display,
 			[](ALLEGRO_DISPLAY* d) {al_set_display_menu(d, nullptr); al_destroy_display(d); })
 		).get();
 	}
@@ -219,10 +241,11 @@ namespace AllegroCPP {
 		return m_disp ? al_get_display_refresh_rate(m_disp.get()) : -1;
 	}
 
-	bool Display::set_title(const std::string& titl)
+	bool Display::set_title(const std::string& title)
 	{
 		if (!m_disp) return false;
-		al_set_window_title(m_disp.get(), titl.substr(0, ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE).c_str());
+		const auto new_title = title.substr(0, ALLEGRO_NEW_WINDOW_TITLE_MAX_SIZE);
+		al_set_window_title(m_disp.get(), new_title.c_str());
 		return true;
 	}
 
