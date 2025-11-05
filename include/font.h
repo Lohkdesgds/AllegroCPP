@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../include/file.h"
-#include "../include/utfstring.h"
+#include "file.h"
+#include "utfstring.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>

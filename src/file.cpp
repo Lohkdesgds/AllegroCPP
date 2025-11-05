@@ -1,4 +1,6 @@
-#include "../include/file.h"
+#include "file.h"
+
+#include <utility>
 
 namespace AllegroCPP {
 
@@ -674,7 +676,7 @@ namespace AllegroCPP {
 		non_implemented::non_implemented(const std::string& s) : m_msg(s)
 		{}
 
-		const char* non_implemented::what() const 
+		const char* non_implemented::what() const noexcept
 		{
 			return m_msg.c_str();
 		}

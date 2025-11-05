@@ -1,4 +1,6 @@
-#include "../include/native_dialog.h"
+#include "native_dialog.h"
+
+#include <utility>
 
 #ifdef _WIN32
 #define GMTIM(A,B) localtime_s(B,A)
@@ -118,7 +120,7 @@ namespace AllegroCPP {
 #ifdef _WIN32
 			const bool err = asctime_s(_tmp, &tm) != 0;
 #else
-			const bool err = asctime_r(_tmp, &tm) != nullptr;
+			const bool err = asctime_r(&tm, _tmp) != nullptr;
 #endif
 
 			for (size_t p = std::size(_tmp) - 1; p > 0; --p) {

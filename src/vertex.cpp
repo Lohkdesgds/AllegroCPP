@@ -1,4 +1,8 @@
-#include "../include/vertex.h"
+#include "vertex.h"
+
+#include <utility>
+#include <mutex>
+#include <cmath>
 
 namespace AllegroCPP {
 	
@@ -114,7 +118,7 @@ namespace AllegroCPP {
 		{
 			vertex_point cpy = it;
 			latest_transform.transform_coordinates(cpy.x, cpy.y);
-			if (isnan(cpy.x) || isnan(cpy.y)) throw std::runtime_error("Transformation got invalid state!");
+			if (std::isnan(cpy.x) || std::isnan(cpy.y)) throw std::runtime_error("Transformation got invalid state!");
 			++counter;
 			if (npts.size() < counter) {
 				npts.push_back(cpy);

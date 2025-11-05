@@ -1,4 +1,6 @@
-#include "../include/mouse.h"
+#include "mouse.h"
+
+#include <utility>
 
 namespace AllegroCPP {
 

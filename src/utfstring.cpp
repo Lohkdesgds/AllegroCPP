@@ -1,4 +1,6 @@
-#include "../include/utfstring.h"
+#include "utfstring.h"
+
+#include <limits>
 
 namespace AllegroCPP {
 

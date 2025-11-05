@@ -1,4 +1,4 @@
-#include "../include/keyboard.h"
+#include "keyboard.h"
 
 namespace AllegroCPP {
 

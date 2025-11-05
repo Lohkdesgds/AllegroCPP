@@ -1,4 +1,4 @@
-#include "../include/monitor_info.h"
+#include "monitor_info.h"
 
 namespace AllegroCPP {
 

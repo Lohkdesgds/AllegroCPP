@@ -1,4 +1,4 @@
-#include "../include/event_queue.h"
+#include "event_queue.h"
 
 namespace AllegroCPP {
 

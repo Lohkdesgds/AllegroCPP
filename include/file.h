@@ -218,7 +218,7 @@ namespace AllegroCPP {
 			non_implemented(const char*);
 			non_implemented(const std::string&);
 			
-			virtual const char* what() const;
+			const char* what() const noexcept;
 		};
 
 		enum class socket_errors : int32_t {

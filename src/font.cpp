@@ -1,10 +1,12 @@
-#include "../include/font.h"
+#include "font.h"
+
+#include <atomic>
 
 namespace AllegroCPP {
 
 	class _font_recursive_releaseable_deleter {
 	public:
-		_font_recursive_releaseable_deleter() : released_(new std::atomic_bool(false)) {}
+		_font_recursive_releaseable_deleter() : released_(new std::atomic<bool>(false)) {}
 		void release() { *released_ = true; }
 		void operator()(ALLEGRO_FONT* f) { 
 			if (*released_ || !f) return;
@@ -16,7 +18,7 @@ namespace AllegroCPP {
 			for (auto* i : vc) al_destroy_font(i);
 		}
 	private:
-		std::unique_ptr<std::atomic_bool> released_;
+		std::unique_ptr<std::atomic<bool>> released_;
 	};
 
 	static _font_recursive_releaseable_deleter* get_destr(std::shared_ptr<ALLEGRO_FONT>& s) {

@@ -2,16 +2,16 @@
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
-#include <allegro5/allegro_windows.h>
-#include <Windows.h>
 
 #include <vector>
 #include <stdexcept>
 #include <string>
 #include <memory>
+#include <limits>
 
 #ifdef _WIN32
 #include <allegro5/allegro_windows.h>
+#include <Windows.h>
 #endif
 
 #undef max

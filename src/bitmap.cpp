@@ -1,4 +1,4 @@
-#include "../include/bitmap.h"
+#include "bitmap.h"
 
 namespace AllegroCPP {
 
